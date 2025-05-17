@@ -1293,7 +1293,26 @@
         
         // Import Characters
         document.getElementById('importCharsBtn').addEventListener('click', function() {
-            document.getElementById('importCharsFile').click();
+            // Show warning dialog before opening file picker
+            const confirmation = confirm(
+                "⚠️ SECURITY WARNING - Import Characters\n\n" +
+                "DANGER: Only import character files from sources you completely trust!\n\n" +
+                "Risks of importing untrusted files:\n" +
+                "• Malicious code execution in your browser\n" +
+                "• Theft of personal data or API keys\n" +
+                "• Corruption of your saved characters\n" +
+                "• Potential security vulnerabilities\n\n" +
+                "NEVER import files from:\n" +
+                "• Unknown websites or downloads\n" +
+                "• Email attachments from strangers\n" +
+                "• Untrusted online sources\n\n" +
+                "Characters with duplicate IDs will overwrite existing ones.\n\n" +
+                "Are you absolutely sure this file is from a trusted source and safe to import?"
+            );
+            
+            if (confirmation) {
+                document.getElementById('importCharsFile').click();
+            }
         });
         
         document.getElementById('importCharsFile').addEventListener('change', function(e) {
@@ -2163,6 +2182,3 @@
     </script>
 </body>
 </html>
-
-
-
