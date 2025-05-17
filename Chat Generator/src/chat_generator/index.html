@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord-Style Chat Generator</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="setup-panel">
+            <h2>🔒 Privacy Notice</h2>
+            <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4; margin-bottom: 12px;">
+                <strong>Your data stays local:</strong> All characters and API settings are stored only in your browser's local storage. Nothing is sent to external servers except your API requests.
+            </p>
+            <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4;">
+                <strong>API Security:</strong> Only use trusted API endpoints. Your API keys are stored locally and not transmitted anywhere except to your chosen endpoint.
+            </p>
+        </div>
+        
+        <div class="setup-panel">
+            <h2>📖 How to Use</h2>
+            <div style="font-size: 12px; color: #b9bbbe; line-height: 1.4;">
+                <p style="margin-bottom: 8px;"><strong>Demo Mode:</strong> Select "Demo Mode" from the API Provider dropdown to try the generator without needing an API key.</p>
+                <p style="margin-bottom: 8px;"><strong>Quick Start:</strong> 1) Create characters with names and avatars, 2) Select two characters, 3) Enter a conversation topic, 4) Click generate.</p>
+                <p style="margin-bottom: 8px;"><strong>Character Details:</strong> Add personality, background, and texting style for more realistic conversations.</p>
+                <p style="margin-bottom: 8px;"><strong>Advanced Mode:</strong> Customize the AI's behavior with your own system prompt instructions.</p>
+                <p><strong>Need Help?</strong> Ask Claude or another AI assistant for character ideas, topic suggestions, or troubleshooting.</p>
+            </div>
+        </div>
+
+        <div class="setup-panel">
+            <h2>API Setup</h2>
+            <label for="apiKey">API Key</label>
+            <input type="password" id="apiKey" placeholder="Enter your API key">
+            
+            <label for="apiEndpoint">API Provider</label>
+            <select id="apiEndpoint">
+                <option value="test-mode">Demo Mode (No API Key Required)</option>
+                <option value="https://api.openai.com/v1/chat/completions">OpenAI</option>
+                <option value="https://api.x.ai/v1/chat/completions">Grok (xAI)</option>
+                <option value="https://api.anthropic.com/v1/messages">Claude (Anthropic)</option>
+                <option value="custom">Custom Endpoint</option>
+            </select>
+            
+            <div style="margin-top: 8px; margin-bottom: 12px;">
+                <label style="font-size: 11px; color: #72767d; text-transform: none; margin: 0;">Endpoint URL:</label>
+                <div id="endpointDisplay" style="font-size: 12px; color: #b9bbbe; background: #2c2f33; padding: 8px 12px; border-radius: 6px; border: 1px solid #4f545c; word-break: break-all; font-family: 'Courier New', monospace;"></div>
+            </div>
+            
+            <input type="text" id="customEndpoint" placeholder="Enter custom endpoint URL" style="display: none;">
+            
+            <label for="model">Model</label>
+            <select id="model">
+                <option value="">Select a model</option>
+                <optgroup label="OpenAI">
+                    <option value="gpt-4">GPT-4</option>
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-4o-mini">GPT-4o Mini</option>
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                </optgroup>
+                <optgroup label="Grok">
+                    <option value="grok-3" selected>Grok-3</option>
+                    <option value="grok-beta">Grok Beta</option>
+                </optgroup>
+                <optgroup label="Claude">
+                    <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
+                    <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
+                    <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                </optgroup>
+                <optgroup label="Other">
+                    <option value="custom">Custom Model Name</option>
+                </optgroup>
+            </select>
+            <input type="text" id="customModel" placeholder="Enter custom model name" style="display: none; margin-top: 8px;">
+            
+            <button id="saveApiSettings">Save API Settings</button>
+            <div class="success-message" id="apiSuccessMsg">API settings saved successfully!</div>
+        </div>
+        
+        <div class="setup-panel">
+            <h2>Character Management</h2>
+            
+            <div id="characterSelector">
+                <label for="char1Selector">Character 1</label>
+                <select id="char1Selector">
+                    <option value="">Select a character</option>
+                </select>
+                
+                <label for="char2Selector">Character 2</label>
+                <select id="char2Selector">
+                    <option value="">Select a character</option>
+                </select>
+            </div>
+            
+            <div class="char-setup">
+                <h2>Add/Edit Character</h2>
+                
+                <div class="char-row">
+                    <div class="avatar-preview" id="charEditPreview"></div>
+                    <div style="flex: 1;">
+                        <label for="charEditName">Character Name</label>
+                        <input type="text" id="charEditName" placeholder="Character Name">
+                    </div>
+                </div>
+                <input type="file" id="charEditAvatar" accept="image/*">
+                
+                <label for="charEditAge">Age</label>
+                <input type="number" id="charEditAge" placeholder="Age (optional)" min="13" max="100">
+                
+                <label for="charEditPersonality">Personality Traits</label>
+                <textarea id="charEditPersonality" placeholder="Describe their personality, quirks, and communication style..." rows="3"></textarea>
+                
+                <label for="charEditBackground">Background/Occupation</label>
+                <input type="text" id="charEditBackground" placeholder="Job, hobbies, background info...">
+                
+                <label for="charEditRelationship">Relationship to Other Character</label>
+                <select id="charEditRelationship">
+                    <option value="">Select relationship</option>
+                    <option value="friend">Friend</option>
+                    <option value="best-friend">Best Friend</option>
+                    <option value="romantic-partner">Romantic Partner</option>
+                    <option value="spouse">Spouse/Married</option>
+                    <option value="sibling">Sibling</option>
+                    <option value="parent">Parent</option>
+                    <option value="child">Child</option>
+                    <option value="coworker">Coworker</option>
+                    <option value="classmate">Classmate</option>
+                    <option value="roommate">Roommate</option>
+                    <option value="neighbor">Neighbor</option>
+                    <option value="acquaintance">Acquaintance</option>
+                    <option value="stranger">Stranger</option>
+                    <option value="ex">Ex-partner</option>
+                    <option value="other">Other</option>
+                </select>
+                
+                <label for="charEditTextingStyle">Texting Style</label>
+                <select id="charEditTextingStyle">
+                    <option value="">Select texting style</option>
+                    <option value="proper">Proper grammar and punctuation</option>
+                    <option value="casual">Casual, some abbreviations</option>
+                    <option value="shorthand">Lots of abbreviations (u, ur, etc.)</option>
+                    <option value="no-caps">all lowercase, no caps</option>
+                    <option value="emoji-heavy">Uses lots of emojis 😊</option>
+                    <option value="minimal">Very brief responses</option>
+                    <option value="verbose">Long, detailed messages</option>
+                    <option value="typos">Makes typos, auto-correct errors</option>
+                </select>
+                
+                <div class="multi-btn-row">
+                    <button id="saveCharBtn">Save Character</button>
+                    <button id="clearFormBtn">Clear Form</button>
+                </div>
+                <div class="success-message" id="charSuccessMsg">Character saved successfully!</div>
+            </div>
+            
+            <div class="char-setup">
+                <h2>Import/Export Characters</h2>
+                <div class="multi-btn-row">
+                    <button id="exportCharsBtn">Export All Characters</button>
+                    <button id="importCharsBtn">Import Characters</button>
+                </div>
+                <input type="file" id="importCharsFile" accept=".json" style="display: none;">
+                <div style="font-size: 11px; color: #72767d; margin-top: 8px;">
+                    Export creates a JSON file with all your characters. Import merges with existing characters.
+                </div>
+                <div class="success-message" id="importSuccessMsg">Characters imported successfully!</div>
+                <div class="error-message" id="importErrorMsg">Error importing characters. Please check the file format.</div>
+            </div>
+            
+            <div class="char-setup">
+                <h2>Saved Characters</h2>
+                <div class="character-list" id="savedCharacters">
+                    <!-- Character items will be added here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="setup-panel">
+            <h2>Conversation Setup</h2>
+            <label for="topic">Conversation Topic</label>
+            <textarea id="topic" placeholder="Describe what the conversation should be about..."></textarea>
+            
+            <label for="messageCount">Number of Messages</label>
+            <input type="number" id="messageCount" min="2" max="50" value="10">
+            
+            <div class="advanced-settings" style="margin-top: 15px;">
+                <label>
+                    <input type="checkbox" id="advancedMode">
+                    <span style="margin-left: 5px; font-size: 14px;">Advanced Mode</span>
+                </label>
+                <div id="advancedPanel" style="display: none; margin-top: 10px;">
+                    <label for="systemPrompt">System Prompt</label>
+                    <textarea id="systemPrompt" placeholder="Custom system prompt for the AI...">You are an AI that generates realistic text message conversations between two characters.</textarea>
+                </div>
+            </div>
+            
+            <button id="generateBtn">Generate Conversation</button>
+            <div class="error-message" id="errorMsg"></div>
+        </div>
+        
+        <div class="setup-panel">
+            <h2>Terms of Use</h2>
+            <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4; margin-bottom: 8px;">
+                <strong>Responsible Use:</strong> Users are responsible for all generated content and must comply with applicable laws and platform policies.
+            </p>
+            <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4; margin-bottom: 8px;">
+                <strong>Content Guidelines:</strong> Generated conversations should be appropriate and respectful. Do not use this tool to create harmful, harassing, or illegal content.
+            </p>
+            <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4;">
+                <strong>Made with:</strong> This tool was created with assistance from Claude AI by Anthropic. For questions or help setting up characters, you can ask Claude or another AI assistant.
+            </p>
+        </div>
+        
+        <div class="setup-panel">
+            <h2>Export Options</h2>
+            <div class="multi-btn-row">
+                <button id="downloadFullBtn">Download Full Generator</button>
+                <button id="downloadChatOnlyBtn">Download Chat</button>
+            </div>
+        </div>
+        
+        <div class="setup-panel">
+            <h2>Troubleshooting</h2>
+            <p style="font-size: 12px; margin-bottom: 10px;">
+                <strong>401 Errors:</strong> Verify your API key is correct and has the proper permissions.
+            </p>
+            <p style="font-size: 12px; margin-bottom: 10px;">
+                <strong>Network Errors:</strong> The browser may be blocked from accessing the API due to:
+            </p>
+            <ul style="font-size: 12px; margin-left: 15px; margin-bottom: 10px;">
+                <li>CORS restrictions (browser security)</li>
+                <li>Incorrect API endpoint</li>
+                <li>API service being down or requiring VPN</li>
+            </ul>
+            <p style="font-size: 12px; margin-bottom: 10px;">
+                <strong>Alternative Solution:</strong> You may need to use an OpenAI API key with an OpenAI-compatible endpoint.
+            </p>
+            <p style="font-size: 12px;">
+                Check the browser console (F12) for detailed error information.
+            </p>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="chat-header">
+            <h2>Discord-Style Chat Preview</h2>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message">
+                <div class="message-avatar">
+                    <img src="/api/placeholder/40/40" alt="Default avatar">
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <div class="message-username">System</div>
+                        <div class="message-timestamp">Today at 12:00 PM</div>
+                    </div>
+                    <div class="message-text">Configure your settings in the sidebar and click "Generate Conversation" to create a chat.</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <span>Generating conversation with AI...</span>
+        </div>
+    </div>
+
+    <!-- Load JavaScript modules -->
+    <script src="js/storage.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
