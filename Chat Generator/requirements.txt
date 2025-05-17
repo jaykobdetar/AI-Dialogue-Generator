@@ -1,0 +1,18 @@
+# Discord Chat Generator - Python Dependencies
+# Audio Converter Requirements
+
+# Core dependencies
+streamlit>=1.28.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+
+# Optional dependencies for enhanced functionality
+# Uncomment if you want to add audio processing features
+# pydub>=0.25.1
+# librosa>=0.10.0
+
+# Development dependencies (optional)
+# Uncomment for development/testing
+# pytest>=7.4.0
+# black>=23.0.0
+# flake8>=6.0.0
