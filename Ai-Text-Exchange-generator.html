@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord-Style Grok Chat Generator</title>
+    <style>
+        :root {
+            --discord-bg: #36393f;
+            --discord-input-bg: #40444b;
+            --discord-text: #dcddde;
+            --discord-sidebar: #2f3136;
+            --discord-accent: #5865f2;
+            --discord-hover: #32353b;
+            --discord-header: #202225;
+            --discord-green: #57f287;
+            --discord-red: #ed4245;
+            --discord-yellow: #fee75c;
+            --discord-secondary: #4f545c;
+            --discord-light: #b9bbbe;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--discord-bg);
+            color: var(--discord-text);
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 320px;
+            background-color: var(--discord-sidebar);
+            height: 100%;
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid var(--discord-secondary);
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .setup-panel {
+            background: linear-gradient(135deg, var(--discord-input-bg) 0%, #3a3d44 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--discord-secondary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .setup-panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        }
+        
+        .setup-panel h2 {
+            margin-bottom: 16px;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .setup-panel h2::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--discord-accent), #4752c4);
+            border-radius: 2px;
+        }
+        
+        label {
+            display: block;
+            margin: 12px 0 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--discord-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, var(--discord-header) 0%, #1a1c1f 100%);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            color: var(--discord-text);
+            margin-bottom: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--discord-accent);
+            background: var(--discord-header);
+            box-shadow: 0 0 0 4px rgba(88, 101, 242, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        input:hover, textarea:hover, select:hover {
+            border-color: var(--discord-secondary);
+            background: var(--discord-header);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .char-setup {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #4f545c;
+        }
+        
+        .avatar-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--discord-header);
+            margin-right: 10px;
+            overflow: hidden;
+            display: inline-block;
+        }
+        
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .char-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--discord-accent) 0%, #4752c4 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 8px;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(88, 101, 242, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, #4752c4 0%, #3c4bc7 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(88, 101, 242, 0.4);
+        }
+        
+        button:hover::before {
+            opacity: 1;
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(88, 101, 242, 0.3);
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .chat-header {
+            height: 60px;
+            background: linear-gradient(135deg, var(--discord-header) 0%, #1a1c1f 100%);
+            border-bottom: 2px solid var(--discord-secondary);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .chat-header h2 {
+            color: white;
+            font-weight: 700;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .chat-header h2::before {
+            content: '💬';
+            font-size: 24px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .message {
+            display: flex;
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .message:hover {
+            background: linear-gradient(135deg, var(--discord-hover) 0%, #2c2f35 100%);
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .message:hover::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(135deg, var(--discord-accent), #4752c4);
+            border-radius: 0 2px 2px 0;
+        }
+        
+        .message-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            margin-right: 16px;
+            flex-shrink: 0;
+            overflow: hidden;
+            border: 3px solid transparent;
+            background: linear-gradient(135deg, var(--discord-accent), #4752c4);
+            padding: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .message-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 16px rgba(88, 101, 242, 0.4);
+        }
+        
+        .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            background-color: var(--discord-header);
+        }
+        
+        .message-content {
+            flex: 1;
+        }
+        
+        .message-header {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 4px;
+        }
+        
+        .message-username {
+            font-weight: 700;
+            margin-right: 8px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #ffffff, var(--discord-light));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+        
+        .message-timestamp {
+            color: #72767d;
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+        
+        .message:hover .message-timestamp {
+            opacity: 1;
+        }
+        
+        .message-text {
+            color: var(--discord-text);
+            font-size: 15px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--discord-light);
+            display: none;
+            background: linear-gradient(135deg, rgba(88, 101, 242, 0.1), rgba(88, 101, 242, 0.05));
+            border-radius: 12px;
+            margin: 20px;
+            border: 1px dashed var(--discord-accent);
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border: 3px solid rgba(88, 101, 242, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--discord-accent);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 12px;
+            box-shadow: 0 0 8px rgba(88, 101, 242, 0.3);
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            color: var(--discord-red);
+            margin-top: 12px;
+            font-size: 14px;
+            display: none;
+            padding: 12px 16px;
+            background: rgba(237, 66, 69, 0.1);
+            border: 1px solid var(--discord-red);
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .success-message {
+            color: var(--discord-green);
+            margin-top: 12px;
+            font-size: 14px;
+            display: none;
+            padding: 12px 16px;
+            background: rgba(87, 242, 135, 0.1);
+            border: 1px solid var(--discord-green);
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .content-settings, .advanced-settings {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(88, 101, 242, 0.05);
+            border: 1px solid rgba(88, 101, 242, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .content-settings:hover, .advanced-settings:hover {
+            background: rgba(88, 101, 242, 0.08);
+            border-color: rgba(88, 101, 242, 0.3);
+        }
+        
+        .content-settings label, .advanced-settings label {
+            display: flex;
+            align-items: center;
+            margin: 0;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .content-settings label:hover, .advanced-settings label:hover {
+            color: white;
+        }
+        
+        input[type="checkbox"] {
+            width: auto;
+            margin: 0 8px 0 0;
+            transform: scale(1.2);
+            accent-color: var(--discord-accent);
+        }
+        
+        #explicitNote, #advancedPanel {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            border-left: 3px solid var(--discord-yellow);
+        }
+        
+        /* New styles for character management */
+        .character-list {
+            max-height: 220px;
+            overflow-y: auto;
+            border: 2px solid var(--discord-secondary);
+            border-radius: 8px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--discord-header) 0%, #1a1c1f 100%);
+            scrollbar-width: thin;
+            scrollbar-color: var(--discord-accent) transparent;
+        }
+        
+        .character-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .character-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .character-list::-webkit-scrollbar-thumb {
+            background: var(--discord-accent);
+            border-radius: 3px;
+        }
+        
+        .character-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(79, 84, 92, 0.3);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .character-item:last-child {
+            border-bottom: none;
+        }
+        
+        .character-item:hover {
+            background: linear-gradient(135deg, var(--discord-hover) 0%, #2c2f35 100%);
+            transform: translateX(4px);
+        }
+        
+        .character-item:hover::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(135deg, var(--discord-accent), #4752c4);
+        }
+        
+        .character-item.selected {
+            background: linear-gradient(135deg, rgba(88, 101, 242, 0.3), rgba(71, 82, 196, 0.3));
+            border-left: 3px solid var(--discord-accent);
+        }
+        
+        .character-item-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-right: 12px;
+            overflow: hidden;
+            border: 2px solid var(--discord-accent);
+            transition: transform 0.2s ease;
+        }
+        
+        .character-item:hover .character-item-avatar {
+            transform: scale(1.1);
+        }
+        
+        .character-item-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .character-item-name {
+            flex: 1;
+            font-weight: 600;
+            color: var(--discord-text);
+        }
+        
+        .character-item-delete {
+            color: var(--discord-red);
+            cursor: pointer;
+            margin-left: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        
+        .character-item-delete:hover {
+            background: var(--discord-red);
+            color: white;
+            transform: scale(1.2);
+        }
+        
+        .controls, .character-buttons, .multi-btn-row {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .controls button, .character-buttons button, .multi-btn-row button {
+            flex: 1;
+        }
+        
+        .avatar-preview {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--discord-header) 0%, #1a1c1f 100%);
+            margin-right: 12px;
+            overflow: hidden;
+            border: 3px solid var(--discord-accent);
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .avatar-preview:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 16px rgba(88, 101, 242, 0.4);
+        }
+        
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .char-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            border: 1px solid var(--discord-secondary);
+        }
+        
+        /* Add some nice animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .setup-panel {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Custom file input styling */
+        input[type="file"] {
+            background: linear-gradient(135deg, var(--discord-accent) 0%, #4752c4 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="file"]:hover {
+            background: linear-gradient(135deg, #4752c4 0%, #3c4bc7 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(88, 101, 242, 0.4);
+        }
+        
+        input[type="file"]::file-selector-button {
+            background: none;
+            border: none;
+            color: white;
+            font-weight: 600;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="setup-panel">
+            <h2>🔒 Privacy Notice</h2>
+            <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4; margin-bottom: 12px;">
+                <strong>Your data stays local:</strong> All characters and API settings are stored only in your browser's local storage. Nothing is sent to external servers except your API requests.
+            </p>
+            <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4;">
+                <strong>API Security:</strong> Only use trusted API endpoints. Your API keys are stored locally and not transmitted anywhere except to your chosen endpoint.
+            </p>
+        </div>
+        
+        <div class="setup-panel">
+            <h2>📖 How to Use</h2>
+            <div style="font-size: 12px; color: #b9bbbe; line-height: 1.4;">
+                <p style="margin-bottom: 8px;"><strong>Demo Mode:</strong> Select "Demo Mode" from the API Provider dropdown to try the generator without needing an API key.</p>
+                <p style="margin-bottom: 8px;"><strong>Quick Start:</strong> 1) Create characters with names and avatars, 2) Select two characters, 3) Enter a conversation topic, 4) Click generate.</p>
+                <p style="margin-bottom: 8px;"><strong>Character Details:</strong> Add personality, background, and texting style for more realistic conversations.</p>
+                <p style="margin-bottom: 8px;"><strong>Advanced Mode:</strong> Customize the AI's behavior with your own system prompt instructions.</p>
+                <p><strong>Need Help?</strong> Ask Claude or another AI assistant for character ideas, topic suggestions, or troubleshooting.</p>
+            </div>
+        </div>
+
+        <div class="setup-panel">
+            <h2>Grok API Setup</h2>
+            <label for="apiKey">API Key</label>
+            <input type="password" id="apiKey" placeholder="Enter your Grok API key">
+            
+            <label for="apiEndpoint">API Provider</label>
+            <select id="apiEndpoint">
+                <option value="test-mode">Demo Mode (No API Key Required)</option>
+                <option value="https://api.openai.com/v1/chat/completions">OpenAI</option>
+                <option value="https://api.x.ai/v1/chat/completions">Grok (xAI)</option>
+                <option value="https://api.anthropic.com/v1/messages">Claude (Anthropic)</option>
+                <option value="custom">Custom Endpoint</option>
+            </select>
+            
+            <div style="margin-top: 8px; margin-bottom: 12px;">
+                <label style="font-size: 11px; color: #72767d; text-transform: none; margin: 0;">Endpoint URL:</label>
+                <div id="endpointDisplay" style="font-size: 12px; color: #b9bbbe; background: #2c2f33; padding: 8px 12px; border-radius: 6px; border: 1px solid #4f545c; word-break: break-all; font-family: 'Courier New', monospace;"></div>
+            </div>
+            
+            <input type="text" id="customEndpoint" placeholder="Enter custom endpoint URL" style="display: none;">
+            
+            <label for="model">Model</label>
+            <select id="model">
+                <option value="">Select a model</option>
+                <optgroup label="OpenAI">
+                    <option value="gpt-4">GPT-4</option>
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-4o-mini">GPT-4o Mini</option>
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                </optgroup>
+                <optgroup label="Grok">
+                    <option value="grok-3" selected>Grok-3</option>
+                    <option value="grok-beta">Grok Beta</option>
+                </optgroup>
+                <optgroup label="Claude">
+                    <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
+                    <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
+                    <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                </optgroup>
+                <optgroup label="Other">
+                    <option value="custom">Custom Model Name</option>
+                </optgroup>
+            </select>
+            <input type="text" id="customModel" placeholder="Enter custom model name" style="display: none; margin-top: 8px;">
+            
+            <button id="saveApiSettings">Save API Settings</button>
+            <div class="success-message" id="apiSuccessMsg">API settings saved successfully!</div>
+        </div>
+        
+        <div class="setup-panel">
+            <h2>Character Management</h2>
+            
+            <div id="characterSelector">
+                <label for="char1Selector">Character 1</label>
+                <select id="char1Selector">
+                    <option value="">Select a character</option>
+                </select>
+                
+                <label for="char2Selector">Character 2</label>
+                <select id="char2Selector">
+                    <option value="">Select a character</option>
+                </select>
+            </div>
+            
+            <div class="char-setup">
+                <h2>Add/Edit Character</h2>
+                
+                <div class="char-row">
+                    <div class="avatar-preview" id="charEditPreview"></div>
+                    <div style="flex: 1;">
+                        <label for="charEditName">Character Name</label>
+                        <input type="text" id="charEditName" placeholder="Character Name">
+                    </div>
+                </div>
+                <input type="file" id="charEditAvatar" accept="image/*">
+                
+                <label for="charEditAge">Age</label>
+                <input type="number" id="charEditAge" placeholder="Age (optional)" min="13" max="100">
+                
+                <label for="charEditPersonality">Personality Traits</label>
+                <textarea id="charEditPersonality" placeholder="Describe their personality, quirks, and communication style..." rows="3"></textarea>
+                
+                <label for="charEditBackground">Background/Occupation</label>
+                <input type="text" id="charEditBackground" placeholder="Job, hobbies, background info...">
+                
+                <label for="charEditRelationship">Relationship to Other Character</label>
+                <select id="charEditRelationship">
+                    <option value="">Select relationship</option>
+                    <option value="friend">Friend</option>
+                    <option value="best-friend">Best Friend</option>
+                    <option value="romantic-partner">Romantic Partner</option>
+                    <option value="spouse">Spouse/Married</option>
+                    <option value="sibling">Sibling</option>
+                    <option value="parent">Parent</option>
+                    <option value="child">Child</option>
+                    <option value="coworker">Coworker</option>
+                    <option value="classmate">Classmate</option>
+                    <option value="roommate">Roommate</option>
+                    <option value="neighbor">Neighbor</option>
+                    <option value="acquaintance">Acquaintance</option>
+                    <option value="stranger">Stranger</option>
+                    <option value="ex">Ex-partner</option>
+                    <option value="other">Other</option>
+                </select>
+                
+                <label for="charEditTextingStyle">Texting Style</label>
+                <select id="charEditTextingStyle">
+                    <option value="">Select texting style</option>
+                    <option value="proper">Proper grammar and punctuation</option>
+                    <option value="casual">Casual, some abbreviations</option>
+                    <option value="shorthand">Lots of abbreviations (u, ur, etc.)</option>
+                    <option value="no-caps">all lowercase, no caps</option>
+                    <option value="emoji-heavy">Uses lots of emojis 😊</option>
+                    <option value="minimal">Very brief responses</option>
+                    <option value="verbose">Long, detailed messages</option>
+                    <option value="typos">Makes typos, auto-correct errors</option>
+                </select>
+                
+                <div class="multi-btn-row">
+                    <button id="saveCharBtn">Save Character</button>
+                    <button id="clearFormBtn">Clear Form</button>
+                </div>
+                <div class="success-message" id="charSuccessMsg">Character saved successfully!</div>
+            </div>
+            
+            <div class="char-setup">
+                <h2>Import/Export Characters</h2>
+                <div class="multi-btn-row">
+                    <button id="exportCharsBtn">Export All Characters</button>
+                    <button id="importCharsBtn">Import Characters</button>
+                </div>
+                <input type="file" id="importCharsFile" accept=".json" style="display: none;">
+                <div style="font-size: 11px; color: #72767d; margin-top: 8px;">
+                    Export creates a JSON file with all your characters. Import merges with existing characters.
+                </div>
+                <div class="success-message" id="importSuccessMsg">Characters imported successfully!</div>
+                <div class="error-message" id="importErrorMsg">Error importing characters. Please check the file format.</div>
+            </div>
+            
+            <div class="char-setup">
+                <h2>Saved Characters</h2>
+                <div class="character-list" id="savedCharacters">
+                    <!-- Character items will be added here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="setup-panel">
+            <h2>Conversation Setup</h2>
+            <label for="topic">Conversation Topic</label>
+            <textarea id="topic" placeholder="Describe what the conversation should be about..."></textarea>
+            
+            <label for="messageCount">Number of Messages</label>
+            <input type="number" id="messageCount" min="2" max="50" value="10">
+            
+            <div class="advanced-settings" style="margin-top: 15px;">
+                <label>
+                    <input type="checkbox" id="advancedMode">
+                    <span style="margin-left: 5px; font-size: 14px;">Advanced Mode</span>
+                </label>
+                <div id="advancedPanel" style="display: none; margin-top: 10px;">
+                    <label for="systemPrompt">System Prompt</label>
+                    <textarea id="systemPrompt" placeholder="Custom system prompt for the AI...">You are an AI that generates realistic text message conversations between two characters.</textarea>
+                </div>
+            </div>
+            
+            <button id="generateBtn">Generate Conversation</button>
+            <div class="error-message" id="errorMsg"></div>
+        </div>
+        
+        <div class="setup-panel">
+            <h2>Terms of Use</h2>
+            <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4; margin-bottom: 8px;">
+                <strong>Responsible Use:</strong> Users are responsible for all generated content and must comply with applicable laws and platform policies.
+            </p>
+            <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4; margin-bottom: 8px;">
+                <strong>Content Guidelines:</strong> Generated conversations should be appropriate and respectful. Do not use this tool to create harmful, harassing, or illegal content.
+            </p>
+            <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4;">
+                <strong>Made with:</strong> This tool was created with assistance from Claude AI by Anthropic. For questions or help setting up characters, you can ask Claude or another AI assistant.
+            </p>
+        </div>
+        
+        <div class="setup-panel">
+            <h2>Export Options</h2>
+            <div class="multi-btn-row">
+                <button id="downloadFullBtn">Download Full Generator</button>
+                <button id="downloadChatOnlyBtn">Download Chat</button>
+            </div>
+        </div>
+        
+        <div class="setup-panel">
+            <h2>Troubleshooting</h2>
+            <p style="font-size: 12px; margin-bottom: 10px;">
+                <strong>401 Errors:</strong> Verify your API key is correct and has the proper permissions.
+            </p>
+            <p style="font-size: 12px; margin-bottom: 10px;">
+                <strong>Network Errors:</strong> The browser may be blocked from accessing the API due to:
+            </p>
+            <ul style="font-size: 12px; margin-left: 15px; margin-bottom: 10px;">
+                <li>CORS restrictions (browser security)</li>
+                <li>Incorrect API endpoint</li>
+                <li>API service being down or requiring VPN</li>
+            </ul>
+            <p style="font-size: 12px; margin-bottom: 10px;">
+                <strong>Alternative Solution:</strong> You may need to use an OpenAI API key with an OpenAI-compatible endpoint.
+            </p>
+            <p style="font-size: 12px;">
+                Check the browser console (F12) for detailed error information.
+            </p>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="chat-header">
+            <h2>Discord-Style Chat Preview</h2>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message">
+                <div class="message-avatar">
+                    <img src="/api/placeholder/40/40" alt="Default avatar">
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <div class="message-username">System</div>
+                        <div class="message-timestamp">Today at 12:00 PM</div>
+                    </div>
+                    <div class="message-text">Configure your settings in the sidebar and click "Generate Conversation" to create a chat.</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <span>Generating conversation with Grok API...</span>
+        </div>
+    </div>
+
+    <script>
+        // Persistent storage helper functions
+        const storage = {
+            saveApiSettings: function() {
+                const modelSelect = document.getElementById('model');
+                const customModelField = document.getElementById('customModel');
+                
+                // Get the actual model name
+                let modelValue;
+                if (modelSelect.value === 'custom') {
+                    modelValue = customModelField.value;
+                } else {
+                    modelValue = modelSelect.value;
+                }
+                
+                const settings = {
+                    apiKey: document.getElementById('apiKey').value,
+                    endpoint: document.getElementById('apiEndpoint').value,
+                    customEndpoint: document.getElementById('customEndpoint').value,
+                    model: modelValue
+                };
+                localStorage.setItem('grokApiSettings', JSON.stringify(settings));
+                
+                // Show success message
+                const successMsg = document.getElementById('apiSuccessMsg');
+                successMsg.style.display = 'block';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+            },
+            
+            loadApiSettings: function() {
+                const settings = JSON.parse(localStorage.getItem('grokApiSettings') || '{}');
+                if (settings.apiKey) document.getElementById('apiKey').value = settings.apiKey;
+                if (settings.endpoint) {
+                    document.getElementById('apiEndpoint').value = settings.endpoint;
+                    
+                    // Trigger change event to update UI state
+                    document.getElementById('apiEndpoint').dispatchEvent(new Event('change'));
+                }
+                if (settings.customEndpoint) document.getElementById('customEndpoint').value = settings.customEndpoint;
+                if (settings.model) {
+                    const modelSelect = document.getElementById('model');
+                    const customModelField = document.getElementById('customModel');
+                    
+                    // Check if the saved model exists in our predefined options
+                    const modelExists = Array.from(modelSelect.options).some(option => option.value === settings.model);
+                    
+                    if (modelExists) {
+                        modelSelect.value = settings.model;
+                    } else {
+                        // If it's a custom model, set to custom and fill the custom field
+                        modelSelect.value = 'custom';
+                        customModelField.value = settings.model;
+                        customModelField.style.display = 'block';
+                    }
+                }
+                
+                // Show custom endpoint field if needed
+                if (settings.endpoint === 'custom') {
+                    document.getElementById('customEndpoint').style.display = 'block';
+                }
+                
+                // Update endpoint display (will be handled by the change event above)
+            },
+            
+            // Character storage functions
+            getCharacters: function() {
+                return JSON.parse(localStorage.getItem('grokCharacters') || '[]');
+            },
+            
+            saveCharacter: function(character) {
+                const characters = this.getCharacters();
+                // Check if character already exists
+                const index = characters.findIndex(c => c.id === character.id);
+                
+                if (index !== -1) {
+                    // Update existing character
+                    characters[index] = character;
+                } else {
+                    // Add new character
+                    characters.push(character);
+                }
+                
+                localStorage.setItem('grokCharacters', JSON.stringify(characters));
+                this.updateCharacterSelectors();
+                this.renderCharacterList();
+            },
+            
+            deleteCharacter: function(id) {
+                let characters = this.getCharacters();
+                characters = characters.filter(c => c.id !== id);
+                localStorage.setItem('grokCharacters', JSON.stringify(characters));
+                this.updateCharacterSelectors();
+                this.renderCharacterList();
+            },
+            
+            renderCharacterList: function() {
+                const characters = this.getCharacters();
+                const listElement = document.getElementById('savedCharacters');
+                listElement.innerHTML = '';
+                
+                if (characters.length === 0) {
+                    listElement.innerHTML = '<div style="padding: 10px; color: #72767d;">No saved characters</div>';
+                    return;
+                }
+                
+                characters.forEach(char => {
+                    const charItem = document.createElement('div');
+                    charItem.className = 'character-item';
+                    charItem.dataset.id = char.id;
+                    
+                    charItem.innerHTML = `
+                        <div class="character-item-avatar">
+                            <img src="${char.avatar || '/api/placeholder/30/30'}" alt="${char.name}">
+                        </div>
+                        <div class="character-item-name">${char.name}</div>
+                        <div class="character-item-delete">×</div>
+                    `;
+                    
+                    // Edit character on click
+                    charItem.addEventListener('click', function(e) {
+                        if (e.target.classList.contains('character-item-delete')) {
+                            // Delete character
+                            if (confirm(`Delete character "${char.name}"?`)) {
+                                storage.deleteCharacter(char.id);
+                            }
+                            return;
+                        }
+                        
+                        // Load character data into form
+                        document.getElementById('charEditName').value = char.name;
+                        document.getElementById('charEditAge').value = char.age || '';
+                        document.getElementById('charEditPersonality').value = char.personality || '';
+                        document.getElementById('charEditBackground').value = char.background || '';
+                        document.getElementById('charEditRelationship').value = char.relationship || '';
+                        document.getElementById('charEditTextingStyle').value = char.textingStyle || '';
+                        document.getElementById('charEditPreview').innerHTML = `<img src="${char.avatar || '/api/placeholder/40/40'}" alt="${char.name}">`;
+                        
+                        // Store the current editing character ID
+                        document.getElementById('charEditPreview').dataset.charId = char.id;
+                    });
+                    
+                    listElement.appendChild(charItem);
+                });
+            },
+            
+            updateCharacterSelectors: function() {
+                const characters = this.getCharacters();
+                const selector1 = document.getElementById('char1Selector');
+                const selector2 = document.getElementById('char2Selector');
+                
+                // Save current selections
+                const selectedChar1 = selector1.value;
+                const selectedChar2 = selector2.value;
+                
+                // Clear current options except first one
+                selector1.innerHTML = '<option value="">Select a character</option>';
+                selector2.innerHTML = '<option value="">Select a character</option>';
+                
+                // Add character options
+                characters.forEach(char => {
+                    const option1 = document.createElement('option');
+                    option1.value = char.id;
+                    option1.textContent = char.name;
+                    selector1.appendChild(option1);
+                    
+                    const option2 = document.createElement('option');
+                    option2.value = char.id;
+                    option2.textContent = char.name;
+                    selector2.appendChild(option2);
+                });
+                
+                // Restore selections if possible
+                if (selectedChar1 && characters.some(c => c.id === selectedChar1)) {
+                    selector1.value = selectedChar1;
+                }
+                
+                if (selectedChar2 && characters.some(c => c.id === selectedChar2)) {
+                    selector2.value = selectedChar2;
+                }
+            },
+            
+            // Export all characters to JSON file
+            exportCharacters: function() {
+                const characters = this.getCharacters();
+                if (characters.length === 0) {
+                    alert('No characters to export');
+                    return;
+                }
+                
+                const dataStr = JSON.stringify(characters, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `discord-chat-characters-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 0);
+            },
+            
+            // Import characters from JSON file
+            importCharacters: function(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedChars = JSON.parse(e.target.result);
+                        
+                        if (!Array.isArray(importedChars)) {
+                            throw new Error('Invalid file format');
+                        }
+                        
+                        // Validate character structure
+                        const validChars = importedChars.filter(char => 
+                            char.id && char.name && typeof char.name === 'string'
+                        );
+                        
+                        if (validChars.length === 0) {
+                            throw new Error('No valid characters found in file');
+                        }
+                        
+                        // Merge with existing characters (avoid duplicates by ID)
+                        const existingChars = this.getCharacters();
+                        const mergedChars = [...existingChars];
+                        
+                        validChars.forEach(importedChar => {
+                            const existingIndex = mergedChars.findIndex(c => c.id === importedChar.id);
+                            if (existingIndex !== -1) {
+                                // Update existing character
+                                mergedChars[existingIndex] = importedChar;
+                            } else {
+                                // Add new character
+                                mergedChars.push(importedChar);
+                            }
+                        });
+                        
+                        // Save merged characters
+                        localStorage.setItem('grokCharacters', JSON.stringify(mergedChars));
+                        this.updateCharacterSelectors();
+                        this.renderCharacterList();
+                        
+                        // Show success message
+                        const successMsg = document.getElementById('importSuccessMsg');
+                        successMsg.style.display = 'block';
+                        setTimeout(() => {
+                            successMsg.style.display = 'none';
+                        }, 3000);
+                        
+                    } catch (error) {
+                        console.error('Import error:', error);
+                        const errorMsg = document.getElementById('importErrorMsg');
+                        errorMsg.textContent = `Error importing characters: ${error.message}`;
+                        errorMsg.style.display = 'block';
+                        setTimeout(() => {
+                            errorMsg.style.display = 'none';
+                        }, 5000);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        };
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved API settings
+            storage.loadApiSettings();
+            
+            // Load saved characters
+            storage.renderCharacterList();
+            storage.updateCharacterSelectors();
+            
+            // Initialize endpoint display
+            const endpointSelect = document.getElementById('apiEndpoint');
+            const endpointDisplay = document.getElementById('endpointDisplay');
+            if (endpointSelect.value !== 'custom') {
+                endpointDisplay.textContent = endpointSelect.value;
+            } else {
+                endpointDisplay.textContent = 'Select an endpoint above';
+                endpointDisplay.style.color = '#72767d';
+                endpointDisplay.style.fontStyle = 'italic';
+            }
+        });
+        
+        // Handle explicit content toggle
+        // Removed explicit content functionality
+
+        // Handle advanced mode toggle
+        document.getElementById('advancedMode').addEventListener('change', function() {
+            const advancedPanel = document.getElementById('advancedPanel');
+            if (this.checked) {
+                advancedPanel.style.display = 'block';
+            } else {
+                advancedPanel.style.display = 'none';
+            }
+        });
+        document.getElementById('apiEndpoint').addEventListener('change', function() {
+            const customEndpointField = document.getElementById('customEndpoint');
+            const endpointDisplay = document.getElementById('endpointDisplay');
+            const apiKeyField = document.getElementById('apiKey');
+            
+            if (this.value === 'custom') {
+                customEndpointField.style.display = 'block';
+                endpointDisplay.textContent = 'Enter custom URL below';
+                endpointDisplay.style.color = '#72767d';
+                endpointDisplay.style.fontStyle = 'italic';
+                apiKeyField.disabled = false;
+            } else if (this.value === 'test-mode') {
+                customEndpointField.style.display = 'none';
+                endpointDisplay.textContent = 'Demo mode - generates sample conversations locally';
+                endpointDisplay.style.color = '#57f287';
+                endpointDisplay.style.fontStyle = 'italic';
+                apiKeyField.disabled = true;
+                apiKeyField.value = '';
+            } else {
+                customEndpointField.style.display = 'none';
+                endpointDisplay.textContent = this.value;
+                endpointDisplay.style.color = '#b9bbbe';
+                endpointDisplay.style.fontStyle = 'normal';
+                apiKeyField.disabled = false;
+            }
+        });
+        
+        document.getElementById('customEndpoint').addEventListener('input', function() {
+            const endpointDisplay = document.getElementById('endpointDisplay');
+            if (this.value.trim()) {
+                endpointDisplay.textContent = this.value;
+                endpointDisplay.style.color = '#b9bbbe';
+                endpointDisplay.style.fontStyle = 'normal';
+            } else {
+                endpointDisplay.textContent = 'Enter custom URL below';
+                endpointDisplay.style.color = '#72767d';
+                endpointDisplay.style.fontStyle = 'italic';
+            }
+        });
+        
+        document.getElementById('model').addEventListener('change', function() {
+            const customModelField = document.getElementById('customModel');
+            if (this.value === 'custom') {
+                customModelField.style.display = 'block';
+            } else {
+                customModelField.style.display = 'none';
+            }
+        });
+        
+        // Save API Settings
+        document.getElementById('saveApiSettings').addEventListener('click', function() {
+            storage.saveApiSettings();
+        });
+        
+        // Handle file uploads for character avatar
+        document.getElementById('charEditAvatar').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const preview = document.getElementById('charEditPreview');
+                    preview.innerHTML = `<img src="${event.target.result}" alt="Character Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Save Character
+        document.getElementById('saveCharBtn').addEventListener('click', function() {
+            const nameInput = document.getElementById('charEditName');
+            const ageInput = document.getElementById('charEditAge');
+            const personalityInput = document.getElementById('charEditPersonality');
+            const backgroundInput = document.getElementById('charEditBackground');
+            const relationshipInput = document.getElementById('charEditRelationship');
+            const textingStyleInput = document.getElementById('charEditTextingStyle');
+            const preview = document.getElementById('charEditPreview');
+            const avatarImg = preview.querySelector('img');
+            
+            if (!nameInput.value.trim()) {
+                alert('Please enter a character name');
+                return;
+            }
+            
+            // Get character ID (or generate new one)
+            const charId = preview.dataset.charId || 'char_' + Date.now();
+            
+            // Create character object
+            const character = {
+                id: charId,
+                name: nameInput.value.trim(),
+                age: ageInput.value ? parseInt(ageInput.value) : null,
+                personality: personalityInput.value.trim(),
+                background: backgroundInput.value.trim(),
+                relationship: relationshipInput.value,
+                textingStyle: textingStyleInput.value,
+                avatar: avatarImg ? avatarImg.src : null
+            };
+            
+            // Save character
+            storage.saveCharacter(character);
+            
+            // Show success message
+            const successMsg = document.getElementById('charSuccessMsg');
+            successMsg.style.display = 'block';
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 3000);
+            
+            // Clear form
+            document.getElementById('clearFormBtn').click();
+        });
+        
+        // Clear character form
+        document.getElementById('clearFormBtn').addEventListener('click', function() {
+            document.getElementById('charEditName').value = '';
+            document.getElementById('charEditAge').value = '';
+            document.getElementById('charEditPersonality').value = '';
+            document.getElementById('charEditBackground').value = '';
+            document.getElementById('charEditRelationship').value = '';
+            document.getElementById('charEditTextingStyle').value = '';
+            document.getElementById('charEditPreview').innerHTML = '';
+            document.getElementById('charEditPreview').dataset.charId = '';
+            document.getElementById('charEditAvatar').value = '';
+        });
+        
+        // Export Characters
+        document.getElementById('exportCharsBtn').addEventListener('click', function() {
+            storage.exportCharacters();
+        });
+        
+        // Import Characters
+        document.getElementById('importCharsBtn').addEventListener('click', function() {
+            document.getElementById('importCharsFile').click();
+        });
+        
+        document.getElementById('importCharsFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                storage.importCharacters(file);
+                // Clear the file input so the same file can be selected again
+                e.target.value = '';
+            }
+        });
+        
+        // Add missing character preview elements
+        const setupPanel = document.querySelector('.setup-panel');
+        // Add hidden character name inputs and previews to the DOM
+        if (!document.getElementById('char1Name')) {
+            const hiddenElements = document.createElement('div');
+            hiddenElements.style.display = 'none';
+            hiddenElements.innerHTML = `
+                <input type="text" id="char1Name">
+                <input type="text" id="char2Name">
+                <div id="char1Preview"></div>
+                <div id="char2Preview"></div>
+            `;
+            setupPanel.appendChild(hiddenElements);
+        }
+
+        // Handle character selection
+        document.getElementById('char1Selector').addEventListener('change', function() {
+            const characters = storage.getCharacters();
+            const selectedChar = characters.find(c => c.id === this.value);
+            
+            if (selectedChar) {
+                // Set character 1 avatar and name
+                document.getElementById('char1Preview').innerHTML = `<img src="${selectedChar.avatar || '/api/placeholder/40/40'}" alt="${selectedChar.name}">`;
+                document.getElementById('char1Name').value = selectedChar.name;
+            } else {
+                document.getElementById('char1Preview').innerHTML = '';
+                document.getElementById('char1Name').value = '';
+            }
+        });
+        
+        document.getElementById('char2Selector').addEventListener('change', function() {
+            const characters = storage.getCharacters();
+            const selectedChar = characters.find(c => c.id === this.value);
+            
+            if (selectedChar) {
+                // Set character 2 avatar and name
+                document.getElementById('char2Preview').innerHTML = `<img src="${selectedChar.avatar || '/api/placeholder/40/40'}" alt="${selectedChar.name}">`;
+                document.getElementById('char2Name').value = selectedChar.name;
+            } else {
+                document.getElementById('char2Preview').innerHTML = '';
+                document.getElementById('char2Name').value = '';
+            }
+        });
+        
+        // Generate conversation button
+        document.getElementById('generateBtn').addEventListener('click', async function() {
+            const apiKey = document.getElementById('apiKey').value;
+            const char1Selector = document.getElementById('char1Selector');
+            const char2Selector = document.getElementById('char2Selector');
+            
+            // Get character names from selectors
+            let char1Name = 'Character 1';
+            let char2Name = 'Character 2';
+            
+            if (char1Selector.value) {
+                const characters = storage.getCharacters();
+                const char1 = characters.find(c => c.id === char1Selector.value);
+                if (char1) char1Name = char1.name;
+            }
+            
+            if (char2Selector.value) {
+                const characters = storage.getCharacters();
+                const char2 = characters.find(c => c.id === char2Selector.value);
+                if (char2) char2Name = char2.name;
+            }
+            
+            // Set the hidden input fields with character names
+            document.getElementById('char1Name').value = char1Name;
+            document.getElementById('char2Name').value = char2Name;
+            
+            const topic = document.getElementById('topic').value;
+            const messageCount = document.getElementById('messageCount').value || 10;
+            
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.style.display = 'none';
+            
+            // Check if demo mode is selected
+            const isTestMode = document.getElementById('apiEndpoint').value === 'test-mode';
+            
+            if (!isTestMode && !apiKey) {
+                errorMsg.textContent = 'Please enter your API key or select Demo Mode';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            if (!topic) {
+                errorMsg.textContent = 'Please enter a conversation topic';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // Show loading indicator
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            loadingIndicator.style.display = 'block';
+            
+            try {
+                // Prepare the prompt for API
+                // Removed explicit content functionality
+                
+                // Get character details for enhanced prompt
+                const characters = storage.getCharacters();
+                const char1 = characters.find(c => c.id === char1Selector.value);
+                const char2 = characters.find(c => c.id === char2Selector.value);
+                
+                let characterDetails = '';
+                
+                if (char1 || char2) {
+                    characterDetails += '\n\nCharacter Details:\n';
+                    
+                    if (char1) {
+                        characterDetails += `${char1Name}: `;
+                        if (char1.age) characterDetails += `Age ${char1.age}, `;
+                        if (char1.personality) characterDetails += `Personality: ${char1.personality}, `;
+                        if (char1.background) characterDetails += `Background: ${char1.background}, `;
+                        if (char1.textingStyle) characterDetails += `Texting style: ${char1.textingStyle}, `;
+                        if (char1.relationship) characterDetails += `Relationship to other character: ${char1.relationship}`;
+                        characterDetails = characterDetails.replace(/, $/, '') + '\n';
+                    }
+                    
+                    if (char2) {
+                        characterDetails += `${char2Name}: `;
+                        if (char2.age) characterDetails += `Age ${char2.age}, `;
+                        if (char2.personality) characterDetails += `Personality: ${char2.personality}, `;
+                        if (char2.background) characterDetails += `Background: ${char2.background}, `;
+                        if (char2.textingStyle) characterDetails += `Texting style: ${char2.textingStyle}, `;
+                        if (char2.relationship) characterDetails += `Relationship to other character: ${char2.relationship}`;
+                        characterDetails = characterDetails.replace(/, $/, '') + '\n';
+                    }
+                }
+                
+                const prompt = `Generate a conversation between ${char1Name} and ${char2Name} about ${topic}. 
+                Create exactly ${messageCount} messages total, alternating between the two characters.
+                Format each message as: "CHARACTER_NAME | TIMESTAMP | message content"
+                Where TIMESTAMP should be in format "12:34 PM" and progress realistically throughout the conversation (messages should be a few minutes apart).${characterDetails}
+                
+                Not all replies need to be short - sometimes the context implies a longer message is appropriate, use judgment.`;
+                
+                // Determine API endpoint
+                let apiEndpoint = document.getElementById('apiEndpoint').value;
+                if (apiEndpoint === 'custom') {
+                    apiEndpoint = document.getElementById('customEndpoint').value;
+                    if (!apiEndpoint) {
+                        throw new Error('Please enter a custom API endpoint URL');
+                    }
+                }
+                
+                // Get model name
+                const modelSelect = document.getElementById('model');
+                const customModelField = document.getElementById('customModel');
+                const model = modelSelect.value === 'custom' ? customModelField.value : modelSelect.value;
+                
+                // Get system prompt (advanced mode)
+                const advancedMode = document.getElementById('advancedMode').checked;
+                const systemPrompt = advancedMode && document.getElementById('systemPrompt').value 
+                    ? document.getElementById('systemPrompt').value 
+                    : 'You are an AI that generates realistic text message conversations between two characters. Create natural, casual, and authentic conversations like real text messages. Use any provided character details to influence their personality, communication style, and relationship dynamic. Keep all content appropriate and respectful.';
+                
+                if (!model) {
+                    throw new Error('Please select a model');
+                }
+                
+                // Display API request info
+                console.log(`Sending request to: ${apiEndpoint}`);
+                console.log(`Using model: ${model}`);
+                console.log(`System prompt: ${systemPrompt}`);
+                
+                // Use local fallback if test mode is enabled
+                if (document.getElementById('apiEndpoint').value === 'test-mode') {
+                    console.log("Using demo mode with local fallback data");
+                    setTimeout(() => {
+                        const mockConversation = generateMockConversation(char1Name, char2Name, topic, messageCount);
+                        displayConversation(mockConversation, char1Name, char2Name);
+                        loadingIndicator.style.display = 'none';
+                    }, 1500);
+                    return;
+                }
+                
+                // Call Grok API
+                try {
+                    // Get character names from input fields or selectors
+                    const char1NameInput = document.getElementById('char1Name');
+                    const char2NameInput = document.getElementById('char2Name');
+                    const char1Name = char1NameInput.value || document.getElementById('char1Selector').options[document.getElementById('char1Selector').selectedIndex].text || 'Character 1';
+                    const char2Name = char2NameInput.value || document.getElementById('char2Selector').options[document.getElementById('char2Selector').selectedIndex].text || 'Character 2';
+                    
+                    const response = await fetch(apiEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${apiKey}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            model: model,
+                            messages: [
+                                {
+                                    role: 'system',
+                                    content: systemPrompt
+                                },
+                                {
+                                    role: 'user',
+                                    content: prompt
+                                }
+                            ],
+                            temperature: 0.7,
+                            max_tokens: 4000
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error("API Response:", errorText);
+                        throw new Error(`API request failed with status: ${response.status}. Check your API key and endpoint.`);
+                    }
+                    
+                    const data = await response.json();
+                    const generatedConversation = data.choices[0].message.content;
+                    
+                    // Process the generated conversation
+                    displayConversation(generatedConversation, char1Name, char2Name);
+                } catch (error) {
+                    // Handle network errors specifically
+                    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+                        throw new Error(`Network error when connecting to ${apiEndpoint}. This could be due to CORS restrictions, an invalid domain, or the API being down.`);
+                    } else {
+                        throw error; // Re-throw other errors
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                errorMsg.textContent = `Error: ${error.message || 'Failed to generate conversation'}`;
+                errorMsg.style.display = 'block';
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        });
+        
+        // Function to display conversation in the UI
+        function displayConversation(conversationText, char1Name, char2Name) {
+            // Process the generated conversation
+            const messages = conversationText.split('\n')
+                .filter(line => line.trim().length > 0)
+                .map(line => {
+                    // Extract character name, timestamp, and message content
+                    const match = line.match(/^(.+?)\s*\|\s*(.+?)\s*\|\s*(.+)$/);
+                    if (match) {
+                        return {
+                            character: match[1].trim(),
+                            timestamp: match[2].trim(),
+                            content: match[3].trim()
+                        };
+                    } else {
+                        // Fallback: try old format without timestamp
+                        const oldMatch = line.match(/^(.+?):\s*(.+)$/);
+                        if (oldMatch) {
+                            // Generate a random timestamp as fallback
+                            const hour = Math.floor(Math.random() * 12) + 1;
+                            const minute = String(Math.floor(Math.random() * 60)).padStart(2, '0');
+                            const ampm = Math.random() > 0.5 ? 'AM' : 'PM';
+                            return {
+                                character: oldMatch[1].trim(),
+                                timestamp: `${hour}:${minute} ${ampm}`,
+                                content: oldMatch[2].trim()
+                            };
+                        } else {
+                            // If format doesn't match at all, assign to first character with random timestamp
+                            const hour = Math.floor(Math.random() * 12) + 1;
+                            const minute = String(Math.floor(Math.random() * 60)).padStart(2, '0');
+                            const ampm = Math.random() > 0.5 ? 'AM' : 'PM';
+                            return {
+                                character: char1Name,
+                                timestamp: `${hour}:${minute} ${ampm}`,
+                                content: line.trim()
+                            };
+                        }
+                    }
+                });
+            
+            // Display messages in chat UI
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '';
+            
+            messages.forEach((msg, index) => {
+                const isChar1 = msg.character.toLowerCase().includes(char1Name.toLowerCase());
+                const charName = isChar1 ? char1Name : char2Name;
+                const charPreviewId = isChar1 ? 'char1Preview' : 'char2Preview';
+                
+                // Get avatar from preview if available
+                const avatarPreview = document.getElementById(charPreviewId);
+                const avatarSrc = avatarPreview.querySelector('img') ? 
+                    avatarPreview.querySelector('img').src : 
+                    '/api/placeholder/40/40';
+                
+                // Use the timestamp from the AI response
+                const displayTimestamp = `Today at ${msg.timestamp}`;
+                
+                // Create message element
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message';
+                messageElement.innerHTML = `
+                    <div class="message-avatar">
+                        <img src="${avatarSrc}" alt="${charName}">
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-username">${charName}</div>
+                            <div class="message-timestamp">${displayTimestamp}</div>
+                        </div>
+                        <div class="message-text">${msg.content}</div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(messageElement);
+            });
+        }
+        
+        // Generate mock conversation for testing with enhanced examples
+        function generateMockConversation(char1Name, char2Name, topic, count) {
+            const conversationTemplates = {
+                "work": [
+                    `${char1Name} | 9:15 AM | Hey, did you see the email about the new project deadline?`,
+                    `${char2Name} | 9:18 AM | Yeah, it's pretty tight. We'll need to prioritize the main features first`,
+                    `${char1Name} | 9:22 AM | Agreed. Should we schedule a quick call to discuss?`,
+                    `${char2Name} | 9:25 AM | Good idea! How about 2pm today?`,
+                    `${char1Name} | 9:27 AM | Perfect, I'll send the calendar invite`,
+                    `${char2Name} | 9:30 AM | Thanks! I'll prep some notes beforehand`
+                ],
+                "friendship": [
+                    `${char1Name} | 7:30 PM | What are you up to tonight?`,
+                    `${char2Name} | 7:33 PM | Just watching Netflix lol. You?`,
+                    `${char1Name} | 7:35 PM | Same! Have you seen that new series everyone's talking about?`,
+                    `${char2Name} | 7:38 PM | Which one? There are like 5 new shows this week 😅`,
+                    `${char1Name} | 7:40 PM | The sci-fi one with the time travel plot`,
+                    `${char2Name} | 7:42 PM | Oh that one! Yeah it's actually really good. Want to watch together?`
+                ],
+                "family": [
+                    `${char1Name} | 6:45 PM | Dinner's ready! Come downstairs`,
+                    `${char2Name} | 6:48 PM | Coming! Just finishing up this assignment`,
+                    `${char1Name} | 6:50 PM | Okay but don't let it get cold`,
+                    `${char2Name} | 6:52 PM | I'll be down in 2 minutes, promise`,
+                    `${char1Name} | 6:55 PM | Alright, I'll keep your plate warm`,
+                    `${char2Name} | 6:57 PM | You're the best, thanks!`
+                ]
+            };
+            
+            // Try to find a template that matches the topic
+            let conversation = "";
+            const topicLower = topic.toLowerCase();
+            
+            if (topicLower.includes('work') || topicLower.includes('job') || topicLower.includes('project')) {
+                return conversationTemplates.work.slice(0, Math.min(count, 6)).join('\n');
+            } else if (topicLower.includes('friend') || topicLower.includes('hang') || topicLower.includes('movie')) {
+                return conversationTemplates.friendship.slice(0, Math.min(count, 6)).join('\n');
+            } else if (topicLower.includes('family') || topicLower.includes('dinner') || topicLower.includes('home')) {
+                return conversationTemplates.family.slice(0, Math.min(count, 6)).join('\n');
+            }
+            
+            // Fallback to original generation method
+            const templates = [
+                "Hey, what do you think about {topic}?",
+                "I've been thinking about {topic} lately. It's interesting!",
+                "Have you heard the latest about {topic}?",
+                "I'm not sure how I feel about {topic}, to be honest.",
+                "Let me tell you what happened with {topic} yesterday!",
+                "Do you want to discuss {topic} more?",
+                "I can't believe what's going on with {topic}!",
+                "What's your take on {topic}?",
+                "I read an article about {topic} the other day.",
+                "My friend was just telling me about {topic}."
+            ];
+            
+            const responses = [
+                "Oh really? Tell me more!",
+                "That's interesting. I've been wondering about that too.",
+                "No way! What happened?",
+                "I had no idea about that!",
+                "Yeah, I've been following that for a while.",
+                "That's crazy! What do you think about it?",
+                "I'm not surprised, to be honest.",
+                "Wow, that's news to me!",
+                "I've been thinking the same thing!",
+                "Let's talk more about this later."
+            ];
+            
+            let currentHour = 10; // Start at 10 AM
+            let currentMinute = 0;
+            
+            for (let i = 0; i < count; i++) {
+                const isFirst = i % 2 === 0;
+                const name = isFirst ? char1Name : char2Name;
+                
+                // Generate realistic timestamps (progress 1-5 minutes between messages)
+                currentMinute += Math.floor(Math.random() * 5) + 1;
+                if (currentMinute >= 60) {
+                    currentHour++;
+                    currentMinute = currentMinute - 60;
+                }
+                
+                const displayHour = currentHour > 12 ? currentHour - 12 : (currentHour === 0 ? 12 : currentHour);
+                const ampm = currentHour >= 12 ? 'PM' : 'AM';
+                const timestamp = `${displayHour}:${String(currentMinute).padStart(2, '0')} ${ampm}`;
+                
+                let message;
+                if (isFirst) {
+                    // Template with topic
+                    let template = templates[Math.floor(Math.random() * templates.length)];
+                    message = template.replace("{topic}", topic);
+                } else {
+                    // Response
+                    message = responses[Math.floor(Math.random() * responses.length)];
+                }
+                
+                conversation += `${name} | ${timestamp} | ${message}\n`;
+            }
+            
+            return conversation;
+        }
+        
+        // Export functions
+        function generateChatOnlyHTML() {
+            const chatMessages = document.getElementById('chatMessages');
+            const char1Name = document.getElementById('char1Name').value || 'Character 1';
+            const char2Name = document.getElementById('char2Name').value || 'Character 2';
+            const topic = document.getElementById('topic').value || 'Conversation';
+            
+            // Get character details if available
+            const characters = storage.getCharacters();
+            const char1Selector = document.getElementById('char1Selector');
+            const char2Selector = document.getElementById('char2Selector');
+            const char1 = characters.find(c => c.id === char1Selector.value);
+            const char2 = characters.find(c => c.id === char2Selector.value);
+            
+            // Enhanced HTML structure with better styling
+            let chatOnlyHTML = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>${char1Name} & ${char2Name} - ${topic}</title>
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+                    
+                    :root {
+                        --discord-bg: #36393f;
+                        --discord-card-bg: #2f3136;
+                        --discord-text: #dcddde;
+                        --discord-text-muted: #b9bbbe;
+                        --discord-accent: #5865f2;
+                        --discord-hover: #32353b;
+                        --discord-border: #4f545c;
+                        --discord-timestamp: #72767d;
+                        --shadow-light: rgba(0, 0, 0, 0.1);
+                        --shadow-medium: rgba(0, 0, 0, 0.2);
+                        --shadow-heavy: rgba(0, 0, 0, 0.4);
+                    }
+                    
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+                    
+                    body {
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+                        background: linear-gradient(135deg, #23272a 0%, #2c2f33 100%);
+                        color: var(--discord-text);
+                        line-height: 1.5;
+                        min-height: 100vh;
+                        padding: 20px;
+                    }
+                    
+                    .container {
+                        max-width: 800px;
+                        margin: 0 auto;
+                        background: var(--discord-card-bg);
+                        border-radius: 16px;
+                        box-shadow: 0 8px 24px var(--shadow-heavy);
+                        overflow: hidden;
+                        backdrop-filter: blur(10px);
+                        border: 1px solid var(--discord-border);
+                    }
+                    
+                    .chat-header {
+                        background: linear-gradient(135deg, var(--discord-accent) 0%, #4752c4 100%);
+                        padding: 24px 32px;
+                        text-align: center;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    
+                    .chat-header::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+                        pointer-events: none;
+                    }
+                    
+                    .chat-title {
+                        color: white;
+                        font-size: 28px;
+                        font-weight: 700;
+                        margin-bottom: 8px;
+                        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                        position: relative;
+                        z-index: 1;
+                    }
+                    
+                    .chat-subtitle {
+                        color: rgba(255,255,255,0.9);
+                        font-size: 16px;
+                        font-weight: 400;
+                        position: relative;
+                        z-index: 1;
+                    }
+                    
+                    .chat-participants {
+                        display: flex;
+                        justify-content: center;
+                        gap: 32px;
+                        margin-top: 20px;
+                        position: relative;
+                        z-index: 1;
+                    }
+                    
+                    .participant {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 12px;
+                    }
+                    
+                    .participant-avatar {
+                        width: 64px;
+                        height: 64px;
+                        border-radius: 50%;
+                        border: 3px solid rgba(255,255,255,0.3);
+                        overflow: hidden;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                        transition: transform 0.3s ease;
+                    }
+                    
+                    .participant-avatar:hover {
+                        transform: scale(1.05);
+                    }
+                    
+                    .participant-avatar img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                    }
+                    
+                    .participant-name {
+                        color: white;
+                        font-weight: 600;
+                        font-size: 14px;
+                        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+                    }
+                    
+                    .chat-messages {
+                        padding: 32px;
+                        max-height: 80vh;
+                        overflow-y: auto;
+                        scrollbar-width: thin;
+                        scrollbar-color: var(--discord-accent) transparent;
+                    }
+                    
+                    .chat-messages::-webkit-scrollbar {
+                        width: 8px;
+                    }
+                    
+                    .chat-messages::-webkit-scrollbar-track {
+                        background: transparent;
+                    }
+                    
+                    .chat-messages::-webkit-scrollbar-thumb {
+                        background: var(--discord-accent);
+                        border-radius: 4px;
+                    }
+                    
+                    .chat-messages::-webkit-scrollbar-thumb:hover {
+                        background: #4752c4;
+                    }
+                    
+                    .message {
+                        display: flex;
+                        margin-bottom: 24px;
+                        padding: 16px 20px;
+                        border-radius: 12px;
+                        transition: all 0.2s ease;
+                        position: relative;
+                    }
+                    
+                    .message:hover {
+                        background: linear-gradient(135deg, var(--discord-hover) 0%, rgba(50, 53, 59, 0.8) 100%);
+                        transform: translateX(4px);
+                        box-shadow: 0 4px 12px var(--shadow-light);
+                    }
+                    
+                    .message:hover::before {
+                        content: '';
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        bottom: 0;
+                        width: 3px;
+                        background: linear-gradient(135deg, var(--discord-accent), #4752c4);
+                        border-radius: 0 2px 2px 0;
+                    }
+                    
+                    .message-avatar {
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 50%;
+                        margin-right: 16px;
+                        flex-shrink: 0;
+                        overflow: hidden;
+                        border: 2px solid var(--discord-border);
+                        box-shadow: 0 2px 8px var(--shadow-light);
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .message-avatar:hover {
+                        transform: scale(1.1);
+                        border-color: var(--discord-accent);
+                        box-shadow: 0 0 16px rgba(88, 101, 242, 0.3);
+                    }
+                    
+                    .message-avatar img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                    }
+                    
+                    .message-content {
+                        flex: 1;
+                        min-width: 0;
+                    }
+                    
+                    .message-header {
+                        display: flex;
+                        align-items: baseline;
+                        margin-bottom: 6px;
+                        gap: 12px;
+                    }
+                    
+                    .message-username {
+                        font-weight: 600;
+                        font-size: 16px;
+                        background: linear-gradient(135deg, #ffffff, var(--discord-text-muted));
+                        background-clip: text;
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        flex-shrink: 0;
+                    }
+                    
+                    .message-timestamp {
+                        color: var(--discord-timestamp);
+                        font-size: 12px;
+                        font-weight: 500;
+                        opacity: 0.7;
+                        transition: opacity 0.2s ease;
+                        flex-shrink: 0;
+                    }
+                    
+                    .message:hover .message-timestamp {
+                        opacity: 1;
+                    }
+                    
+                    .message-text {
+                        color: var(--discord-text);
+                        font-size: 15px;
+                        line-height: 1.6;
+                        white-space: pre-wrap;
+                        word-wrap: break-word;
+                        margin-top: 2px;
+                    }
+                    
+                    .chat-footer {
+                        background: var(--discord-card-bg);
+                        padding: 20px 32px;
+                        text-align: center;
+                        border-top: 1px solid var(--discord-border);
+                        font-size: 12px;
+                        color: var(--discord-timestamp);
+                    }
+                    
+                    .export-info {
+                        margin-top: 8px;
+                        font-style: italic;
+                    }
+                    
+                    /* Responsive Design */
+                    @media (max-width: 768px) {
+                        body {
+                            padding: 12px;
+                        }
+                        
+                        .container {
+                            border-radius: 12px;
+                        }
+                        
+                        .chat-header {
+                            padding: 20px;
+                        }
+                        
+                        .chat-title {
+                            font-size: 24px;
+                        }
+                        
+                        .chat-participants {
+                            gap: 20px;
+                        }
+                        
+                        .participant-avatar {
+                            width: 56px;
+                            height: 56px;
+                        }
+                        
+                        .chat-messages {
+                            padding: 20px;
+                        }
+                        
+                        .message {
+                            padding: 12px 16px;
+                            margin-bottom: 16px;
+                        }
+                        
+                        .message-avatar {
+                            width: 40px;
+                            height: 40px;
+                        }
+                    }
+                    
+                    /* Print Styles */
+                    @media print {
+                        body {
+                            background: white;
+                            color: black;
+                        }
+                        
+                        .container {
+                            box-shadow: none;
+                            border: 1px solid #ccc;
+                        }
+                        
+                        .chat-header {
+                            background: #f5f5f5 !important;
+                            border-bottom: 2px solid #ddd;
+                        }
+                        
+                        .chat-title, .chat-subtitle, .participant-name {
+                            color: black !important;
+                        }
+                        
+                        .message {
+                            break-inside: avoid;
+                        }
+                        
+                        .message:hover {
+                            transform: none;
+                            background: none;
+                        }
+                        
+                        .chat-messages {
+                            max-height: none;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="chat-header">
+                        <h1 class="chat-title">${char1Name} & ${char2Name}</h1>
+                        <p class="chat-subtitle">Conversation about ${topic}</p>
+                        <div class="chat-participants">
+                            <div class="participant">
+                                <div class="participant-avatar">
+                                    <img src="${char1 ? (char1.avatar || '/api/placeholder/64/64') : '/api/placeholder/64/64'}" alt="${char1Name}">
+                                </div>
+                                <div class="participant-name">${char1Name}</div>
+                            </div>
+                            <div class="participant">
+                                <div class="participant-avatar">
+                                    <img src="${char2 ? (char2.avatar || '/api/placeholder/64/64') : '/api/placeholder/64/64'}" alt="${char2Name}">
+                                </div>
+                                <div class="participant-name">${char2Name}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-messages">
+                        ${chatMessages.innerHTML}
+                    </div>
+                    
+                    <div class="chat-footer">
+                        <div>Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</div>
+                        <div class="export-info">Created with Discord-Style Chat Generator • Made with Claude AI</div>
+                    </div>
+                </div>
+            </body>
+            </html>
+            `;
+            
+            return chatOnlyHTML;
+        }
+        
+        // Download Full HTML
+        document.getElementById('downloadFullBtn').addEventListener('click', function() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'discord-chat-generator.html';
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 0);
+        });
+        
+        // Download Chat Only
+        document.getElementById('downloadChatOnlyBtn').addEventListener('click', function() {
+            const chatOnlyHTML = generateChatOnlyHTML();
+            const blob = new Blob([chatOnlyHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            const char1Name = document.getElementById('char1Name').value || 'Character1';
+            const char2Name = document.getElementById('char2Name').value || 'Character2';
+            const topic = document.getElementById('topic').value || 'Chat';
+            
+            // Create a clean filename
+            const filename = `${char1Name}_${char2Name}_${topic}`.replace(/[^a-zA-Z0-9_-]/g, '_') + '_chat.html';
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 0);
+        });
+    </script>
+</body>
+</html>
+
+
+
