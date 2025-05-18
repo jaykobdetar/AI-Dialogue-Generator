@@ -1037,7 +1037,7 @@
                     
                     charItem.addEventListener('click', function(e) {
                         if (e.target.classList.contains('character-item-delete')) {
-                            if (confirm(`Delete character "${char.name}"?`)) {
+                            if (confirm('Delete character "' + char.name + '"?')) {
                                 storage.deleteCharacter(char.id);
                             }
                             return;
@@ -1629,12 +1629,11 @@
                     }
                 }
                 
-                const prompt = `Generate a conversation between ${char1Name} and ${char2Name} about ${topic}. 
-                Create exactly ${messageCount} messages total, alternating between the two characters.
-                Format each message as: "CHARACTER_NAME | TIMESTAMP | message content"
-                Where TIMESTAMP should be in format "12:34 PM" and progress realistically throughout the conversation (messages should be a few minutes apart).${characterDetails}
-                
-                Not all replies need to be short - sometimes the context implies a longer message is appropriate, use judgment.`;
+                const prompt = 'Generate a conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                'Create exactly ' + messageCount + ' messages total, alternating between the two characters. ' +
+                'Format each message as: "CHARACTER_NAME | TIMESTAMP | message content" ' +
+                'Where TIMESTAMP should be in format "12:34 PM" and progress realistically throughout the conversation (messages should be a few minutes apart).' + characterDetails + ' ' +
+                'Not all replies need to be short - sometimes the context implies a longer message is appropriate, use judgment.';
                 
                 // Determine API endpoint
                 let apiEndpoint = document.getElementById('apiEndpoint').value;
@@ -1661,9 +1660,9 @@
                 }
                 
                 // Display API request info
-                console.log(`Sending request to: ${apiEndpoint}`);
-                console.log(`Using model: ${model}`);
-                console.log(`System prompt: ${systemPrompt}`);
+                console.log('Sending request to: ' + apiEndpoint);
+                console.log('Using model: ' + model);
+                console.log('System prompt: ' + systemPrompt);
                 
                 // Use local fallback if test mode is enabled
                 if (document.getElementById('apiEndpoint').value === 'test-mode') {
@@ -1710,7 +1709,7 @@
                     if (!response.ok) {
                         const errorText = await response.text();
                         console.error("API Response:", errorText);
-                        throw new Error(`API request failed with status: ${response.status}. Check your API key and endpoint.`);
+                        throw new Error('API request failed with status: ' + response.status + '. Check your API key and endpoint.');
                     }
                     
                     const data = await response.json();
@@ -1721,7 +1720,7 @@
                 } catch (error) {
                     // Handle network errors specifically
                     if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
-                        throw new Error(`Network error when connecting to ${apiEndpoint}. This could be due to CORS restrictions, an invalid domain, or the API being down.`);
+                        throw new Error('Network error when connecting to ' + apiEndpoint + '. This could be due to CORS restrictions, an invalid domain, or the API being down.');
                     } else {
                         throw error; // Re-throw other errors
                     }
@@ -1729,7 +1728,7 @@
                 
             } catch (error) {
                 console.error('Error:', error);
-                errorMsg.textContent = `Error: ${error.message || 'Failed to generate conversation'}`;
+                errorMsg.textContent = 'Error: ' + (error.message || 'Failed to generate conversation');
                 errorMsg.style.display = 'block';
             } finally {
                 loadingIndicator.style.display = 'none';
@@ -1793,7 +1792,7 @@
                     '/api/placeholder/40/40';
                 
                 // Use the timestamp from the AI response
-                const displayTimestamp = `Today at ${msg.timestamp}`;
+                const displayTimestamp = 'Today at ' + msg.timestamp;
                 
                 // Create message element
                 const messageElement = document.createElement('div');

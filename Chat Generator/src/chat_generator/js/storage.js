@@ -177,7 +177,7 @@ const storage = {
             
             charItem.addEventListener('click', function(e) {
                 if (e.target.classList.contains('character-item-delete')) {
-                    if (confirm(`Delete character "${char.name}"?`)) {
+                    if (confirm('Delete character "' + char.name + '"?')) {
                         storage.deleteCharacter(char.id);
                     }
                     return;
@@ -314,7 +314,7 @@ const storage = {
             } catch (error) {
                 console.error('Import error:', error);
                 const errorMsg = document.getElementById('importErrorMsg');
-                errorMsg.textContent = `Error importing characters: ${error.message}`;
+                errorMsg.textContent = 'Error importing characters: ' + error.message;
                 errorMsg.style.display = 'block';
                 setTimeout(() => {
                     errorMsg.style.display = 'none';
