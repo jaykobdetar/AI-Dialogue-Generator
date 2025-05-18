@@ -129,7 +129,11 @@ const ui = {
             const reader = new FileReader();
             reader.onload = function(event) {
                 const preview = document.getElementById('charEditPreview');
-                preview.innerHTML = `<img src="${event.target.result}" alt="Character Preview">`;
+                preview.textContent = '';
+                const img = document.createElement('img');
+                img.src = event.target.result;
+                img.alt = 'Character Preview';
+                preview.appendChild(img);
             };
             reader.readAsDataURL(file);
         }
@@ -181,7 +185,7 @@ const ui = {
         document.getElementById('charEditBackground').value = '';
         document.getElementById('charEditRelationship').value = '';
         document.getElementById('charEditTextingStyle').value = '';
-        document.getElementById('charEditPreview').innerHTML = '';
+        document.getElementById('charEditPreview').textContent = '';
         document.getElementById('charEditPreview').dataset.charId = '';
         document.getElementById('charEditAvatar').value = '';
     },
@@ -217,11 +221,16 @@ const ui = {
         const selectedChar = characters.find(c => c.id === this.value);
         
         if (selectedChar) {
-            document.getElementById(`char${charNum}Preview`).innerHTML = 
-                `<img src="${selectedChar.avatar || '/api/placeholder/40/40'}" alt="${selectedChar.name}">`;
+            const charPreviewElement = document.getElementById(`char${charNum}Preview`);
+            charPreviewElement.textContent = '';
+            const charImg = document.createElement('img');
+            charImg.src = selectedChar.avatar || '/api/placeholder/40/40';
+            charImg.alt = selectedChar.name;
+            charPreviewElement.appendChild(charImg);
             document.getElementById(`char${charNum}Name`).value = selectedChar.name;
         } else {
-            document.getElementById(`char${charNum}Preview`).innerHTML = '';
+            const charPreviewElement = document.getElementById(`char${charNum}Preview`);
+            charPreviewElement.textContent = '';
             document.getElementById(`char${charNum}Name`).value = '';
         }
     },
@@ -394,7 +403,7 @@ const ui = {
             });
         
         const chatMessages = document.getElementById('chatMessages');
-        chatMessages.innerHTML = '';
+        chatMessages.textContent = '';
         
         messages.forEach((msg, index) => {
             const isChar1 = msg.character.toLowerCase().includes(char1Name.toLowerCase());
@@ -410,18 +419,40 @@ const ui = {
             
             const messageElement = document.createElement('div');
             messageElement.className = 'message';
-            messageElement.innerHTML = `
-                <div class="message-avatar">
-                    <img src="${avatarSrc}" alt="${charName}">
-                </div>
-                <div class="message-content">
-                    <div class="message-header">
-                        <div class="message-username">${charName}</div>
-                        <div class="message-timestamp">${displayTimestamp}</div>
-                    </div>
-                    <div class="message-text">${msg.content}</div>
-                </div>
-            `;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+
+            const avatarImg = document.createElement('img');
+            avatarImg.src = avatarSrc;
+            avatarImg.alt = charName;
+            avatar.appendChild(avatarImg);
+
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+
+            const messageHeader = document.createElement('div');
+            messageHeader.className = 'message-header';
+
+            const username = document.createElement('div');
+            username.className = 'message-username';
+            username.textContent = charName;
+
+            const timestamp = document.createElement('div');
+            timestamp.className = 'message-timestamp';
+            timestamp.textContent = displayTimestamp;
+
+            const messageText = document.createElement('div');
+            messageText.className = 'message-text';
+            messageText.textContent = msg.content;
+
+            messageHeader.appendChild(username);
+            messageHeader.appendChild(timestamp);
+            messageContent.appendChild(messageHeader);
+            messageContent.appendChild(messageText);
+
+            messageElement.appendChild(avatar);
+            messageElement.appendChild(messageContent);
             
             chatMessages.appendChild(messageElement);
         });
@@ -670,7 +701,7 @@ const ui = {
                 </div>
                 
                 <div class="chat-messages">
-                    ${chatMessages.innerHTML}
+                    ${chatMessages.textContent}
                 </div>
                 
                 <div class="chat-footer">

@@ -86,10 +86,14 @@ const storage = {
     renderCharacterList: function() {
         const characters = this.getCharacters();
         const listElement = document.getElementById('savedCharacters');
-        listElement.innerHTML = '';
+        listElement.textContent = '';
         
         if (characters.length === 0) {
-            listElement.innerHTML = '<div style="padding: 10px; color: #72767d;">No saved characters</div>';
+            const emptyDiv = document.createElement('div');
+            emptyDiv.style.padding = '10px';
+            emptyDiv.style.color = '#72767d';
+            emptyDiv.textContent = 'No saved characters';
+            listElement.appendChild(emptyDiv);
             return;
         }
         
@@ -98,13 +102,25 @@ const storage = {
             charItem.className = 'character-item';
             charItem.dataset.id = char.id;
             
-            charItem.innerHTML = `
-                <div class="character-item-avatar">
-                    <img src="${char.avatar || '/api/placeholder/30/30'}" alt="${char.name}">
-                </div>
-                <div class="character-item-name">${char.name}</div>
-                <div class="character-item-delete">×</div>
-            `;
+            const charItemAvatar = document.createElement('div');
+            charItemAvatar.className = 'character-item-avatar';
+            
+            const avatarImg = document.createElement('img');
+            avatarImg.src = char.avatar || '/api/placeholder/30/30';
+            avatarImg.alt = char.name;
+            charItemAvatar.appendChild(avatarImg);
+            
+            const charItemName = document.createElement('div');
+            charItemName.className = 'character-item-name';
+            charItemName.textContent = char.name;
+            
+            const charItemDelete = document.createElement('div');
+            charItemDelete.className = 'character-item-delete';
+            charItemDelete.textContent = '×';
+            
+            charItem.appendChild(charItemAvatar);
+            charItem.appendChild(charItemName);
+            charItem.appendChild(charItemDelete);
             
             charItem.addEventListener('click', function(e) {
                 if (e.target.classList.contains('character-item-delete')) {
@@ -121,7 +137,14 @@ const storage = {
                 document.getElementById('charEditBackground').value = char.background || '';
                 document.getElementById('charEditRelationship').value = char.relationship || '';
                 document.getElementById('charEditTextingStyle').value = char.textingStyle || '';
-                document.getElementById('charEditPreview').innerHTML = `<img src="${char.avatar || '/api/placeholder/40/40'}" alt="${char.name}">`;
+                const previewElement = document.getElementById('charEditPreview');
+                previewElement.textContent = '';
+                if (char.avatar) {
+                    const previewImg = document.createElement('img');
+                    previewImg.src = char.avatar || '/api/placeholder/40/40';
+                    previewImg.alt = char.name;
+                    previewElement.appendChild(previewImg);
+                }
                 document.getElementById('charEditPreview').dataset.charId = char.id;
             });
             
@@ -137,8 +160,19 @@ const storage = {
         const selectedChar1 = selector1.value;
         const selectedChar2 = selector2.value;
         
-        selector1.innerHTML = '<option value="">Select a character</option>';
-        selector2.innerHTML = '<option value="">Select a character</option>';
+        selector1.textContent = '';
+        selector2.textContent = '';
+        
+        const defaultOption1 = document.createElement('option');
+        defaultOption1.value = '';
+        defaultOption1.textContent = 'Select a character';
+        
+        const defaultOption2 = document.createElement('option');
+        defaultOption2.value = '';
+        defaultOption2.textContent = 'Select a character';
+        
+        selector1.appendChild(defaultOption1);
+        selector2.appendChild(defaultOption2);
         
         characters.forEach(char => {
             const option1 = document.createElement('option');

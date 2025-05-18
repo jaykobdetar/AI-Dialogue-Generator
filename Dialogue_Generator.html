@@ -960,10 +960,14 @@
             renderCharacterList: function() {
                 const characters = this.getCharacters();
                 const listElement = document.getElementById('savedCharacters');
-                listElement.innerHTML = '';
+                listElement.textContent = '';
                 
                 if (characters.length === 0) {
-                    listElement.innerHTML = '<div style="padding: 10px; color: #72767d;">No saved characters</div>';
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.style.padding = '10px';
+                    emptyDiv.style.color = '#72767d';
+                    emptyDiv.textContent = 'No saved characters';
+                    listElement.appendChild(emptyDiv);
                     return;
                 }
                 
@@ -972,36 +976,36 @@
                     charItem.className = 'character-item';
                     charItem.dataset.id = char.id;
                     
-                    charItem.innerHTML = `
-                        <div class="character-item-avatar">
-                            <img src="${char.avatar || '/api/placeholder/30/30'}" alt="${char.name}">
-                        </div>
-                        <div class="character-item-name">${char.name}</div>
-                        <div class="character-item-delete">×</div>
-                    `;
+                    const avatar = document.createElement('img');
+                    avatar.src = char.avatar || '/api/placeholder/30/30';
+                    avatar.alt = char.name;
                     
-                    // Edit character on click
-                    charItem.addEventListener('click', function(e) {
-                        if (e.target.classList.contains('character-item-delete')) {
-                            // Delete character
-                            if (confirm(`Delete character "${char.name}"?`)) {
-                                storage.deleteCharacter(char.id);
-                            }
-                            return;
-                        }
-                        
-                        // Load character data into form
-                        document.getElementById('charEditName').value = char.name;
-                        document.getElementById('charEditAge').value = char.age || '';
-                        document.getElementById('charEditPersonality').value = char.personality || '';
-                        document.getElementById('charEditBackground').value = char.background || '';
-                        document.getElementById('charEditRelationship').value = char.relationship || '';
-                        document.getElementById('charEditTextingStyle').value = char.textingStyle || '';
-                        document.getElementById('charEditPreview').innerHTML = `<img src="${char.avatar || '/api/placeholder/40/40'}" alt="${char.name}">`;
-                        
-                        // Store the current editing character ID
-                        document.getElementById('charEditPreview').dataset.charId = char.id;
-                    });
+                    const charInfo = document.createElement('div');
+                    charInfo.className = 'character-info';
+                    
+                    const charName = document.createElement('div');
+                    charName.className = 'character-name';
+                    charName.textContent = char.name;
+                    
+                    const charActions = document.createElement('div');
+                    charActions.className = 'character-actions';
+                    
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'btn-icon';
+                    editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                    editBtn.onclick = () => this.editCharacter(char.id);
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn-icon';
+                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                    deleteBtn.onclick = () => this.deleteCharacter(char.id);
+                    
+                    charActions.appendChild(editBtn);
+                    charActions.appendChild(deleteBtn);
+                    charInfo.appendChild(charName);
+                    charItem.appendChild(avatar);
+                    charItem.appendChild(charInfo);
+                    charItem.appendChild(charActions);
                     
                     listElement.appendChild(charItem);
                 });
@@ -1017,8 +1021,20 @@
                 const selectedChar2 = selector2.value;
                 
                 // Clear current options except first one
-                selector1.innerHTML = '<option value="">Select a character</option>';
-                selector2.innerHTML = '<option value="">Select a character</option>';
+                selector1.textContent = '';
+                selector2.textContent = '';
+                
+                // Add default option
+                const defaultOption1 = document.createElement('option');
+                defaultOption1.value = '';
+                defaultOption1.textContent = 'Select a character';
+                
+                const defaultOption2 = document.createElement('option');
+                defaultOption2.value = '';
+                defaultOption2.textContent = 'Select a character';
+                
+                selector1.appendChild(defaultOption1);
+                selector2.appendChild(defaultOption2);
                 
                 // Add character options
                 characters.forEach(char => {
@@ -1125,6 +1141,32 @@
                     }
                 };
                 reader.readAsText(file);
+            },
+            
+            editCharacter: function(id) {
+                const characters = this.getCharacters();
+                const char = characters.find(c => c.id === id);
+                if (!char) return;
+                
+                // Populate form fields with character data
+                document.getElementById('charEditName').value = char.name;
+                document.getElementById('charEditAge').value = char.age || '';
+                document.getElementById('charEditPersonality').value = char.personality || '';
+                document.getElementById('charEditBackground').value = char.background || '';
+                document.getElementById('charEditRelationship').value = char.relationship || '';
+                document.getElementById('charEditTextingStyle').value = char.textingStyle || '';
+                
+                const preview = document.getElementById('charEditPreview');
+                preview.textContent = '';
+                if (char.avatar) {
+                    const img = document.createElement('img');
+                    img.src = char.avatar;
+                    img.alt = char.name;
+                    preview.appendChild(img);
+                }
+                
+                // Store the current editing character ID
+                preview.dataset.charId = char.id;
             }
         };
         
@@ -1222,7 +1264,11 @@
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const preview = document.getElementById('charEditPreview');
-                    preview.innerHTML = `<img src="${event.target.result}" alt="Character Preview">`;
+                    preview.textContent = '';
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.alt = 'Character Preview';
+                    preview.appendChild(img);
                 };
                 reader.readAsDataURL(file);
             }
@@ -1281,7 +1327,7 @@
             document.getElementById('charEditBackground').value = '';
             document.getElementById('charEditRelationship').value = '';
             document.getElementById('charEditTextingStyle').value = '';
-            document.getElementById('charEditPreview').innerHTML = '';
+            document.getElementById('charEditPreview').textContent = '';
             document.getElementById('charEditPreview').dataset.charId = '';
             document.getElementById('charEditAvatar').value = '';
         });
@@ -1346,10 +1392,14 @@
             
             if (selectedChar) {
                 // Set character 1 avatar and name
-                document.getElementById('char1Preview').innerHTML = `<img src="${selectedChar.avatar || '/api/placeholder/40/40'}" alt="${selectedChar.name}">`;
+                document.getElementById('char1Preview').textContent = '';
+                const img = document.createElement('img');
+                img.src = selectedChar.avatar || '/api/placeholder/40/40';
+                img.alt = selectedChar.name;
+                document.getElementById('char1Preview').appendChild(img);
                 document.getElementById('char1Name').value = selectedChar.name;
             } else {
-                document.getElementById('char1Preview').innerHTML = '';
+                document.getElementById('char1Preview').textContent = '';
                 document.getElementById('char1Name').value = '';
             }
         });
@@ -1360,10 +1410,14 @@
             
             if (selectedChar) {
                 // Set character 2 avatar and name
-                document.getElementById('char2Preview').innerHTML = `<img src="${selectedChar.avatar || '/api/placeholder/40/40'}" alt="${selectedChar.name}">`;
+                document.getElementById('char2Preview').textContent = '';
+                const img = document.createElement('img');
+                img.src = selectedChar.avatar || '/api/placeholder/40/40';
+                img.alt = selectedChar.name;
+                document.getElementById('char2Preview').appendChild(img);
                 document.getElementById('char2Name').value = selectedChar.name;
             } else {
-                document.getElementById('char2Preview').innerHTML = '';
+                document.getElementById('char2Preview').textContent = '';
                 document.getElementById('char2Name').value = '';
             }
         });
@@ -1604,7 +1658,7 @@
             
             // Display messages in chat UI
             const chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML = '';
+            chatMessages.textContent = '';
             
             messages.forEach((msg, index) => {
                 const isChar1 = msg.character.toLowerCase().includes(char1Name.toLowerCase());
@@ -1623,18 +1677,31 @@
                 // Create message element
                 const messageElement = document.createElement('div');
                 messageElement.className = 'message';
-                messageElement.innerHTML = `
-                    <div class="message-avatar">
-                        <img src="${avatarSrc}" alt="${charName}">
-                    </div>
-                    <div class="message-content">
-                        <div class="message-header">
-                            <div class="message-username">${charName}</div>
-                            <div class="message-timestamp">${displayTimestamp}</div>
-                        </div>
-                        <div class="message-text">${msg.content}</div>
-                    </div>
-                `;
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'avatar';
+                
+                const img = document.createElement('img');
+                img.src = avatarSrc;
+                img.alt = charName;
+                avatar.appendChild(img);
+                
+                const contentWrapper = document.createElement('div');
+                contentWrapper.className = 'content-wrapper';
+                
+                const header = document.createElement('div');
+                header.className = 'message-header';
+                header.textContent = charName;
+                
+                const content = document.createElement('div');
+                content.className = 'content';
+                content.textContent = msg.content;
+                
+                contentWrapper.appendChild(header);
+                contentWrapper.appendChild(content);
+                
+                messageElement.appendChild(avatar);
+                messageElement.appendChild(contentWrapper);
                 
                 chatMessages.appendChild(messageElement);
             });

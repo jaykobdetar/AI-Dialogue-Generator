@@ -140,7 +140,12 @@
             const originalText = btn.innerHTML;
             
             // Update button to show status
-            btn.innerHTML = '<span class="emoji">⏳</span> Launching...';
+            btn.textContent = '';
+            const loadingSpan = document.createElement('span');
+            loadingSpan.className = 'emoji';
+            loadingSpan.textContent = '⏳';
+            btn.appendChild(loadingSpan);
+            btn.appendChild(document.createTextNode(' Launching...'));
             btn.disabled = true;
             
             try {
@@ -206,31 +211,98 @@
                 max-width: 600px; color: white; font-family: monospace;
             `;
             
-            content.innerHTML = `
-                <h2 style="margin-top: 0; color: #5865f2;">🎤 Audio Converter - Terminal Commands</h2>
-                <p>Copy and paste these commands in your terminal:</p>
-                <div style="background: #1e1e1e; padding: 20px; border-radius: 8px; margin: 20px 0; font-family: 'Courier New', monospace;">
-                    <div style="color: #98c379;"># Navigate to audio converter</div>
-                    <div style="color: #e5c07b;">cd src/audio_converter</div>
-                    <br>
-                    <div style="color: #98c379;"># Install dependencies (if not already installed)</div>
-                    <div style="color: #e5c07b;">pip install streamlit requests beautifulsoup4</div>
-                    <br>
-                    <div style="color: #98c379;"># Start the audio converter</div>
-                    <div style="color: #e5c07b;">streamlit run app.py</div>
-                </div>
-                <p>After running these commands, the audio converter will be available at 
-                   <a href="http://localhost:8501" target="_blank" style="color: #5865f2;">http://localhost:8501</a>
-                </p>
-                <div style="text-align: center; margin-top: 30px;">
-                    <button onclick="this.parentElement.parentElement.parentElement.remove()" 
-                            style="background: #5865f2; color: white; border: none; padding: 12px 24px; 
-                                   border-radius: 8px; cursor: pointer; font-size: 16px;">
-                        Got it!
-                    </button>
-                </div>
-            `;
-            
+            content.textContent = '';
+
+            const title = document.createElement('h2');
+            title.style.marginTop = '0';
+            title.style.color = '#5865f2';
+            title.textContent = '🎤 Audio Converter - Terminal Commands';
+            content.appendChild(title);
+
+            const intro = document.createElement('p');
+            intro.textContent = 'Copy and paste these commands in your terminal:';
+            content.appendChild(intro);
+
+            const commandsDiv = document.createElement('div');
+            commandsDiv.style.background = '#1e1e1e';
+            commandsDiv.style.padding = '20px';
+            commandsDiv.style.borderRadius = '8px';
+            commandsDiv.style.margin = '20px 0';
+            commandsDiv.style.fontFamily = "'Courier New', monospace";
+
+            // First command
+            const comment1 = document.createElement('div');
+            comment1.style.color = '#98c379';
+            comment1.textContent = '# Navigate to audio converter';
+            commandsDiv.appendChild(comment1);
+
+            const cmd1 = document.createElement('div');
+            cmd1.style.color = '#e5c07b';
+            cmd1.textContent = 'cd src/audio_converter';
+            commandsDiv.appendChild(cmd1);
+
+            commandsDiv.appendChild(document.createElement('br'));
+
+            // Second command
+            const comment2 = document.createElement('div');
+            comment2.style.color = '#98c379';
+            comment2.textContent = '# Install dependencies (if not already installed)';
+            commandsDiv.appendChild(comment2);
+
+            const cmd2 = document.createElement('div');
+            cmd2.style.color = '#e5c07b';
+            cmd2.textContent = 'pip install streamlit requests beautifulsoup4';
+            commandsDiv.appendChild(cmd2);
+
+            commandsDiv.appendChild(document.createElement('br'));
+
+            // Third command
+            const comment3 = document.createElement('div');
+            comment3.style.color = '#98c379';
+            comment3.textContent = '# Start the audio converter';
+            commandsDiv.appendChild(comment3);
+
+            const cmd3 = document.createElement('div');
+            cmd3.style.color = '#e5c07b';
+            cmd3.textContent = 'streamlit run app.py';
+            commandsDiv.appendChild(cmd3);
+
+            content.appendChild(commandsDiv);
+
+            // Add the footer paragraph with link
+            const footerP = document.createElement('p');
+            footerP.textContent = 'After running these commands, the audio converter will be available at ';
+
+            const link = document.createElement('a');
+            link.href = 'http://localhost:8501';
+            link.target = '_blank';
+            link.style.color = '#5865f2';
+            link.textContent = 'http://localhost:8501';
+
+            footerP.appendChild(link);
+            content.appendChild(footerP);
+
+            // Add the button container
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.textAlign = 'center';
+            buttonContainer.style.marginTop = '30px';
+
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'Got it!';
+            closeButton.style.background = '#5865f2';
+            closeButton.style.color = 'white';
+            closeButton.style.border = 'none';
+            closeButton.style.padding = '12px 24px';
+            closeButton.style.borderRadius = '8px';
+            closeButton.style.cursor = 'pointer';
+            closeButton.style.fontSize = '16px';
+            closeButton.onclick = function() {
+                modal.remove();
+            };
+
+            buttonContainer.appendChild(closeButton);
+            content.appendChild(buttonContainer);
+
             modal.appendChild(content);
             document.body.appendChild(modal);
             

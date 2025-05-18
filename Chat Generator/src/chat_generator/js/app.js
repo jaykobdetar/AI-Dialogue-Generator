@@ -68,20 +68,24 @@ function showDiagnostic() {
         if (typeof api === 'undefined') missingModules.push('api.js');
         if (typeof ui === 'undefined') missingModules.push('ui.js');
         
-        chatMessages.innerHTML = `
-            <div class="message">
-                <div class="message-content" style="padding: 20px; background: rgba(237, 66, 69, 0.1); border-radius: 8px;">
-                    <h3 style="color: #ed4245; margin-bottom: 10px;">⚠️ Module Loading Error</h3>
-                    <p><strong>Missing modules:</strong> ${missingModules.join(', ')}</p>
-                    <p style="margin-top: 10px;"><strong>Solutions:</strong></p>
-                    <ul style="margin-left: 20px; margin-top: 5px;">
-                        <li>Check browser console (F12) for syntax errors</li>
-                        <li>Verify all .js files exist in the js/ folder</li>
-                        <li>Make sure you're serving files (not file:// protocol)</li>
-                    </ul>
-                </div>
-            </div>
-        `;
+        chatMessages.textContent = '';
+
+        const welcomeMessage = document.createElement('div');
+        welcomeMessage.className = 'welcome-message';
+
+        const welcomeTitle = document.createElement('h2');
+        welcomeTitle.textContent = 'Welcome to the Chat Generator!';
+
+        const welcomeText1 = document.createElement('p');
+        welcomeText1.textContent = 'This tool allows you to create realistic chat conversations between characters.';
+
+        const welcomeText2 = document.createElement('p');
+        welcomeText2.textContent = 'Get started by creating characters and setting up a conversation topic.';
+
+        welcomeMessage.appendChild(welcomeTitle);
+        welcomeMessage.appendChild(welcomeText1);
+        welcomeMessage.appendChild(welcomeText2);
+        chatMessages.appendChild(welcomeMessage);
     }
 }
 
@@ -89,12 +93,26 @@ function setupHiddenElements() {
     if (!document.getElementById('char1Name')) {
         const hiddenElements = document.createElement('div');
         hiddenElements.style.display = 'none';
-        hiddenElements.innerHTML = `
-            <input type="text" id="char1Name">
-            <input type="text" id="char2Name">
-            <div id="char1Preview"></div>
-            <div id="char2Preview"></div>
-        `;
+        hiddenElements.textContent = '';
+
+        const char1NameInput = document.createElement('input');
+        char1NameInput.type = 'text';
+        char1NameInput.id = 'char1Name';
+
+        const char2NameInput = document.createElement('input');
+        char2NameInput.type = 'text';
+        char2NameInput.id = 'char2Name';
+
+        const char1Preview = document.createElement('div');
+        char1Preview.id = 'char1Preview';
+
+        const char2Preview = document.createElement('div');
+        char2Preview.id = 'char2Preview';
+
+        hiddenElements.appendChild(char1NameInput);
+        hiddenElements.appendChild(char2NameInput);
+        hiddenElements.appendChild(char1Preview);
+        hiddenElements.appendChild(char2Preview);
         document.body.appendChild(hiddenElements);
         console.log('👻 Hidden elements added');
     }
