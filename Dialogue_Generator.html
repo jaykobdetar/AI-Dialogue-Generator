@@ -471,13 +471,17 @@
         }
         
         .character-item-avatar {
-            width: 36px;
-            height: 36px;
+            width: 30px; /* Updated from 36px */
+            height: 30px; /* Updated from 36px */
             border-radius: 50%;
             margin-right: 12px;
             overflow: hidden;
             border: 2px solid var(--discord-accent);
             transition: transform 0.2s ease;
+            flex-shrink: 0; /* Add to prevent avatar from growing/shrinking */
+            display: flex; /* Add to ensure proper containment */
+            align-items: center; /* Add to center the image */
+            justify-content: center; /* Add to center the image */
         }
         
         .character-item:hover .character-item-avatar {
@@ -1197,6 +1201,9 @@
                     const img = document.createElement('img');
                     img.src = char.avatar;
                     img.alt = char.name;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'cover';
                     preview.appendChild(img);
                 }
                 
@@ -1486,6 +1493,10 @@
                 const img = document.createElement('img');
                 img.src = selectedChar.avatar || '/api/placeholder/40/40';
                 img.alt = selectedChar.name;
+                img.style.width = '40px';
+                img.style.height = '40px';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '50%';
                 document.getElementById('char1Preview').appendChild(img);
                 document.getElementById('char1Name').value = selectedChar.name;
             } else {
@@ -1504,6 +1515,10 @@
                 const img = document.createElement('img');
                 img.src = selectedChar.avatar || '/api/placeholder/40/40';
                 img.alt = selectedChar.name;
+                img.style.width = '40px';
+                img.style.height = '40px';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '50%';
                 document.getElementById('char2Preview').appendChild(img);
                 document.getElementById('char2Name').value = selectedChar.name;
             } else {
@@ -1769,29 +1784,41 @@
                 messageElement.className = 'message';
                 
                 const avatar = document.createElement('div');
-                avatar.className = 'avatar';
+                avatar.className = 'message-avatar';
                 
                 const img = document.createElement('img');
                 img.src = avatarSrc;
                 img.alt = charName;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
                 avatar.appendChild(img);
                 
-                const contentWrapper = document.createElement('div');
-                contentWrapper.className = 'content-wrapper';
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
                 
-                const header = document.createElement('div');
-                header.className = 'message-header';
-                header.textContent = charName;
+                const messageHeader = document.createElement('div');
+                messageHeader.className = 'message-header';
                 
-                const content = document.createElement('div');
-                content.className = 'content';
-                content.textContent = msg.content;
+                const username = document.createElement('div');
+                username.className = 'message-username';
+                username.textContent = charName;
                 
-                contentWrapper.appendChild(header);
-                contentWrapper.appendChild(content);
+                const timestamp = document.createElement('div');
+                timestamp.className = 'message-timestamp';
+                timestamp.textContent = displayTimestamp;
+                
+                const messageText = document.createElement('div');
+                messageText.className = 'message-text';
+                messageText.textContent = msg.content;
+                
+                messageHeader.appendChild(username);
+                messageHeader.appendChild(timestamp);
+                messageContent.appendChild(messageHeader);
+                messageContent.appendChild(messageText);
                 
                 messageElement.appendChild(avatar);
-                messageElement.appendChild(contentWrapper);
+                messageElement.appendChild(messageContent);
                 
                 chatMessages.appendChild(messageElement);
             });
