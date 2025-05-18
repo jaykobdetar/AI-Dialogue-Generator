@@ -29,12 +29,12 @@ class ChatMessage:
         self.content = content
         self.timestamp = timestamp
 
-class DiscordChatParser:
+class ChatParser:
     def __init__(self):
         pass
     
     def parse_html(self, html_content: str) -> List[ChatMessage]:
-        """Parse Discord-style HTML chat log and extract messages."""
+        """Parse HTML chat log and extract messages."""
         soup = BeautifulSoup(html_content, 'html.parser')
         messages = []
         
@@ -153,13 +153,13 @@ def combine_audio_segments(audio_segments: List[bytes], add_pauses: bool = True)
 
 def main():
     st.set_page_config(
-        page_title="Discord Chat to Audio Transcript",
+        page_title="Chat to Audio Transcript",
         page_icon="🎤",
         layout="wide"
     )
     
-    st.title("🎤 Discord Chat to Audio Transcript Generator")
-    st.markdown("Upload a Discord-style HTML chat log and generate an audio transcript using ElevenLabs TTS!")
+    st.title("🎤 Chat to Audio Transcript Generator")
+    st.markdown("Upload an HTML chat log and generate an audio transcript using ElevenLabs TTS!")
     
     # Sidebar for configuration
     st.sidebar.header("Configuration")
@@ -185,13 +185,13 @@ def main():
     uploaded_file = st.file_uploader(
         "Choose an HTML chat log file",
         type=['html', 'htm'],
-        help="Upload a Discord-style HTML chat log"
+        help="Upload an HTML chat log"
     )
     
     if uploaded_file is not None:
         # Read and parse the HTML file
         html_content = uploaded_file.read().decode('utf-8')
-        parser = DiscordChatParser()
+        parser = ChatParser()
         messages = parser.parse_html(html_content)
         
         if not messages:
@@ -272,13 +272,13 @@ def main():
     st.markdown("""
     ### How to use:
     1. Enter your ElevenLabs API key in the sidebar
-    2. Upload a Discord-style HTML chat log file
+    2. Upload an HTML chat log file
     3. Configure voice assignments for each participant
     4. Click "Generate Audio Transcript" to create the audio file
     5. Download and listen to your generated transcript!
     
     ### Supported HTML Format:
-    The chat log should be in Discord-style HTML format with messages containing:
+    The chat log should be in HTML format with messages containing:
     - `.message` containers
     - `.message-username` for usernames
     - `.message-text` for message content

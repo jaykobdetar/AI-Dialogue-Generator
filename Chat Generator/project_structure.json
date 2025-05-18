@@ -1,7 +1,7 @@
 {
-  "name": "discord-chat-generator",
+  "name": "AI-Dialogue-Generator",
   "version": "1.0.0",
-  "description": "Generate realistic Discord-style text conversations between custom characters using AI APIs",
+  "description": "Generate realistic conversations between custom characters using AI APIs",
   "main": "index.html",
   "scripts": {
     "start": "python -m http.server 8000",
@@ -9,15 +9,15 @@
     "audio-app": "streamlit run src/audio_converter/app.py",
     "install-audio-deps": "pip install -r requirements.txt"
   },
-  "keywords": ["discord", "chat", "ai", "conversation", "generator"],
+  "keywords": ["dialogue", "chat", "ai", "conversation", "generator"],
   "author": "Made with Claude AI",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/discord-chat-generator.git"
+    "url": "https://github.com/yourusername/AI-Dialogue-Generator.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/discord-chat-generator/issues"
+    "url": "https://github.com/yourusername/AI-Dialogue-Generator/issues"
   },
-  "homepage": "https://github.com/yourusername/discord-chat-generator#readme"
+  "homepage": "https://github.com/yourusername/AI-Dialogue-Generator#readme"
 }

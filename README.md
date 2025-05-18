@@ -1,12 +1,12 @@
 # AI Dialogue Generator
 
-> Create realistic Discord-style conversations between custom characters and convert them to audio using AI
+> Create realistic conversations between custom characters and convert them to audio using AI
 
 ![Demo](https://img.shields.io/badge/Demo-Available-green) ![License](https://img.shields.io/badge/License-MIT-blue) ![AI-Powered](https://img.shields.io/badge/AI-Powered-purple) ![Audio](https://img.shields.io/badge/Audio-Supported-orange)
 
 ## 🚀 Overview
 
-The AI Dialogue Generator is a comprehensive toolkit for creating realistic conversations between custom characters. It features a Discord-style chat interface powered by leading AI APIs, plus an audio converter that transforms text conversations into natural speech using ElevenLabs TTS.
+The AI Dialogue Generator is a comprehensive toolkit for creating realistic conversations between custom characters. It features a modern chat interface powered by leading AI APIs, plus an audio converter that transforms text conversations into natural speech using ElevenLabs TTS.
 
 ## ✨ Features
 
@@ -22,7 +22,7 @@ The AI Dialogue Generator is a comprehensive toolkit for creating realistic conv
 - **Rich Profiles**: Name, age, personality, background, occupation
 - **Custom Avatars**: Upload profile pictures for visual authenticity
 - **Relationship Dynamics**: Define how characters relate to each other
-- **Texting Styles**: Choose communication patterns (formal, casual, emoji-heavy, etc.)
+- **Communication Styles**: Choose communication patterns (formal, casual, emoji-heavy, etc.)
 - **Import/Export**: Share character collections via JSON files
 - **Local Storage**: All data stays on your device
 
@@ -33,25 +33,35 @@ The AI Dialogue Generator is a comprehensive toolkit for creating realistic conv
 - **High Quality**: Professional TTS with emotional intonation
 - **Easy Export**: Download conversations as MP3 files
 
-### 🎨 Discord-Style Interface
-- **Authentic Design**: Pixel-perfect Discord styling with hover effects
+### 🎨 Modern Interface
+- **Clean Design**: Modern styling with hover effects
 - **Responsive Layout**: Works seamlessly on desktop and mobile
-- **Dark Theme**: Easy on the eyes with Discord's signature colors
+- **Dark Theme**: Easy on the eyes with a professional color scheme
 - **Smooth Animations**: Polished interactions and transitions
 
 ## 🛠️ Getting Started
 
 ### Chat Generator (Web Interface)
-1. **Download**: Get `Dialogue_Generator.html` from the repository
-2. **Open**: Launch in any modern web browser (Chrome recommended)
-3. **Demo Mode**: Select "Demo Mode" for instant use without API keys
-4. **Full Mode**: Add your AI API key for unlimited generation
+1. **Quick Start**: Open `Dialogue_Generator.html` in any modern web browser
+2. **Demo Mode**: Select "Demo Mode" for instant use without API keys
+3. **Full Mode**: Add your AI API key for unlimited generation
+4. **Character Setup**: Create profiles with personalities and avatars
+5. **Generate**: Choose two characters and a topic to start conversations
 
 ### Audio Converter (Python App)
-1. **Install**: `pip install streamlit requests beautifulsoup4`
-2. **Run**: `streamlit run Dialogue_voice_generator.py`
-3. **Upload**: Load Discord-style HTML chat logs
-4. **Convert**: Generate audio with customizable voice mapping
+1. **Install Dependencies**: `pip install streamlit requests beautifulsoup4`
+2. **Run the Application**: `streamlit run Dialogue_voice_generator.py`
+3. **API Key**: Enter your ElevenLabs API key in the sidebar
+4. **Upload**: Select a generated HTML chat file
+5. **Assign Voices**: Map characters to different voice options
+6. **Generate Audio**: Create and download MP3 audio file
+
+### Development Version
+1. **Clone Repository**: `git clone https://github.com/yourusername/AI-Dialogue-Generator.git`
+2. **Navigate**: `cd AI-Dialogue-Generator/Chat Generator`
+3. **Open Main Page**: Open `main_index.html` in your browser
+4. **Launch Chat Generator**: Click "Start Chat Generator"
+5. **Audio Converter**: Run `pip install -r requirements.txt` then `streamlit run src/audio_converter/app.py`
 
 ## 🎯 Use Cases
 
@@ -71,7 +81,7 @@ The AI Dialogue Generator is a comprehensive toolkit for creating realistic conv
 2. **Demographics**: Set age and background details
 3. **Personality**: Describe traits, quirks, and communication style
 4. **Relationships**: Define character connections and dynamics
-5. **Texting Style**: Choose how they communicate (grammar, emojis, etc.)
+5. **Communication Style**: Choose how they communicate (grammar, emojis, etc.)
 6. **Save**: Characters are stored locally for reuse
 
 ### Generating Dialogues
@@ -106,20 +116,27 @@ The AI Dialogue Generator is a comprehensive toolkit for creating realistic conv
 ## 🏗️ Project Structure
 
 ```
-dialogue-generator/
+AI-Dialogue-Generator/
 ├── Dialogue_Generator.html           # Main chat generator (standalone)
 ├── Dialogue_voice_generator.py       # Audio converter app
 ├── README.md                          # This documentation
 ├── Audio_converter_readme.md          # Detailed audio converter guide
 ├── LICENSE                            # MIT License
-├── SECURITY.md                        # Security policy
 ├── Chat Generator/                    # Development files
-│   ├── src/                          # Source code (modular version)
-│   ├── css/styles.css                # Styling
-│   └── js/                           # JavaScript modules
-└── examples/                          # Sample files
-    ├── example-characters.json
-    └── sample-conversation.html
+│   ├── main_index.html               # Landing page
+│   ├── README.md                     # Chat generator readme
+│   ├── requirements.txt              # Python dependencies
+│   ├── project_structure.json        # Project metadata
+│   └── src/                          # Source code (modular version)
+│       ├── chat_generator/           # Web application
+│       │   ├── index.html            # Application entry
+│       │   ├── css/styles.css        # Styling
+│       │   └── js/                   # JavaScript modules
+│       └── audio_converter/          # Python audio converter
+│           ├── app.py                # Streamlit app
+│           ├── chat_parser.py        # HTML parsing
+│           └── elevenlabs_client.py  # TTS integration
+└── example chat.html                  # Sample conversation
 ```
 
 ## 🔒 Privacy & Security
@@ -141,7 +158,7 @@ dialogue-generator/
 ### Audio Converter
 - **Technology**: Python 3.7+, Streamlit, BeautifulSoup4
 - **APIs**: ElevenLabs text-to-speech
-- **Input**: Discord-style HTML chat logs
+- **Input**: HTML chat logs
 - **Output**: High-quality MP3 audio files
 
 ## 🤝 Contributing
@@ -161,7 +178,6 @@ MIT License - free to use, modify, and distribute.
 ## 🙏 Acknowledgments
 
 - **Claude AI**: Collaborative development partner
-- **Discord**: UI design inspiration
 - **AI Providers**: OpenAI, xAI, Anthropic for API access
 - **ElevenLabs**: High-quality voice synthesis
 - **Community**: User feedback and suggestions

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord-Style Grok Chat Generator</title>
+    <title>AI Dialogue Generator</title>
     <style>
         :root {
             --discord-bg: #36393f;
@@ -836,7 +836,7 @@
     
     <div class="main-content">
         <div class="chat-header">
-            <h2>Discord-Style Chat Preview</h2>
+            <h2>Chat Preview</h2>
         </div>
         
         <div class="chat-messages" id="chatMessages">
@@ -1057,7 +1057,7 @@
                 
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `discord-chat-characters-${new Date().toISOString().split('T')[0]}.json`;
+                a.download = `dialogue-characters-${new Date().toISOString().split('T')[0]}.json`;
                 document.body.appendChild(a);
                 a.click();
                 
@@ -2125,7 +2125,7 @@
                     
                     <div class="chat-footer">
                         <div>Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</div>
-                        <div class="export-info">Created with Discord-Style Chat Generator • Made with Claude AI</div>
+                        <div class="export-info">Created with AI Dialogue Generator • Made with Claude AI</div>
                     </div>
                 </div>
             </body>
@@ -2143,7 +2143,7 @@
             
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'discord-chat-generator.html';
+            a.download = 'dialogue-generator.html';
             document.body.appendChild(a);
             a.click();
             

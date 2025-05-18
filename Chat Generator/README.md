@@ -1,24 +1,22 @@
-# Discord-Style AI Chat Generator
+# AI Dialogue Generator
 
-> Generate realistic Discord-style text conversations between custom characters using AI APIs
+> Generate realistic conversations between custom characters using AI APIs
 
 ![Demo](https://img.shields.io/badge/Demo-Available-green) ![License](https://img.shields.io/badge/License-MIT-blue) ![AI-Powered](https://img.shields.io/badge/AI-Powered-purple)
 
 ## 🚀 Quick Start
 
-### Option 1: Download Single File (Easiest)
-1. Download `discord-chat-generator.html` from the [releases](https://github.com/yourusername/discord-chat-generator/releases)
-2. Open the file in any modern web browser
-3. Select "Demo Mode" to try without an API key, or add your OpenAI/Grok/Claude API key for full functionality
+### Option 1: Use the Standalone File (Easiest)
+1. Open the main `Dialogue_Generator.html` file from the root directory
+2. Select "Demo Mode" to try without an API key, or add your OpenAI/Grok/Claude API key for full functionality
 
-### Option 2: Run from Source
+### Option 2: Run Development Version
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/discord-chat-generator.git
-cd discord-chat-generator
+# Navigate to the Chat Generator directory
+cd Chat Generator
 
-# Open in browser
-open index.html
+# Open the landing page
+open main_index.html
 # or serve locally
 python -m http.server 8000
 ```
@@ -26,10 +24,13 @@ python -m http.server 8000
 ### Option 3: Audio Converter
 ```bash
 # Install Python dependencies
-pip install -r requirements.txt
+pip install -r "Chat Generator/requirements.txt"
 
-# Run the audio converter
-streamlit run src/audio_converter/app.py
+# Run the main audio converter
+streamlit run Dialogue_voice_generator.py
+
+# Or run the development version
+streamlit run "Chat Generator/src/audio_converter/app.py"
 ```
 
 ## ✨ Features
@@ -38,7 +39,7 @@ streamlit run src/audio_converter/app.py
 - **Detailed Profiles**: Name, age, personality, background, occupation
 - **Custom Avatars**: Upload profile pictures for visual authenticity
 - **Relationship Dynamics**: Define relationships between characters
-- **Texting Styles**: Choose from various communication patterns
+- **Communication Styles**: Choose from various communication patterns
 - **Import/Export**: Backup and share character collections via JSON
 
 ### 💬 Smart Conversation Generation
@@ -48,10 +49,10 @@ streamlit run src/audio_converter/app.py
 - **Character Consistency**: Maintains personality and speech patterns
 - **Topic Flexibility**: Generate conversations about any subject
 
-### 🎨 Beautiful Discord UI
-- **Authentic Design**: Pixel-perfect Discord styling with hover effects
+### 🎨 Modern Interface
+- **Clean Design**: Modern styling with hover effects
 - **Responsive Layout**: Works seamlessly on desktop and mobile
-- **Dark Theme**: Easy on the eyes with Discord's signature dark mode
+- **Dark Theme**: Easy on the eyes with a professional dark mode
 - **Smooth Animations**: Polished interactions and transitions
 
 ### 🎵 Audio Export (Bonus Feature)
@@ -63,7 +64,7 @@ streamlit run src/audio_converter/app.py
 
 ### Project Structure
 ```
-discord-chat-generator/
+ai-dialogue-generator/
 ├── src/
 │   ├── chat_generator/           # Main web application
 │   │   ├── css/styles.css       # Styling
@@ -94,9 +95,9 @@ python scripts/build.py template
 ### Extending
 The modular architecture makes it easy to:
 - Add new AI provider APIs
-- Customize the Discord UI theme
+- Customize the UI theme
 - Add new export formats
-- Integrate with other chat platforms
+- Integrate with other platforms
 
 ## 🔌 Supported AI Providers
 
@@ -137,10 +138,10 @@ Contributions welcome! See our [contribution guidelines](CONTRIBUTING.md).
 ### Development Setup
 ```bash
 # Fork and clone the repo
-git clone https://github.com/yourusername/discord-chat-generator.git
+git clone https://github.com/yourusername/AI-Dialogue-Generator.git
 
-# Make changes to src/ files
-# Test locally by opening index.html
+# Make changes to Chat Generator/src/ files
+# Test locally by opening main_index.html
 
 # Build for distribution
 python scripts/build.py package
@@ -155,13 +156,12 @@ python scripts/build.py package
 ## 🙏 Acknowledgments
 
 - **Built with Claude AI**: Collaborative development with Anthropic's Claude
-- **Discord Design**: UI inspiration from Discord's excellent interface
 - **Community**: Feedback and contributions from users and developers
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/discord-chat-generator/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/discord-chat-generator/discussions)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/AI-Dialogue-Generator/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/AI-Dialogue-Generator/discussions)
 - **Documentation**: Check the `docs/` folder for detailed guides
 
 ---

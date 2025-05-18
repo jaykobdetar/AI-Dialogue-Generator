@@ -174,7 +174,7 @@ const storage = {
         
         const a = document.createElement('a');
         a.href = url;
-        a.download = `discord-chat-characters-${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `dialogue-characters-${new Date().toISOString().split('T')[0]}.json`;
         document.body.appendChild(a);
         a.click();
         

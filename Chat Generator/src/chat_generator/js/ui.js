@@ -534,7 +534,7 @@ const ui = {
         
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'discord-chat-generator.html';
+        a.download = 'ai-dialogue-generator.html';
         document.body.appendChild(a);
         a.click();
         
@@ -675,7 +675,7 @@ const ui = {
                 
                 <div class="chat-footer">
                     <div>Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</div>
-                    <div>Created with Discord-Style Chat Generator • Made with Claude AI</div>
+                    <div>Created with AI Dialogue Generator • Made with Claude AI</div>
                 </div>
             </div>
         </body>

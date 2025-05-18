@@ -7,12 +7,12 @@ class ChatMessage:
         self.content = content
         self.timestamp = timestamp
 
-class DiscordChatParser:
+class ChatParser:
     def __init__(self):
         pass
     
     def parse_html(self, html_content: str) -> List[ChatMessage]:
-        """Parse Discord-style HTML chat log and extract messages."""
+        """Parse HTML chat log and extract messages."""
         soup = BeautifulSoup(html_content, 'html.parser')
         messages = []
         

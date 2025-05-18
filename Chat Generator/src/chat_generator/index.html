@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord-Style Chat Generator</title>
+    <title>AI Dialogue Generator</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -134,9 +134,9 @@
                     <option value="other">Other</option>
                 </select>
                 
-                <label for="charEditTextingStyle">Texting Style</label>
+                <label for="charEditTextingStyle">Communication Style</label>
                 <select id="charEditTextingStyle">
-                    <option value="">Select texting style</option>
+                    <option value="">Select communication style</option>
                     <option value="proper">Proper grammar and punctuation</option>
                     <option value="casual">Casual, some abbreviations</option>
                     <option value="shorthand">Lots of abbreviations (u, ur, etc.)</option>
@@ -191,7 +191,7 @@
                 </label>
                 <div id="advancedPanel" style="display: none; margin-top: 10px;">
                     <label for="systemPrompt">System Prompt</label>
-                    <textarea id="systemPrompt" placeholder="Custom system prompt for the AI...">You are an AI that generates realistic text message conversations between two characters.</textarea>
+                    <textarea id="systemPrompt" placeholder="Custom system prompt for the AI...">You are an AI that generates realistic conversations between two characters.</textarea>
                 </div>
             </div>
             
@@ -244,7 +244,7 @@
     
     <div class="main-content">
         <div class="chat-header">
-            <h2>Discord-Style Chat Preview</h2>
+            <h2>Chat Preview</h2>
         </div>
         
         <div class="chat-messages" id="chatMessages">

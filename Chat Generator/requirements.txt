@@ -1,4 +1,4 @@
-# Discord Chat Generator - Python Dependencies
+# AI Dialogue Generator - Python Dependencies
 # Audio Converter Requirements
 
 # Core dependencies

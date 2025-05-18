@@ -4,7 +4,7 @@
 
 ## Overview
 
-This Streamlit application converts Discord-style HTML chat logs into immersive audio transcripts using ElevenLabs' text-to-speech API. Perfect for bringing your AI-generated conversations to life with unique voices for each character.
+This Streamlit application converts HTML chat logs into immersive audio transcripts using ElevenLabs' text-to-speech API. Perfect for bringing your AI-generated conversations to life with unique voices for each character.
 
 ## Features
 
@@ -43,18 +43,18 @@ This Streamlit application converts Discord-style HTML chat logs into immersive 
    streamlit run Dialogue_voice_generator.py
    ```
 
-### Alternative Installation
+### Alternative Installation (Full Repository)
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd dialogue-generator
+git clone https://github.com/yourusername/AI-Dialogue-Generator.git
+cd AI-Dialogue-Generator
 
 # Install requirements
-pip install -r requirements.txt
+pip install -r "Chat Generator/requirements.txt"
 
 # Launch the audio converter
-streamlit run Text_chat_to_audio_convo.py
+streamlit run Dialogue_voice_generator.py
 ```
 
 ## How to Use
@@ -67,7 +67,7 @@ streamlit run Text_chat_to_audio_convo.py
 
 ### Step 2: Prepare the HTML File
 
-The converter expects Discord-style HTML structure:
+The converter expects HTML structure with the following elements:
 
 ```html
 <div class="message">
@@ -205,7 +205,7 @@ Each message consumes characters equal to its text length:
 
 ## Limitations
 
-- Requires HTML input in Discord message format
+- Requires HTML input in standard message format
 - Limited by ElevenLabs API quotas and rate limits
 - Static voice assignment (no mid-conversation voice changes)
 - No support for text formatting or rich content
