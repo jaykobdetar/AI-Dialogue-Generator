@@ -260,17 +260,17 @@ const ui = {
         const selectedChar = characters.find(c => c.id === this.value);
         
         if (selectedChar) {
-            const charPreviewElement = document.getElementById(`char${charNum}Preview`);
+            const charPreviewElement = document.getElementById('char' + charNum + 'Preview');
             charPreviewElement.textContent = '';
             const charImg = document.createElement('img');
             charImg.src = selectedChar.avatar || '/api/placeholder/40/40';
             charImg.alt = selectedChar.name;
             charPreviewElement.appendChild(charImg);
-            document.getElementById(`char${charNum}Name`).value = selectedChar.name;
+            document.getElementById('char' + charNum + 'Name').value = selectedChar.name;
         } else {
-            const charPreviewElement = document.getElementById(`char${charNum}Preview`);
+            const charPreviewElement = document.getElementById('char' + charNum + 'Preview');
             charPreviewElement.textContent = '';
-            document.getElementById(`char${charNum}Name`).value = '';
+            document.getElementById('char' + charNum + 'Name').value = '';
         }
     },
     
@@ -341,32 +341,31 @@ const ui = {
                 characterDetails += '\n\nCharacter Details:\n';
                 
                 if (char1) {
-                    characterDetails += `${char1Name}: `;
-                    if (char1.age) characterDetails += `Age ${char1.age}, `;
-                    if (char1.personality) characterDetails += `Personality: ${char1.personality}, `;
-                    if (char1.background) characterDetails += `Background: ${char1.background}, `;
-                    if (char1.textingStyle) characterDetails += `Texting style: ${char1.textingStyle}, `;
-                    if (char1.relationship) characterDetails += `Relationship to other character: ${char1.relationship}`;
+                    characterDetails += char1Name + ': ';
+                    if (char1.age) characterDetails += 'Age ' + char1.age + ', ';
+                    if (char1.personality) characterDetails += 'Personality: ' + char1.personality + ', ';
+                    if (char1.background) characterDetails += 'Background: ' + char1.background + ', ';
+                    if (char1.textingStyle) characterDetails += 'Texting style: ' + char1.textingStyle + ', ';
+                    if (char1.relationship) characterDetails += 'Relationship to other character: ' + char1.relationship;
                     characterDetails = characterDetails.replace(/, $/, '') + '\n';
                 }
                 
                 if (char2) {
-                    characterDetails += `${char2Name}: `;
-                    if (char2.age) characterDetails += `Age ${char2.age}, `;
-                    if (char2.personality) characterDetails += `Personality: ${char2.personality}, `;
-                    if (char2.background) characterDetails += `Background: ${char2.background}, `;
-                    if (char2.textingStyle) characterDetails += `Texting style: ${char2.textingStyle}, `;
-                    if (char2.relationship) characterDetails += `Relationship to other character: ${char2.relationship}`;
+                    characterDetails += char2Name + ': ';
+                    if (char2.age) characterDetails += 'Age ' + char2.age + ', ';
+                    if (char2.personality) characterDetails += 'Personality: ' + char2.personality + ', ';
+                    if (char2.background) characterDetails += 'Background: ' + char2.background + ', ';
+                    if (char2.textingStyle) characterDetails += 'Texting style: ' + char2.textingStyle + ', ';
+                    if (char2.relationship) characterDetails += 'Relationship to other character: ' + char2.relationship;
                     characterDetails = characterDetails.replace(/, $/, '') + '\n';
                 }
             }
             
-            const prompt = `Generate a conversation between ${char1Name} and ${char2Name} about ${topic}. 
-            Create exactly ${messageCount} messages total, alternating between the two characters.
-            Format each message as: "CHARACTER_NAME | TIMESTAMP | message content"
-            Where TIMESTAMP should be in format "12:34 PM" and progress realistically throughout the conversation (messages should be a few minutes apart).${characterDetails}
-            
-            Not all replies need to be short - sometimes the context implies a longer message is appropriate, use judgment.`;
+            const prompt = 'Generate a conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '.\n' +
+            'Create exactly ' + messageCount + ' messages total, alternating between the two characters.\n' +
+            'Format each message as: "CHARACTER_NAME | TIMESTAMP | message content"\n' +
+            'Where TIMESTAMP should be in format "12:34 PM" and progress realistically throughout the conversation (messages should be a few minutes apart).' + characterDetails + '\n' +
+            '\nNot all replies need to be short - sometimes the context implies a longer message is appropriate, use judgment.';
             
             const modelSelect = document.getElementById('model');
             const customModelField = document.getElementById('customModel');
@@ -399,7 +398,7 @@ const ui = {
             
         } catch (error) {
             console.error('Error:', error);
-            errorMsg.textContent = `Error: ${error.message || 'Failed to generate conversation'}`;
+            errorMsg.textContent = 'Error: ' + (error.message || 'Failed to generate conversation');
             errorMsg.style.display = 'block';
         } finally {
             loadingIndicator.style.display = 'none';
@@ -425,7 +424,7 @@ const ui = {
                         const ampm = Math.random() > 0.5 ? 'AM' : 'PM';
                         return {
                             character: oldMatch[1].trim(),
-                            timestamp: `${hour}:${minute} ${ampm}`,
+                            timestamp: hour + ':' + minute + ' ' + ampm,
                             content: oldMatch[2].trim()
                         };
                     } else {
@@ -434,7 +433,7 @@ const ui = {
                         const ampm = Math.random() > 0.5 ? 'AM' : 'PM';
                         return {
                             character: char1Name,
-                            timestamp: `${hour}:${minute} ${ampm}`,
+                            timestamp: hour + ':' + minute + ' ' + ampm,
                             content: line.trim()
                         };
                     }
@@ -454,7 +453,7 @@ const ui = {
                 avatarPreview.querySelector('img').src : 
                 '/api/placeholder/40/40';
             
-            const displayTimestamp = `Today at ${msg.timestamp}`;
+            const displayTimestamp = 'Today at ' + msg.timestamp;
             
             const messageElement = document.createElement('div');
             messageElement.className = 'message';
@@ -498,30 +497,35 @@ const ui = {
     },
     
     generateMockConversation(char1Name, char2Name, topic, count) {
+        // Helper function to create message strings safely
+        function createMessage(name, time, content) {
+            return name + ' | ' + time + ' | ' + content;
+        }
+        
         const conversationTemplates = {
             "work": [
-                `${char1Name} | 9:15 AM | Hey, did you see the email about the new project deadline?`,
-                `${char2Name} | 9:18 AM | Yeah, it's pretty tight. We'll need to prioritize the main features first`,
-                `${char1Name} | 9:22 AM | Agreed. Should we schedule a quick call to discuss?`,
-                `${char2Name} | 9:25 AM | Good idea! How about 2pm today?`,
-                `${char1Name} | 9:27 AM | Perfect, I'll send the calendar invite`,
-                `${char2Name} | 9:30 AM | Thanks! I'll prep some notes beforehand`
+                createMessage(char1Name, '9:15 AM', 'Hey, did you see the email about the new project deadline?'),
+                createMessage(char2Name, '9:18 AM', 'Yeah, it\'s pretty tight. We\'ll need to prioritize the main features first'),
+                createMessage(char1Name, '9:22 AM', 'Agreed. Should we schedule a quick call to discuss?'),
+                createMessage(char2Name, '9:25 AM', 'Good idea! How about 2pm today?'),
+                createMessage(char1Name, '9:27 AM', 'Perfect, I\'ll send the calendar invite'),
+                createMessage(char2Name, '9:30 AM', 'Thanks! I\'ll prep some notes beforehand')
             ],
             "friendship": [
-                `${char1Name} | 7:30 PM | What are you up to tonight?`,
-                `${char2Name} | 7:33 PM | Just watching Netflix lol. You?`,
-                `${char1Name} | 7:35 PM | Same! Have you seen that new series everyone's talking about?`,
-                `${char2Name} | 7:38 PM | Which one? There are like 5 new shows this week 😅`,
-                `${char1Name} | 7:40 PM | The sci-fi one with the time travel plot`,
-                `${char2Name} | 7:42 PM | Oh that one! Yeah it's actually really good. Want to watch together?`
+                createMessage(char1Name, '7:30 PM', 'What are you up to tonight?'),
+                createMessage(char2Name, '7:33 PM', 'Just watching Netflix lol. You?'),
+                createMessage(char1Name, '7:35 PM', 'Same! Have you seen that new series everyone\'s talking about?'),
+                createMessage(char2Name, '7:38 PM', 'Which one? There are like 5 new shows this week 😅'),
+                createMessage(char1Name, '7:40 PM', 'The sci-fi one with the time travel plot'),
+                createMessage(char2Name, '7:42 PM', 'Oh that one! Yeah it\'s actually really good. Want to watch together?')
             ],
             "family": [
-                `${char1Name} | 6:45 PM | Dinner's ready! Come downstairs`,
-                `${char2Name} | 6:48 PM | Coming! Just finishing up this assignment`,
-                `${char1Name} | 6:50 PM | Okay but don't let it get cold`,
-                `${char2Name} | 6:52 PM | I'll be down in 2 minutes, promise`,
-                `${char1Name} | 6:55 PM | Alright, I'll keep your plate warm`,
-                `${char2Name} | 6:57 PM | You're the best, thanks!`
+                createMessage(char1Name, '6:45 PM', 'Dinner\'s ready! Come downstairs'),
+                createMessage(char2Name, '6:48 PM', 'Coming! Just finishing up this assignment'),
+                createMessage(char1Name, '6:50 PM', 'Okay but don\'t let it get cold'),
+                createMessage(char2Name, '6:52 PM', 'I\'ll be down in 2 minutes, promise'),
+                createMessage(char1Name, '6:55 PM', 'Alright, I\'ll keep your plate warm'),
+                createMessage(char2Name, '6:57 PM', 'You\'re the best, thanks!')
             ]
         };
         
