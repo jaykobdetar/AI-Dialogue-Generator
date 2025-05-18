@@ -1016,7 +1016,15 @@
                     charItemAvatar.className = 'character-item-avatar';
                     
                     const avatar = document.createElement('img');
-                    avatar.src = char.avatar || '/api/placeholder/30/30';
+                    const isValidUrl = (url) => {
+                        try {
+                            const parsedUrl = new URL(url, window.location.origin);
+                            return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:' || url.startsWith('data:image/');
+                        } catch (e) {
+                            return false;
+                        }
+                    };
+                    avatar.src = isValidUrl(char.avatar) ? char.avatar : '/api/placeholder/30/30';
                     avatar.alt = char.name;
                     avatar.style.width = '30px';
                     avatar.style.height = '30px';
