@@ -2,7 +2,7 @@
 Should be.
 ## Supported Versions
 
-There is only one version, and it is either secure or not
+There is only one version, and it is as secure as I can make it
 
 ## Reporting a Vulnerability
 
