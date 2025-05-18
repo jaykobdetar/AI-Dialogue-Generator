@@ -475,8 +475,8 @@ input[type="checkbox"] {
 }
 
 .character-item-avatar {
-    width: 36px;
-    height: 36px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     margin-right: 12px;
     overflow: hidden;

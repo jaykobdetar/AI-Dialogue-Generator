@@ -128,12 +128,51 @@ const ui = {
         if (file) {
             const reader = new FileReader();
             reader.onload = function(event) {
-                const preview = document.getElementById('charEditPreview');
-                preview.textContent = '';
-                const img = document.createElement('img');
-                img.src = event.target.result;
-                img.alt = 'Character Preview';
-                preview.appendChild(img);
+                // Create a function to generate a thumbnail
+                const createThumbnail = (imgDataUrl, maxWidth, maxHeight, callback) => {
+                    const img = new Image();
+                    img.onload = function() {
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        // Calculate the new dimensions to maintain aspect ratio
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height *= maxWidth / width;
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxHeight) {
+                                width *= maxHeight / height;
+                                height = maxHeight;
+                            }
+                        }
+                        
+                        // Create a canvas element to resize the image
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        // Draw the resized image on the canvas
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Convert canvas to data URL (with compression)
+                        const thumbDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                        callback(thumbDataUrl);
+                    };
+                    img.src = imgDataUrl;
+                };
+                
+                // Generate thumbnail for the uploaded image
+                createThumbnail(event.target.result, 150, 150, (thumbnailDataUrl) => {
+                    const preview = document.getElementById('charEditPreview');
+                    preview.textContent = '';
+                    const img = document.createElement('img');
+                    img.src = thumbnailDataUrl;
+                    img.alt = 'Character Preview';
+                    preview.appendChild(img);
+                });
             };
             reader.readAsDataURL(file);
         }
