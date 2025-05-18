@@ -932,21 +932,53 @@
             },
             
             saveCharacter: function(character) {
-                const characters = this.getCharacters();
-                // Check if character already exists
-                const index = characters.findIndex(c => c.id === character.id);
-                
-                if (index !== -1) {
-                    // Update existing character
-                    characters[index] = character;
+                // Check if character has a very large avatar (data URL)
+                if (character.avatar && character.avatar.length > 100000) {
+                    // Create a function to generate a thumbnail if avatar is too large
+                    const createThumbnail = (imgDataUrl, maxWidth, maxHeight, callback) => {
+                        const img = new Image();
+                        img.onload = function() {
+                            let width = img.width;
+                            let height = img.height;
+                            
+                            // Calculate the new dimensions to maintain aspect ratio
+                            if (width > height) {
+                                if (width > maxWidth) {
+                                    height *= maxWidth / width;
+                                    width = maxWidth;
+                                }
+                            } else {
+                                if (height > maxHeight) {
+                                    width *= maxHeight / height;
+                                    height = maxHeight;
+                                }
+                            }
+                            
+                            // Create a canvas element to resize the image
+                            const canvas = document.createElement('canvas');
+                            canvas.width = width;
+                            canvas.height = height;
+                            
+                            // Draw the resized image on the canvas
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            // Convert canvas to data URL (with compression)
+                            const thumbDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                            callback(thumbDataUrl);
+                        };
+                        img.src = imgDataUrl;
+                    };
+                    
+                    // Process the avatar asynchronously and continue with saving
+                    createThumbnail(character.avatar, 100, 100, (thumbnailDataUrl) => {
+                        character.avatar = thumbnailDataUrl;
+                        this._saveCharacterToStorage(character);
+                    });
                 } else {
-                    // Add new character
-                    characters.push(character);
+                    // Avatar is already small enough or doesn't exist, save directly
+                    this._saveCharacterToStorage(character);
                 }
-                
-                localStorage.setItem('grokCharacters', JSON.stringify(characters));
-                this.updateCharacterSelectors();
-                this.renderCharacterList();
             },
             
             deleteCharacter: function(id) {
@@ -976,36 +1008,39 @@
                     charItem.className = 'character-item';
                     charItem.dataset.id = char.id;
                     
+                    const charItemAvatar = document.createElement('div');
+                    charItemAvatar.className = 'character-item-avatar';
+                    
                     const avatar = document.createElement('img');
                     avatar.src = char.avatar || '/api/placeholder/30/30';
                     avatar.alt = char.name;
+                    avatar.style.width = '30px';
+                    avatar.style.height = '30px';
+                    avatar.style.objectFit = 'cover';
+                    charItemAvatar.appendChild(avatar);
                     
-                    const charInfo = document.createElement('div');
-                    charInfo.className = 'character-info';
+                    const charItemName = document.createElement('div');
+                    charItemName.className = 'character-item-name';
+                    charItemName.textContent = char.name;
                     
-                    const charName = document.createElement('div');
-                    charName.className = 'character-name';
-                    charName.textContent = char.name;
+                    const charItemDelete = document.createElement('div');
+                    charItemDelete.className = 'character-item-delete';
+                    charItemDelete.textContent = '×';
                     
-                    const charActions = document.createElement('div');
-                    charActions.className = 'character-actions';
+                    charItem.appendChild(charItemAvatar);
+                    charItem.appendChild(charItemName);
+                    charItem.appendChild(charItemDelete);
                     
-                    const editBtn = document.createElement('button');
-                    editBtn.className = 'btn-icon';
-                    editBtn.innerHTML = '<i class="fas fa-edit"></i>';
-                    editBtn.onclick = () => this.editCharacter(char.id);
-                    
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'btn-icon';
-                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-                    deleteBtn.onclick = () => this.deleteCharacter(char.id);
-                    
-                    charActions.appendChild(editBtn);
-                    charActions.appendChild(deleteBtn);
-                    charInfo.appendChild(charName);
-                    charItem.appendChild(avatar);
-                    charItem.appendChild(charInfo);
-                    charItem.appendChild(charActions);
+                    charItem.addEventListener('click', function(e) {
+                        if (e.target.classList.contains('character-item-delete')) {
+                            if (confirm(`Delete character "${char.name}"?`)) {
+                                storage.deleteCharacter(char.id);
+                            }
+                            return;
+                        }
+                        
+                        storage.editCharacter(char.id);
+                    });
                     
                     listElement.appendChild(charItem);
                 });
@@ -1167,6 +1202,22 @@
                 
                 // Store the current editing character ID
                 preview.dataset.charId = char.id;
+            },
+            
+            // Private method to save character to storage after image processing
+            _saveCharacterToStorage: function(character) {
+                const characters = this.getCharacters();
+                const index = characters.findIndex(c => c.id === character.id);
+                
+                if (index !== -1) {
+                    characters[index] = character;
+                } else {
+                    characters.push(character);
+                }
+                
+                localStorage.setItem('grokCharacters', JSON.stringify(characters));
+                this.updateCharacterSelectors();
+                this.renderCharacterList();
             }
         };
         
@@ -1263,12 +1314,51 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    const preview = document.getElementById('charEditPreview');
-                    preview.textContent = '';
-                    const img = document.createElement('img');
-                    img.src = event.target.result;
-                    img.alt = 'Character Preview';
-                    preview.appendChild(img);
+                    // Create thumbnail from the uploaded image
+                    const createThumbnail = (imgDataUrl, maxWidth, maxHeight, callback) => {
+                        const img = new Image();
+                        img.onload = function() {
+                            let width = img.width;
+                            let height = img.height;
+                            
+                            // Calculate the new dimensions to maintain aspect ratio
+                            if (width > height) {
+                                if (width > maxWidth) {
+                                    height *= maxWidth / width;
+                                    width = maxWidth;
+                                }
+                            } else {
+                                if (height > maxHeight) {
+                                    width *= maxHeight / height;
+                                    height = maxHeight;
+                                }
+                            }
+                            
+                            // Create a canvas element to resize the image
+                            const canvas = document.createElement('canvas');
+                            canvas.width = width;
+                            canvas.height = height;
+                            
+                            // Draw the resized image on the canvas
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            // Convert canvas to data URL (with compression)
+                            const thumbDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                            callback(thumbDataUrl);
+                        };
+                        img.src = imgDataUrl;
+                    };
+                    
+                    // Generate thumbnail
+                    createThumbnail(event.target.result, 150, 150, (thumbnailDataUrl) => {
+                        const preview = document.getElementById('charEditPreview');
+                        preview.textContent = '';
+                        const img = document.createElement('img');
+                        img.src = thumbnailDataUrl;
+                        img.alt = 'Character Preview';
+                        preview.appendChild(img);
+                    });
                 };
                 reader.readAsDataURL(file);
             }
