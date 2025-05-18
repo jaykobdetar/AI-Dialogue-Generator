@@ -42,14 +42,14 @@ The AI Dialogue Generator is a comprehensive toolkit for creating realistic conv
 ## 🛠️ Getting Started
 
 ### Chat Generator (Web Interface)
-1. **Download**: Get `Ai-Text-Exchange-generator.html` from the repository
+1. **Download**: Get `Dialogue_Generator.html` from the repository
 2. **Open**: Launch in any modern web browser (Chrome recommended)
 3. **Demo Mode**: Select "Demo Mode" for instant use without API keys
 4. **Full Mode**: Add your AI API key for unlimited generation
 
 ### Audio Converter (Python App)
 1. **Install**: `pip install streamlit requests beautifulsoup4`
-2. **Run**: `streamlit run Text_chat_to_audio_convo.py`
+2. **Run**: `streamlit run Dialogue_voice_generator.py`
 3. **Upload**: Load Discord-style HTML chat logs
 4. **Convert**: Generate audio with customizable voice mapping
 
@@ -107,8 +107,8 @@ The AI Dialogue Generator is a comprehensive toolkit for creating realistic conv
 
 ```
 dialogue-generator/
-├── Ai-Text-Exchange-generator.html    # Main chat generator (standalone)
-├── Text_chat_to_audio_convo.py       # Audio converter app
+├── Dialogue_Generator.html           # Main chat generator (standalone)
+├── Dialogue_voice_generator.py       # Audio converter app
 ├── README.md                          # This documentation
 ├── Audio_converter_readme.md          # Detailed audio converter guide
 ├── LICENSE                            # MIT License
