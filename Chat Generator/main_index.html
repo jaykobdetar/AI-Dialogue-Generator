@@ -139,7 +139,7 @@
             const btn = event.target.closest('.btn');
             const originalText = btn.innerHTML;
             
-            // Update button to show status
+            // Update button to show status - safely
             btn.textContent = '';
             const loadingSpan = document.createElement('span');
             loadingSpan.className = 'emoji';
@@ -184,14 +184,27 @@
                 
                 // Reset button after a short delay
                 setTimeout(() => {
-                    btn.innerHTML = originalText;
+                    // Restore the original content safely
+                    btn.textContent = '';
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = originalText;
+                    while (tempDiv.firstChild) {
+                        btn.appendChild(tempDiv.firstChild);
+                    }
                     btn.disabled = false;
                 }, 2000);
                 
             } catch (error) {
                 console.error('Error launching audio converter:', error);
                 alert('Error: Could not connect to audio converter. Please start it manually from terminal.');
-                btn.innerHTML = originalText;
+                
+                // Restore the original content safely
+                btn.textContent = '';
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = originalText;
+                while (tempDiv.firstChild) {
+                    btn.appendChild(tempDiv.firstChild);
+                }
                 btn.disabled = false;
             }
         }
