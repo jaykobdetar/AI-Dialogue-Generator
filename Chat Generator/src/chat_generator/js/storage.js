@@ -1,3 +1,61 @@
+// Security Utility Functions
+const securityUtils = {
+    // Safely validate and sanitize URLs to prevent XSS
+    // Returns sanitized URL or default placeholder if URL is invalid
+    sanitizeUrl: function(url, defaultUrl) {
+        // If no URL or empty string, return default
+        if (!url || typeof url !== 'string') {
+            return defaultUrl || '';
+        }
+        
+        try {
+            // Parse URL to validate it
+            const parsedUrl = new URL(url, window.location.origin);
+            
+            // Only allow safe protocols and data URLs for images
+            if (parsedUrl.protocol === 'http:' || 
+                parsedUrl.protocol === 'https:' || 
+                (url.startsWith('data:image/') && !url.includes('script'))) {
+                
+                // Further sanitize the URL by removing any potentially dangerous characters
+                const sanitized = url.replace(/['"<>]/g, '');
+                
+                // If sanitization removed characters (potential attack attempt),
+                // log and return default URL
+                if (sanitized !== url) {
+                    console.warn('Potentially dangerous URL was sanitized:', url);
+                    return defaultUrl || '';
+                }
+                
+                return sanitized;
+            }
+        } catch (e) {
+            // URL parsing failed, return default
+            console.warn('Invalid URL:', url);
+        }
+        
+        return defaultUrl || '';
+    },
+    
+    // Generic text sanitizer for display in HTML contexts
+    sanitizeText: function(text) {
+        if (!text || typeof text !== 'string') {
+            return '';
+        }
+        
+        // Convert special characters to HTML entities
+        return text.replace(/[&<>"']/g, function(m) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[m];
+        });
+    }
+};
+
 // storage.js - Local storage management
 const storage = {
     saveApiSettings: function() {
@@ -148,19 +206,6 @@ const storage = {
             return;
         }
         
-        // URL validation function
-        const isValidUrl = (url) => {
-            if (!url) return false;
-            try {
-                const parsedUrl = new URL(url, window.location.origin);
-                return parsedUrl.protocol === 'http:' || 
-                       parsedUrl.protocol === 'https:' || 
-                       url.startsWith('data:image/');
-            } catch (e) {
-                return false;
-            }
-        };
-        
         characters.forEach(char => {
             const charItem = document.createElement('div');
             charItem.className = 'character-item';
@@ -170,8 +215,8 @@ const storage = {
             charItemAvatar.className = 'character-item-avatar';
             
             const avatarImg = document.createElement('img');
-            // Validate URL before setting src attribute
-            avatarImg.src = isValidUrl(char.avatar) ? char.avatar : '/api/placeholder/30/30';
+            // Use our security utility instead of inline validation
+            avatarImg.src = securityUtils.sanitizeUrl(char.avatar, '/api/placeholder/30/30');
             avatarImg.alt = char.name;
             avatarImg.style.width = '30px';
             avatarImg.style.height = '30px';
@@ -208,8 +253,8 @@ const storage = {
                 previewElement.textContent = '';
                 if (char.avatar) {
                     const previewImg = document.createElement('img');
-                    // Validate URL before setting src attribute
-                    previewImg.src = isValidUrl(char.avatar) ? char.avatar : '/api/placeholder/40/40';
+                    // Use our security utility instead of inline validation
+                    previewImg.src = securityUtils.sanitizeUrl(char.avatar, '/api/placeholder/40/40');
                     previewImg.alt = char.name;
                     previewElement.appendChild(previewImg);
                 }

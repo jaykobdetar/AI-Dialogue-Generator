@@ -1,3 +1,61 @@
+// Security Utility Functions
+const securityUtils = {
+    // Safely validate and sanitize URLs to prevent XSS
+    // Returns sanitized URL or default placeholder if URL is invalid
+    sanitizeUrl: function(url, defaultUrl) {
+        // If no URL or empty string, return default
+        if (!url || typeof url !== 'string') {
+            return defaultUrl || '';
+        }
+        
+        try {
+            // Parse URL to validate it
+            const parsedUrl = new URL(url, window.location.origin);
+            
+            // Only allow safe protocols and data URLs for images
+            if (parsedUrl.protocol === 'http:' || 
+                parsedUrl.protocol === 'https:' || 
+                (url.startsWith('data:image/') && !url.includes('script'))) {
+                
+                // Further sanitize the URL by removing any potentially dangerous characters
+                const sanitized = url.replace(/['"<>]/g, '');
+                
+                // If sanitization removed characters (potential attack attempt),
+                // log and return default URL
+                if (sanitized !== url) {
+                    console.warn('Potentially dangerous URL was sanitized:', url);
+                    return defaultUrl || '';
+                }
+                
+                return sanitized;
+            }
+        } catch (e) {
+            // URL parsing failed, return default
+            console.warn('Invalid URL:', url);
+        }
+        
+        return defaultUrl || '';
+    },
+    
+    // Generic text sanitizer for display in HTML contexts
+    sanitizeText: function(text) {
+        if (!text || typeof text !== 'string') {
+            return '';
+        }
+        
+        // Convert special characters to HTML entities
+        return text.replace(/[&<>"']/g, function(m) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[m];
+        });
+    }
+};
+
 // ui.js - UI interaction handlers (Clean Version)
 const ui = {
     init() {
@@ -406,19 +464,6 @@ const ui = {
     },
     
     displayConversation(conversationText, char1Name, char2Name) {
-        // URL validation function
-        const isValidUrl = (url) => {
-            if (!url) return false;
-            try {
-                const parsedUrl = new URL(url, window.location.origin);
-                return parsedUrl.protocol === 'http:' || 
-                       parsedUrl.protocol === 'https:' || 
-                       url.startsWith('data:image/');
-            } catch (e) {
-                return false;
-            }
-        };
-        
         // Process the generated conversation
         const messages = conversationText.split('\n')
             .filter(line => line.trim().length > 0)
@@ -432,31 +477,12 @@ const ui = {
                         content: match[3].trim()
                     };
                 } else {
-                    // Fallback: try old format without timestamp
-                    const oldMatch = line.match(/^(.+?):\s*(.+)$/);
-                    if (oldMatch) {
-                        // Generate a random timestamp as fallback
-                        const hour = Math.floor(Math.random() * 12) + 1;
-                        const minute = String(Math.floor(Math.random() * 60)).padStart(2, '0');
-                        const ampm = Math.random() > 0.5 ? 'AM' : 'PM';
-                        return {
-                            character: oldMatch[1].trim(),
-                            timestamp: hour + ':' + minute + ' ' + ampm,
-                            content: oldMatch[2].trim()
-                        };
-                    } else {
-                        const hour = Math.floor(Math.random() * 12) + 1;
-                        const minute = String(Math.floor(Math.random() * 60)).padStart(2, '0');
-                        const ampm = Math.random() > 0.5 ? 'AM' : 'PM';
-                        return {
-                            character: char1Name,
-                            timestamp: hour + ':' + minute + ' ' + ampm,
-                            content: line.trim()
-                        };
-                    }
+                    return null;
                 }
-            });
+            })
+            .filter(Boolean);
         
+        // Clear previous messages
         const chatMessages = document.getElementById('chatMessages');
         chatMessages.textContent = '';
         
@@ -471,7 +497,7 @@ const ui = {
             // Safely get avatar source with validation
             if (avatarPreview.querySelector('img')) {
                 const previewSrc = avatarPreview.querySelector('img').src;
-                avatarSrc = isValidUrl(previewSrc) ? previewSrc : '/api/placeholder/40/40';
+                avatarSrc = securityUtils.sanitizeUrl(previewSrc, '/api/placeholder/40/40');
             }
             
             const displayTimestamp = 'Today at ' + msg.timestamp;
