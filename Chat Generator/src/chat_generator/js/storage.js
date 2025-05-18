@@ -148,6 +148,19 @@ const storage = {
             return;
         }
         
+        // URL validation function
+        const isValidUrl = (url) => {
+            if (!url) return false;
+            try {
+                const parsedUrl = new URL(url, window.location.origin);
+                return parsedUrl.protocol === 'http:' || 
+                       parsedUrl.protocol === 'https:' || 
+                       url.startsWith('data:image/');
+            } catch (e) {
+                return false;
+            }
+        };
+        
         characters.forEach(char => {
             const charItem = document.createElement('div');
             charItem.className = 'character-item';
@@ -157,7 +170,8 @@ const storage = {
             charItemAvatar.className = 'character-item-avatar';
             
             const avatarImg = document.createElement('img');
-            avatarImg.src = char.avatar || '/api/placeholder/30/30';
+            // Validate URL before setting src attribute
+            avatarImg.src = isValidUrl(char.avatar) ? char.avatar : '/api/placeholder/30/30';
             avatarImg.alt = char.name;
             avatarImg.style.width = '30px';
             avatarImg.style.height = '30px';
@@ -194,7 +208,8 @@ const storage = {
                 previewElement.textContent = '';
                 if (char.avatar) {
                     const previewImg = document.createElement('img');
-                    previewImg.src = char.avatar || '/api/placeholder/40/40';
+                    // Validate URL before setting src attribute
+                    previewImg.src = isValidUrl(char.avatar) ? char.avatar : '/api/placeholder/40/40';
                     previewImg.alt = char.name;
                     previewElement.appendChild(previewImg);
                 }

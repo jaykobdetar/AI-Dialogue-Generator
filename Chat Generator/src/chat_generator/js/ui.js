@@ -406,9 +406,24 @@ const ui = {
     },
     
     displayConversation(conversationText, char1Name, char2Name) {
+        // URL validation function
+        const isValidUrl = (url) => {
+            if (!url) return false;
+            try {
+                const parsedUrl = new URL(url, window.location.origin);
+                return parsedUrl.protocol === 'http:' || 
+                       parsedUrl.protocol === 'https:' || 
+                       url.startsWith('data:image/');
+            } catch (e) {
+                return false;
+            }
+        };
+        
+        // Process the generated conversation
         const messages = conversationText.split('\n')
             .filter(line => line.trim().length > 0)
             .map(line => {
+                // Extract character name, timestamp, and message content
                 const match = line.match(/^(.+?)\s*\|\s*(.+?)\s*\|\s*(.+)$/);
                 if (match) {
                     return {
@@ -417,8 +432,10 @@ const ui = {
                         content: match[3].trim()
                     };
                 } else {
+                    // Fallback: try old format without timestamp
                     const oldMatch = line.match(/^(.+?):\s*(.+)$/);
                     if (oldMatch) {
+                        // Generate a random timestamp as fallback
                         const hour = Math.floor(Math.random() * 12) + 1;
                         const minute = String(Math.floor(Math.random() * 60)).padStart(2, '0');
                         const ampm = Math.random() > 0.5 ? 'AM' : 'PM';
@@ -449,9 +466,13 @@ const ui = {
             const charPreviewId = isChar1 ? 'char1Preview' : 'char2Preview';
             
             const avatarPreview = document.getElementById(charPreviewId);
-            const avatarSrc = avatarPreview.querySelector('img') ? 
-                avatarPreview.querySelector('img').src : 
-                '/api/placeholder/40/40';
+            let avatarSrc = '/api/placeholder/40/40';
+            
+            // Safely get avatar source with validation
+            if (avatarPreview.querySelector('img')) {
+                const previewSrc = avatarPreview.querySelector('img').src;
+                avatarSrc = isValidUrl(previewSrc) ? previewSrc : '/api/placeholder/40/40';
+            }
             
             const displayTimestamp = 'Today at ' + msg.timestamp;
             

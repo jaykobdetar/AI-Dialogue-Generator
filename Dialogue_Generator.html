@@ -1195,6 +1195,19 @@
                 const char = characters.find(c => c.id === id);
                 if (!char) return;
                 
+                // URL validation function
+                const isValidUrl = (url) => {
+                    if (!url) return false;
+                    try {
+                        const parsedUrl = new URL(url, window.location.origin);
+                        return parsedUrl.protocol === 'http:' || 
+                               parsedUrl.protocol === 'https:' || 
+                               url.startsWith('data:image/');
+                    } catch (e) {
+                        return false;
+                    }
+                };
+                
                 // Populate form fields with character data
                 document.getElementById('charEditName').value = char.name;
                 document.getElementById('charEditAge').value = char.age || '';
@@ -1207,7 +1220,7 @@
                 preview.textContent = '';
                 if (char.avatar) {
                     const img = document.createElement('img');
-                    img.src = char.avatar;
+                    img.src = isValidUrl(char.avatar) ? char.avatar : '/api/placeholder/100/100';
                     img.alt = char.name;
                     img.style.width = '100%';
                     img.style.height = '100%';
@@ -1511,11 +1524,25 @@
             const characters = storage.getCharacters();
             const selectedChar = characters.find(c => c.id === this.value);
             
+            // URL validation function
+            const isValidUrl = (url) => {
+                if (!url) return false;
+                try {
+                    const parsedUrl = new URL(url, window.location.origin);
+                    return parsedUrl.protocol === 'http:' || 
+                           parsedUrl.protocol === 'https:' || 
+                           url.startsWith('data:image/');
+                } catch (e) {
+                    return false;
+                }
+            };
+            
             if (selectedChar) {
                 // Set character 1 avatar and name
                 document.getElementById('char1Preview').textContent = '';
                 const img = document.createElement('img');
-                img.src = selectedChar.avatar || '/api/placeholder/40/40';
+                // Validate URL before setting src attribute
+                img.src = isValidUrl(selectedChar.avatar) ? selectedChar.avatar : '/api/placeholder/40/40';
                 img.alt = selectedChar.name;
                 img.style.width = '40px';
                 img.style.height = '40px';
@@ -1533,11 +1560,25 @@
             const characters = storage.getCharacters();
             const selectedChar = characters.find(c => c.id === this.value);
             
+            // URL validation function
+            const isValidUrl = (url) => {
+                if (!url) return false;
+                try {
+                    const parsedUrl = new URL(url, window.location.origin);
+                    return parsedUrl.protocol === 'http:' || 
+                           parsedUrl.protocol === 'https:' || 
+                           url.startsWith('data:image/');
+                } catch (e) {
+                    return false;
+                }
+            };
+            
             if (selectedChar) {
                 // Set character 2 avatar and name
                 document.getElementById('char2Preview').textContent = '';
                 const img = document.createElement('img');
-                img.src = selectedChar.avatar || '/api/placeholder/40/40';
+                // Validate URL before setting src attribute
+                img.src = isValidUrl(selectedChar.avatar) ? selectedChar.avatar : '/api/placeholder/40/40';
                 img.alt = selectedChar.name;
                 img.style.width = '40px';
                 img.style.height = '40px';
@@ -1745,6 +1786,19 @@
         
         // Function to display conversation in the UI
         function displayConversation(conversationText, char1Name, char2Name) {
+            // URL validation function
+            const isValidUrl = (url) => {
+                if (!url) return false;
+                try {
+                    const parsedUrl = new URL(url, window.location.origin);
+                    return parsedUrl.protocol === 'http:' || 
+                           parsedUrl.protocol === 'https:' || 
+                           url.startsWith('data:image/');
+                } catch (e) {
+                    return false;
+                }
+            };
+            
             // Process the generated conversation
             const messages = conversationText.split('\n')
                 .filter(line => line.trim().length > 0)
@@ -1795,9 +1849,13 @@
                 
                 // Get avatar from preview if available
                 const avatarPreview = document.getElementById(charPreviewId);
-                const avatarSrc = avatarPreview.querySelector('img') ? 
-                    avatarPreview.querySelector('img').src : 
-                    '/api/placeholder/40/40';
+                let avatarSrc = '/api/placeholder/40/40';
+                
+                // Safely get avatar source with validation
+                if (avatarPreview.querySelector('img')) {
+                    const previewSrc = avatarPreview.querySelector('img').src;
+                    avatarSrc = isValidUrl(previewSrc) ? previewSrc : '/api/placeholder/40/40';
+                }
                 
                 // Use the timestamp from the AI response
                 const displayTimestamp = 'Today at ' + msg.timestamp;
