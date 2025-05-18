@@ -137,7 +137,8 @@
     <script>
         async function launchAudioConverter() {
             const btn = event.target.closest('.btn');
-            const originalText = btn.innerHTML;
+            // Store original content in a more secure way
+            const originalContent = btn.cloneNode(true);
             
             // Update button to show status - safely
             btn.textContent = '';
@@ -186,10 +187,8 @@
                 setTimeout(() => {
                     // Restore the original content safely
                     btn.textContent = '';
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = originalText;
-                    while (tempDiv.firstChild) {
-                        btn.appendChild(tempDiv.firstChild);
+                    while (originalContent.firstChild) {
+                        btn.appendChild(originalContent.firstChild.cloneNode(true));
                     }
                     btn.disabled = false;
                 }, 2000);
@@ -200,10 +199,8 @@
                 
                 // Restore the original content safely
                 btn.textContent = '';
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = originalText;
-                while (tempDiv.firstChild) {
-                    btn.appendChild(tempDiv.firstChild);
+                while (originalContent.firstChild) {
+                    btn.appendChild(originalContent.firstChild.cloneNode(true));
                 }
                 btn.disabled = false;
             }

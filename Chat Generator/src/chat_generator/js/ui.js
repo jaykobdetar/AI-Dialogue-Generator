@@ -577,7 +577,7 @@ const ui = {
             
             const displayHour = currentHour > 12 ? currentHour - 12 : (currentHour === 0 ? 12 : currentHour);
             const ampm = currentHour >= 12 ? 'PM' : 'AM';
-            const timestamp = `${displayHour}:${String(currentMinute).padStart(2, '0')} ${ampm}`;
+            const timestamp = displayHour + ':' + String(currentMinute).padStart(2, '0') + ' ' + ampm;
             
             let message;
             if (isFirst) {
@@ -587,7 +587,7 @@ const ui = {
                 message = responses[Math.floor(Math.random() * responses.length)];
             }
             
-            conversation += `${name} | ${timestamp} | ${message}\n`;
+            conversation += name + ' | ' + timestamp + ' | ' + message + '\n';
         }
         
         return conversation;
@@ -623,7 +623,11 @@ const ui = {
         const char2Name = document.getElementById('char2Name').value || 'Character2';
         const topic = document.getElementById('topic').value || 'Chat';
         
-        const filename = `${char1Name}_${char2Name}_${topic}`.replace(/[^a-zA-Z0-9_-]/g, '_') + '_chat.html';
+        // Create safe filename with string concatenation
+        const safeChar1 = char1Name.replace(/[^a-zA-Z0-9_-]/g, '_');
+        const safeChar2 = char2Name.replace(/[^a-zA-Z0-9_-]/g, '_');
+        const safeTopic = topic.replace(/[^a-zA-Z0-9_-]/g, '_');
+        const filename = safeChar1 + '_' + safeChar2 + '_' + safeTopic + '_chat.html';
         
         const a = document.createElement('a');
         a.href = url;
@@ -649,108 +653,108 @@ const ui = {
         const char1 = characters.find(c => c.id === char1Selector.value);
         const char2 = characters.find(c => c.id === char2Selector.value);
         
-        let chatOnlyHTML = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>${char1Name} & ${char2Name} - ${topic}</title>
-            <style>
-                body { 
-                    font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-                    background-color: #36393f;
-                    color: #dcddde;
-                    margin: 0;
-                    padding: 20px;
-                }
-                .container {
-                    max-width: 800px;
-                    margin: 0 auto;
-                    background: #2f3136;
-                    border-radius: 16px;
-                    overflow: hidden;
-                }
-                .chat-header {
-                    background: linear-gradient(135deg, #5865f2 0%, #4752c4 100%);
-                    padding: 24px;
-                    text-align: center;
-                }
-                .chat-title {
-                    color: white;
-                    font-size: 28px;
-                    font-weight: 700;
-                    margin-bottom: 8px;
-                }
-                .chat-subtitle {
-                    color: rgba(255,255,255,0.9);
-                    font-size: 16px;
-                }
-                .chat-messages {
-                    padding: 32px;
-                }
-                .message {
-                    display: flex;
-                    margin-bottom: 24px;
-                    padding: 16px 20px;
-                    border-radius: 12px;
-                }
-                .message-avatar {
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 50%;
-                    margin-right: 16px;
-                    overflow: hidden;
-                }
-                .message-avatar img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-                .message-username {
-                    font-weight: 600;
-                    font-size: 16px;
-                    margin-bottom: 6px;
-                }
-                .message-timestamp {
-                    color: #72767d;
-                    font-size: 12px;
-                    font-weight: 500;
-                }
-                .message-text {
-                    color: #dcddde;
-                    font-size: 15px;
-                    line-height: 1.6;
-                    margin-top: 2px;
-                }
-                .chat-footer {
-                    padding: 20px;
-                    text-align: center;
-                    border-top: 1px solid #4f545c;
-                    font-size: 12px;
-                    color: #72767d;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="chat-header">
-                    <h1 class="chat-title">${char1Name} & ${char2Name}</h1>
-                    <p class="chat-subtitle">Conversation about ${topic}</p>
-                </div>
-                
-                <div class="chat-messages">
-                    ${chatMessages.textContent}
-                </div>
-                
-                <div class="chat-footer">
-                    <div>Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</div>
-                    <div>Created with AI Dialogue Generator • Made with Claude AI</div>
-                </div>
-            </div>
-        </body>
-        </html>
-        `;
+        // Create HTML content with string concatenation
+        let chatOnlyHTML = 
+        '<!DOCTYPE html>\n' +
+        '<html lang="en">\n' +
+        '<head>\n' +
+        '    <meta charset="UTF-8">\n' +
+        '    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+        '    <title>' + char1Name + ' & ' + char2Name + ' - ' + topic + '</title>\n' +
+        '    <style>\n' +
+        '        body { \n' +
+        '            font-family: \'Whitney\', \'Helvetica Neue\', Helvetica, Arial, sans-serif;\n' +
+        '            background-color: #36393f;\n' +
+        '            color: #dcddde;\n' +
+        '            margin: 0;\n' +
+        '            padding: 20px;\n' +
+        '        }\n' +
+        '        .container {\n' +
+        '            max-width: 800px;\n' +
+        '            margin: 0 auto;\n' +
+        '            background: #2f3136;\n' +
+        '            border-radius: 16px;\n' +
+        '            overflow: hidden;\n' +
+        '        }\n' +
+        '        .chat-header {\n' +
+        '            background: linear-gradient(135deg, #5865f2 0%, #4752c4 100%);\n' +
+        '            padding: 24px;\n' +
+        '            text-align: center;\n' +
+        '        }\n' +
+        '        .chat-title {\n' +
+        '            color: white;\n' +
+        '            font-size: 28px;\n' +
+        '            font-weight: 700;\n' +
+        '            margin-bottom: 8px;\n' +
+        '        }\n' +
+        '        .chat-subtitle {\n' +
+        '            color: rgba(255,255,255,0.9);\n' +
+        '            font-size: 16px;\n' +
+        '        }\n' +
+        '        .chat-messages {\n' +
+        '            padding: 32px;\n' +
+        '        }\n' +
+        '        .message {\n' +
+        '            display: flex;\n' +
+        '            margin-bottom: 24px;\n' +
+        '            padding: 16px 20px;\n' +
+        '            border-radius: 12px;\n' +
+        '        }\n' +
+        '        .message-avatar {\n' +
+        '            width: 48px;\n' +
+        '            height: 48px;\n' +
+        '            border-radius: 50%;\n' +
+        '            margin-right: 16px;\n' +
+        '            overflow: hidden;\n' +
+        '        }\n' +
+        '        .message-avatar img {\n' +
+        '            width: 100%;\n' +
+        '            height: 100%;\n' +
+        '            object-fit: cover;\n' +
+        '        }\n' +
+        '        .message-username {\n' +
+        '            font-weight: 600;\n' +
+        '            font-size: 16px;\n' +
+        '            margin-bottom: 6px;\n' +
+        '        }\n' +
+        '        .message-timestamp {\n' +
+        '            color: #72767d;\n' +
+        '            font-size: 12px;\n' +
+        '            font-weight: 500;\n' +
+        '        }\n' +
+        '        .message-text {\n' +
+        '            color: #dcddde;\n' +
+        '            font-size: 15px;\n' +
+        '            line-height: 1.6;\n' +
+        '            margin-top: 2px;\n' +
+        '        }\n' +
+        '        .chat-footer {\n' +
+        '            padding: 20px;\n' +
+        '            text-align: center;\n' +
+        '            border-top: 1px solid #4f545c;\n' +
+        '            font-size: 12px;\n' +
+        '            color: #72767d;\n' +
+        '        }\n' +
+        '    </style>\n' +
+        '</head>\n' +
+        '<body>\n' +
+        '    <div class="container">\n' +
+        '        <div class="chat-header">\n' +
+        '            <h1 class="chat-title">' + char1Name + ' & ' + char2Name + '</h1>\n' +
+        '            <p class="chat-subtitle">Conversation about ' + topic + '</p>\n' +
+        '        </div>\n' +
+        '        \n' +
+        '        <div class="chat-messages">\n' +
+        '            ' + chatMessages.textContent + '\n' +
+        '        </div>\n' +
+        '        \n' +
+        '        <div class="chat-footer">\n' +
+        '            <div>Generated on ' + new Date().toLocaleDateString() + ' at ' + new Date().toLocaleTimeString() + '</div>\n' +
+        '            <div>Created with AI Dialogue Generator • Made with Claude AI</div>\n' +
+        '        </div>\n' +
+        '    </div>\n' +
+        '</body>\n' +
+        '</html>\n';
         
         return chatOnlyHTML;
     }

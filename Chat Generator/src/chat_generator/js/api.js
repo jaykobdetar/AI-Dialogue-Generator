@@ -33,15 +33,15 @@ const api = {
         }
         
         // Display API request info
-        console.log(`Sending request to: ${apiEndpoint}`);
-        console.log(`Using model: ${model}`);
-        console.log(`System prompt: ${systemPrompt}`);
+        console.log('Sending request to: ' + apiEndpoint);
+        console.log('Using model: ' + model);
+        console.log('System prompt: ' + systemPrompt);
         
         try {
             const response = await fetch(apiEndpoint, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${apiKey}`,
+                    'Authorization': 'Bearer ' + apiKey,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
@@ -64,7 +64,7 @@ const api = {
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error("API Response:", errorText);
-                throw new Error(`API request failed with status: ${response.status}. Check your API key and endpoint.`);
+                throw new Error('API request failed with status: ' + response.status + '. Check your API key and endpoint.');
             }
             
             const data = await response.json();
@@ -72,7 +72,7 @@ const api = {
         } catch (error) {
             // Handle network errors specifically
             if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
-                throw new Error(`Network error when connecting to ${apiEndpoint}. This could be due to CORS restrictions, an invalid domain, or the API being down.`);
+                throw new Error('Network error when connecting to ' + apiEndpoint + '. This could be due to CORS restrictions, an invalid domain, or the API being down.');
             } else {
                 throw error; // Re-throw other errors
             }
@@ -80,30 +80,35 @@ const api = {
     },
     
     generateMockConversation(char1Name, char2Name, topic, count) {
+        // Helper function to create message strings safely
+        function createMessage(name, time, content) {
+            return name + ' | ' + time + ' | ' + content;
+        }
+        
         const conversationTemplates = {
             "work": [
-                `${char1Name} | 9:15 AM | Hey, did you see the email about the new project deadline?`,
-                `${char2Name} | 9:18 AM | Yeah, it's pretty tight. We'll need to prioritize the main features first`,
-                `${char1Name} | 9:22 AM | Agreed. Should we schedule a quick call to discuss?`,
-                `${char2Name} | 9:25 AM | Good idea! How about 2pm today?`,
-                `${char1Name} | 9:27 AM | Perfect, I'll send the calendar invite`,
-                `${char2Name} | 9:30 AM | Thanks! I'll prep some notes beforehand`
+                createMessage(char1Name, '9:15 AM', 'Hey, did you see the email about the new project deadline?'),
+                createMessage(char2Name, '9:18 AM', 'Yeah, it\'s pretty tight. We\'ll need to prioritize the main features first'),
+                createMessage(char1Name, '9:22 AM', 'Agreed. Should we schedule a quick call to discuss?'),
+                createMessage(char2Name, '9:25 AM', 'Good idea! How about 2pm today?'),
+                createMessage(char1Name, '9:27 AM', 'Perfect, I\'ll send the calendar invite'),
+                createMessage(char2Name, '9:30 AM', 'Thanks! I\'ll prep some notes beforehand')
             ],
             "friendship": [
-                `${char1Name} | 7:30 PM | What are you up to tonight?`,
-                `${char2Name} | 7:33 PM | Just watching Netflix lol. You?`,
-                `${char1Name} | 7:35 PM | Same! Have you seen that new series everyone's talking about?`,
-                `${char2Name} | 7:38 PM | Which one? There are like 5 new shows this week 😅`,
-                `${char1Name} | 7:40 PM | The sci-fi one with the time travel plot`,
-                `${char2Name} | 7:42 PM | Oh that one! Yeah it's actually really good. Want to watch together?`
+                createMessage(char1Name, '7:30 PM', 'What are you up to tonight?'),
+                createMessage(char2Name, '7:33 PM', 'Just watching Netflix lol. You?'),
+                createMessage(char1Name, '7:35 PM', 'Same! Have you seen that new series everyone\'s talking about?'),
+                createMessage(char2Name, '7:38 PM', 'Which one? There are like 5 new shows this week 😅'),
+                createMessage(char1Name, '7:40 PM', 'The sci-fi one with the time travel plot'),
+                createMessage(char2Name, '7:42 PM', 'Oh that one! Yeah it\'s actually really good. Want to watch together?')
             ],
             "family": [
-                `${char1Name} | 6:45 PM | Dinner's ready! Come downstairs`,
-                `${char2Name} | 6:48 PM | Coming! Just finishing up this assignment`,
-                `${char1Name} | 6:50 PM | Okay but don't let it get cold`,
-                `${char2Name} | 6:52 PM | I'll be down in 2 minutes, promise`,
-                `${char1Name} | 6:55 PM | Alright, I'll keep your plate warm`,
-                `${char2Name} | 6:57 PM | You're the best, thanks!`
+                createMessage(char1Name, '6:45 PM', 'Dinner\'s ready! Come downstairs'),
+                createMessage(char2Name, '6:48 PM', 'Coming! Just finishing up this assignment'),
+                createMessage(char1Name, '6:50 PM', 'Okay but don\'t let it get cold'),
+                createMessage(char2Name, '6:52 PM', 'I\'ll be down in 2 minutes, promise'),
+                createMessage(char1Name, '6:55 PM', 'Alright, I\'ll keep your plate warm'),
+                createMessage(char2Name, '6:57 PM', 'You\'re the best, thanks!')
             ]
         };
         
@@ -162,7 +167,7 @@ const api = {
             
             const displayHour = currentHour > 12 ? currentHour - 12 : (currentHour === 0 ? 12 : currentHour);
             const ampm = currentHour >= 12 ? 'PM' : 'AM';
-            const timestamp = `${displayHour}:${String(currentMinute).padStart(2, '0')} ${ampm}`;
+            const timestamp = displayHour + ':' + String(currentMinute).padStart(2, '0') + ' ' + ampm;
             
             let message;
             if (isFirst) {
@@ -174,7 +179,7 @@ const api = {
                 message = responses[Math.floor(Math.random() * responses.length)];
             }
             
-            conversation += `${name} | ${timestamp} | ${message}\n`;
+            conversation += createMessage(name, timestamp, message) + '\n';
         }
         
         return conversation;

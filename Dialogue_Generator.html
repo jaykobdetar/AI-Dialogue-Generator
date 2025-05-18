@@ -1609,22 +1609,22 @@
                     characterDetails += '\n\nCharacter Details:\n';
                     
                     if (char1) {
-                        characterDetails += `${char1Name}: `;
-                        if (char1.age) characterDetails += `Age ${char1.age}, `;
-                        if (char1.personality) characterDetails += `Personality: ${char1.personality}, `;
-                        if (char1.background) characterDetails += `Background: ${char1.background}, `;
-                        if (char1.textingStyle) characterDetails += `Texting style: ${char1.textingStyle}, `;
-                        if (char1.relationship) characterDetails += `Relationship to other character: ${char1.relationship}`;
+                        characterDetails += char1Name + ': ';
+                        if (char1.age) characterDetails += 'Age ' + char1.age + ', ';
+                        if (char1.personality) characterDetails += 'Personality: ' + char1.personality + ', ';
+                        if (char1.background) characterDetails += 'Background: ' + char1.background + ', ';
+                        if (char1.textingStyle) characterDetails += 'Texting style: ' + char1.textingStyle + ', ';
+                        if (char1.relationship) characterDetails += 'Relationship to other character: ' + char1.relationship;
                         characterDetails = characterDetails.replace(/, $/, '') + '\n';
                     }
                     
                     if (char2) {
-                        characterDetails += `${char2Name}: `;
-                        if (char2.age) characterDetails += `Age ${char2.age}, `;
-                        if (char2.personality) characterDetails += `Personality: ${char2.personality}, `;
-                        if (char2.background) characterDetails += `Background: ${char2.background}, `;
-                        if (char2.textingStyle) characterDetails += `Texting style: ${char2.textingStyle}, `;
-                        if (char2.relationship) characterDetails += `Relationship to other character: ${char2.relationship}`;
+                        characterDetails += char2Name + ': ';
+                        if (char2.age) characterDetails += 'Age ' + char2.age + ', ';
+                        if (char2.personality) characterDetails += 'Personality: ' + char2.personality + ', ';
+                        if (char2.background) characterDetails += 'Background: ' + char2.background + ', ';
+                        if (char2.textingStyle) characterDetails += 'Texting style: ' + char2.textingStyle + ', ';
+                        if (char2.relationship) characterDetails += 'Relationship to other character: ' + char2.relationship;
                         characterDetails = characterDetails.replace(/, $/, '') + '\n';
                     }
                 }
@@ -1760,7 +1760,7 @@
                             const ampm = Math.random() > 0.5 ? 'AM' : 'PM';
                             return {
                                 character: oldMatch[1].trim(),
-                                timestamp: `${hour}:${minute} ${ampm}`,
+                                timestamp: hour + ':' + minute + ' ' + ampm,
                                 content: oldMatch[2].trim()
                             };
                         } else {
@@ -1770,7 +1770,7 @@
                             const ampm = Math.random() > 0.5 ? 'AM' : 'PM';
                             return {
                                 character: char1Name,
-                                timestamp: `${hour}:${minute} ${ampm}`,
+                                timestamp: hour + ':' + minute + ' ' + ampm,
                                 content: line.trim()
                             };
                         }
@@ -1842,30 +1842,35 @@
         
         // Generate mock conversation for testing with enhanced examples
         function generateMockConversation(char1Name, char2Name, topic, count) {
+            // Function to safely create message strings
+            function createMessage(name, time, content) {
+                return name + ' | ' + time + ' | ' + content;
+            }
+            
             const conversationTemplates = {
                 "work": [
-                    `${char1Name} | 9:15 AM | Hey, did you see the email about the new project deadline?`,
-                    `${char2Name} | 9:18 AM | Yeah, it's pretty tight. We'll need to prioritize the main features first`,
-                    `${char1Name} | 9:22 AM | Agreed. Should we schedule a quick call to discuss?`,
-                    `${char2Name} | 9:25 AM | Good idea! How about 2pm today?`,
-                    `${char1Name} | 9:27 AM | Perfect, I'll send the calendar invite`,
-                    `${char2Name} | 9:30 AM | Thanks! I'll prep some notes beforehand`
+                    createMessage(char1Name, '9:15 AM', 'Hey, did you see the email about the new project deadline?'),
+                    createMessage(char2Name, '9:18 AM', 'Yeah, it\'s pretty tight. We\'ll need to prioritize the main features first'),
+                    createMessage(char1Name, '9:22 AM', 'Agreed. Should we schedule a quick call to discuss?'),
+                    createMessage(char2Name, '9:25 AM', 'Good idea! How about 2pm today?'),
+                    createMessage(char1Name, '9:27 AM', 'Perfect, I\'ll send the calendar invite'),
+                    createMessage(char2Name, '9:30 AM', 'Thanks! I\'ll prep some notes beforehand')
                 ],
                 "friendship": [
-                    `${char1Name} | 7:30 PM | What are you up to tonight?`,
-                    `${char2Name} | 7:33 PM | Just watching Netflix lol. You?`,
-                    `${char1Name} | 7:35 PM | Same! Have you seen that new series everyone's talking about?`,
-                    `${char2Name} | 7:38 PM | Which one? There are like 5 new shows this week 😅`,
-                    `${char1Name} | 7:40 PM | The sci-fi one with the time travel plot`,
-                    `${char2Name} | 7:42 PM | Oh that one! Yeah it's actually really good. Want to watch together?`
+                    createMessage(char1Name, '7:30 PM', 'What are you up to tonight?'),
+                    createMessage(char2Name, '7:33 PM', 'Just watching Netflix lol. You?'),
+                    createMessage(char1Name, '7:35 PM', 'Same! Have you seen that new series everyone\'s talking about?'),
+                    createMessage(char2Name, '7:38 PM', 'Which one? There are like 5 new shows this week 😅'),
+                    createMessage(char1Name, '7:40 PM', 'The sci-fi one with the time travel plot'),
+                    createMessage(char2Name, '7:42 PM', 'Oh that one! Yeah it\'s actually really good. Want to watch together?')
                 ],
                 "family": [
-                    `${char1Name} | 6:45 PM | Dinner's ready! Come downstairs`,
-                    `${char2Name} | 6:48 PM | Coming! Just finishing up this assignment`,
-                    `${char1Name} | 6:50 PM | Okay but don't let it get cold`,
-                    `${char2Name} | 6:52 PM | I'll be down in 2 minutes, promise`,
-                    `${char1Name} | 6:55 PM | Alright, I'll keep your plate warm`,
-                    `${char2Name} | 6:57 PM | You're the best, thanks!`
+                    createMessage(char1Name, '6:45 PM', 'Dinner\'s ready! Come downstairs'),
+                    createMessage(char2Name, '6:48 PM', 'Coming! Just finishing up this assignment'),
+                    createMessage(char1Name, '6:50 PM', 'Okay but don\'t let it get cold'),
+                    createMessage(char2Name, '6:52 PM', 'I\'ll be down in 2 minutes, promise'),
+                    createMessage(char1Name, '6:55 PM', 'Alright, I\'ll keep your plate warm'),
+                    createMessage(char2Name, '6:57 PM', 'You\'re the best, thanks!')
                 ]
             };
             
@@ -1924,7 +1929,7 @@
                 
                 const displayHour = currentHour > 12 ? currentHour - 12 : (currentHour === 0 ? 12 : currentHour);
                 const ampm = currentHour >= 12 ? 'PM' : 'AM';
-                const timestamp = `${displayHour}:${String(currentMinute).padStart(2, '0')} ${ampm}`;
+                const timestamp = displayHour + ':' + String(currentMinute).padStart(2, '0') + ' ' + ampm;
                 
                 let message;
                 if (isFirst) {
@@ -1936,7 +1941,7 @@
                     message = responses[Math.floor(Math.random() * responses.length)];
                 }
                 
-                conversation += `${name} | ${timestamp} | ${message}\n`;
+                conversation += createMessage(name, timestamp, message) + '\n';
             }
             
             return conversation;
@@ -1958,13 +1963,15 @@
             
             // Create a new document to safely generate HTML
             const parser = new DOMParser();
-            const doc = parser.parseFromString(`
+            
+            // Create a basic HTML structure
+            const baseHtml = `
             <!DOCTYPE html>
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${char1Name} & ${char2Name} - ${topic}</title>
+                <title>AI Dialogue Generator Chat</title>
                 <style>
                     /* CSS styles here - unchanged */
                     body { 
@@ -2128,11 +2135,14 @@
                 </div>
             </body>
             </html>
-            `, 'text/html');
+            `;
             
             // Now use DOM methods to safely set content
-            doc.querySelector('.chat-title').textContent = `${char1Name} & ${char2Name}`;
-            doc.querySelector('.chat-subtitle').textContent = `Conversation about ${topic}`;
+            const doc = parser.parseFromString(baseHtml, 'text/html');
+            // Set document title safely
+            doc.title = char1Name + ' & ' + char2Name + ' - ' + topic;
+            doc.querySelector('.chat-title').textContent = char1Name + ' & ' + char2Name;
+            doc.querySelector('.chat-subtitle').textContent = 'Conversation about ' + topic;
             
             // Character 1 info
             const char1Avatar = doc.querySelector('.participant:first-of-type img');
@@ -2190,7 +2200,10 @@
             const topic = document.getElementById('topic').value || 'Chat';
             
             // Create a clean filename
-            const filename = `${char1Name}_${char2Name}_${topic}`.replace(/[^a-zA-Z0-9_-]/g, '_') + '_chat.html';
+            const sanitizedChar1 = char1Name.replace(/[^a-zA-Z0-9_-]/g, '_');
+            const sanitizedChar2 = char2Name.replace(/[^a-zA-Z0-9_-]/g, '_');
+            const sanitizedTopic = topic.replace(/[^a-zA-Z0-9_-]/g, '_');
+            const filename = sanitizedChar1 + '_' + sanitizedChar2 + '_' + sanitizedTopic + '_chat.html';
             
             const a = document.createElement('a');
             a.href = url;
