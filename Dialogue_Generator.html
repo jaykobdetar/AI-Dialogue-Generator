@@ -65,18 +65,24 @@
     </script>
     <style>
         :root {
-            --discord-bg: #36393f;
-            --discord-input-bg: #40444b;
-            --discord-text: #dcddde;
-            --discord-sidebar: #2f3136;
-            --discord-accent: #5865f2;
-            --discord-hover: #32353b;
-            --discord-header: #202225;
-            --discord-green: #57f287;
-            --discord-red: #ed4245;
-            --discord-yellow: #fee75c;
-            --discord-secondary: #4f545c;
-            --discord-light: #b9bbbe;
+            --app-bg: #36393f;
+            --app-input-bg: #40444b;
+            --app-text: #dcddde;
+            --app-sidebar: #2f3136;
+            --app-accent: #5865f2;
+            --app-hover: #32353b;
+            --app-header: #202225;
+            --app-green: #57f287;
+            --app-red: #ed4245;
+            --app-yellow: #fee75c;
+            --app-secondary: #4f545c;
+            --app-light: #b9bbbe;
+            --transition-speed: 0.3s;
+            --box-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --box-shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
+            --box-shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.2);
+            --border-radius: 8px;
+            --border-radius-large: 12px;
         }
         
         * {
@@ -87,28 +93,48 @@
         }
         
         body {
-            background-color: var(--discord-bg);
-            color: var(--discord-text);
+            background-color: var(--app-bg);
+            color: var(--app-text);
             display: flex;
             height: 100vh;
         }
         
         .sidebar {
-            width: 320px;
-            background-color: var(--discord-sidebar);
+            width: 380px;
+            background: linear-gradient(180deg, var(--app-sidebar) 0%, #2a2d31 100%);
             height: 100%;
-            padding: 20px;
+            padding: 24px;
             overflow-y: auto;
-            border-right: 1px solid var(--discord-secondary);
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+            border-right: 1px solid var(--app-secondary);
+            box-shadow: var(--box-shadow-heavy);
+            position: relative;
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .sidebar::-webkit-scrollbar-track {
+            background: var(--app-header);
+            border-radius: 4px;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--app-accent);
+            border-radius: 4px;
+            transition: background var(--transition-speed);
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #4752c4;
         }
         
         .setup-panel {
-            background: linear-gradient(135deg, var(--discord-input-bg) 0%, #3a3d44 100%);
+            background: linear-gradient(135deg, var(--app-input-bg) 0%, #3a3d44 100%);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
-            border: 1px solid var(--discord-secondary);
+            border: 1px solid var(--app-secondary);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
@@ -136,7 +162,7 @@
             content: '';
             width: 4px;
             height: 20px;
-            background: linear-gradient(135deg, var(--discord-accent), #4752c4);
+            background: linear-gradient(135deg, var(--app-accent), #4752c4);
             border-radius: 2px;
         }
         
@@ -146,7 +172,7 @@
             right: 20px;
             font-size: 12px;
             transition: transform 0.3s ease;
-            color: var(--discord-accent);
+            color: var(--app-accent);
             opacity: 0.8;
         }
         
@@ -172,7 +198,7 @@
             margin: 12px 0 6px;
             font-size: 14px;
             font-weight: 600;
-            color: var(--discord-light);
+            color: var(--app-light);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -180,26 +206,31 @@
         input, textarea, select {
             width: 100%;
             padding: 12px 16px;
-            background: linear-gradient(135deg, var(--discord-header) 0%, #1a1c1f 100%);
+            background: linear-gradient(135deg, var(--app-header) 0%, #1a1c1f 100%);
             border: 2px solid transparent;
-            border-radius: 8px;
-            color: var(--discord-text);
+            border-radius: var(--border-radius);
+            color: var(--app-text);
             margin-bottom: 12px;
             font-size: 14px;
-            transition: all 0.3s ease;
+            transition: all var(--transition-speed) ease;
             outline: none;
         }
         
         input:focus, textarea:focus, select:focus {
-            border-color: var(--discord-accent);
-            background: var(--discord-header);
-            box-shadow: 0 0 0 4px rgba(88, 101, 242, 0.1);
+            border-color: var(--app-accent);
+            background: linear-gradient(135deg, #1a1c1f 0%, var(--app-header) 100%);
+            box-shadow: 0 0 0 4px rgba(88, 101, 242, 0.15), inset 0 1px 3px rgba(0, 0, 0, 0.3);
             transform: translateY(-1px);
         }
         
+        input::placeholder, textarea::placeholder {
+            color: #6a7480;
+            opacity: 0.7;
+        }
+        
         input:hover, textarea:hover, select:hover {
-            border-color: var(--discord-secondary);
-            background: var(--discord-header);
+            border-color: var(--app-secondary);
+            background: var(--app-header);
         }
         
         textarea {
@@ -231,7 +262,7 @@
             content: '▼';
             font-size: 12px;
             transition: transform 0.3s ease;
-            color: var(--discord-accent);
+            color: var(--app-accent);
             opacity: 0.8;
             position: absolute;
             right: 10px;
@@ -258,7 +289,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: var(--discord-header);
+            background-color: var(--app-header);
             margin-right: 10px;
             overflow: hidden;
             display: inline-block;
@@ -277,20 +308,22 @@
         }
         
         button {
-            background: linear-gradient(135deg, var(--discord-accent) 0%, #4752c4 100%);
+            background: linear-gradient(135deg, var(--app-accent) 0%, #4752c4 100%);
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 14px 24px;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 14px;
-            margin-top: 8px;
+            font-size: 15px;
+            margin-top: 12px;
             width: 100%;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(88, 101, 242, 0.3);
+            box-shadow: 0 4px 8px rgba(88, 101, 242, 0.25);
             position: relative;
             overflow: hidden;
+            text-transform: none;
+            letter-spacing: 0.3px;
         }
         
         button::before {
@@ -329,8 +362,8 @@
         
         .chat-header {
             height: 60px;
-            background: linear-gradient(135deg, var(--discord-header) 0%, #1a1c1f 100%);
-            border-bottom: 2px solid var(--discord-secondary);
+            background: linear-gradient(135deg, var(--app-header) 0%, #1a1c1f 100%);
+            border-bottom: 2px solid var(--app-secondary);
             display: flex;
             align-items: center;
             padding: 0 24px;
@@ -360,16 +393,31 @@
         .message {
             display: flex;
             margin-bottom: 16px;
-            padding: 12px 16px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
+            padding: 16px 20px;
+            border-radius: var(--border-radius-large);
+            transition: all var(--transition-speed) ease;
             position: relative;
+            animation: messageSlide 0.4s ease-out;
+            background: linear-gradient(135deg, rgba(47, 49, 54, 0.3) 0%, rgba(32, 34, 37, 0.3) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.03);
         }
         
         .message:hover {
-            background: linear-gradient(135deg, var(--discord-hover) 0%, #2c2f35 100%);
+            background: linear-gradient(135deg, var(--app-hover) 0%, #2c2f35 100%);
             transform: translateX(4px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--box-shadow-medium);
+            border-color: rgba(88, 101, 242, 0.1);
+        }
+        
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .message:hover::before {
@@ -379,7 +427,7 @@
             top: 0;
             bottom: 0;
             width: 3px;
-            background: linear-gradient(135deg, var(--discord-accent), #4752c4);
+            background: linear-gradient(135deg, var(--app-accent), #4752c4);
             border-radius: 0 2px 2px 0;
         }
         
@@ -391,7 +439,7 @@
             flex-shrink: 0;
             overflow: hidden;
             border: 3px solid transparent;
-            background: linear-gradient(135deg, var(--discord-accent), #4752c4);
+            background: linear-gradient(135deg, var(--app-accent), #4752c4);
             padding: 2px;
             transition: all 0.3s ease;
         }
@@ -406,7 +454,7 @@
             height: 100%;
             object-fit: cover;
             border-radius: 50%;
-            background-color: var(--discord-header);
+            background-color: var(--app-header);
         }
         
         .message-content {
@@ -423,7 +471,7 @@
             font-weight: 700;
             margin-right: 8px;
             font-size: 16px;
-            background: linear-gradient(135deg, #ffffff, var(--discord-light));
+            background: linear-gradient(135deg, #ffffff, var(--app-light));
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -443,7 +491,7 @@
         }
         
         .message-text {
-            color: var(--discord-text);
+            color: var(--app-text);
             font-size: 15px;
             line-height: 1.4;
             white-space: pre-wrap;
@@ -452,12 +500,30 @@
         .loading {
             text-align: center;
             padding: 40px 20px;
-            color: var(--discord-light);
+            color: var(--app-light);
             display: none;
             background: linear-gradient(135deg, rgba(88, 101, 242, 0.1), rgba(88, 101, 242, 0.05));
-            border-radius: 12px;
+            border-radius: var(--border-radius-large);
             margin: 20px;
-            border: 1px dashed var(--discord-accent);
+            border: 1px dashed var(--app-accent);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loading::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(88, 101, 242, 0.2), transparent);
+            animation: loadingShimmer 2s infinite;
+        }
+        
+        @keyframes loadingShimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
         
         .spinner {
@@ -466,7 +532,7 @@
             height: 28px;
             border: 3px solid rgba(88, 101, 242, 0.3);
             border-radius: 50%;
-            border-top-color: var(--discord-accent);
+            border-top-color: var(--app-accent);
             animation: spin 1s ease-in-out infinite;
             margin-right: 12px;
             box-shadow: 0 0 8px rgba(88, 101, 242, 0.3);
@@ -477,25 +543,25 @@
         }
         
         .error-message {
-            color: var(--discord-red);
+            color: var(--app-red);
             margin-top: 12px;
             font-size: 14px;
             display: none;
             padding: 12px 16px;
             background: rgba(237, 66, 69, 0.1);
-            border: 1px solid var(--discord-red);
+            border: 1px solid var(--app-red);
             border-radius: 8px;
             font-weight: 500;
         }
         
         .success-message {
-            color: var(--discord-green);
+            color: var(--app-green);
             margin-top: 12px;
             font-size: 14px;
             display: none;
             padding: 12px 16px;
             background: rgba(87, 242, 135, 0.1);
-            border: 1px solid var(--discord-green);
+            border: 1px solid var(--app-green);
             border-radius: 8px;
             font-weight: 500;
         }
@@ -530,7 +596,7 @@
             width: auto;
             margin: 0 8px 0 0;
             transform: scale(1.2);
-            accent-color: var(--discord-accent);
+            accent-color: var(--app-accent);
         }
         
         #explicitNote, #advancedPanel {
@@ -538,20 +604,20 @@
             padding: 12px;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 6px;
-            border-left: 3px solid var(--discord-yellow);
+            border-left: 3px solid var(--app-yellow);
         }
         
         /* New styles for character management */
         .character-list {
             max-height: 220px;
             overflow-y: auto;
-            border: 2px solid var(--discord-secondary);
+            border: 2px solid var(--app-secondary);
             border-radius: 8px;
             margin-top: 12px;
             margin-bottom: 12px;
-            background: linear-gradient(135deg, var(--discord-header) 0%, #1a1c1f 100%);
+            background: linear-gradient(135deg, var(--app-header) 0%, #1a1c1f 100%);
             scrollbar-width: thin;
-            scrollbar-color: var(--discord-accent) transparent;
+            scrollbar-color: var(--app-accent) transparent;
         }
         
         .character-list::-webkit-scrollbar {
@@ -563,7 +629,7 @@
         }
         
         .character-list::-webkit-scrollbar-thumb {
-            background: var(--discord-accent);
+            background: var(--app-accent);
             border-radius: 3px;
         }
         
@@ -582,7 +648,7 @@
         }
         
         .character-item:hover {
-            background: linear-gradient(135deg, var(--discord-hover) 0%, #2c2f35 100%);
+            background: linear-gradient(135deg, var(--app-hover) 0%, #2c2f35 100%);
             transform: translateX(4px);
         }
         
@@ -593,12 +659,12 @@
             top: 0;
             bottom: 0;
             width: 3px;
-            background: linear-gradient(135deg, var(--discord-accent), #4752c4);
+            background: linear-gradient(135deg, var(--app-accent), #4752c4);
         }
         
         .character-item.selected {
             background: linear-gradient(135deg, rgba(88, 101, 242, 0.3), rgba(71, 82, 196, 0.3));
-            border-left: 3px solid var(--discord-accent);
+            border-left: 3px solid var(--app-accent);
         }
         
         .character-item-avatar {
@@ -607,7 +673,7 @@
             border-radius: 50%;
             margin-right: 12px;
             overflow: hidden;
-            border: 2px solid var(--discord-accent);
+            border: 2px solid var(--app-accent);
             transition: transform 0.2s ease;
             flex-shrink: 0; /* Add to prevent avatar from growing/shrinking */
             display: flex; /* Add to ensure proper containment */
@@ -628,11 +694,11 @@
         .character-item-name {
             flex: 1;
             font-weight: 600;
-            color: var(--discord-text);
+            color: var(--app-text);
         }
         
         .character-item-delete {
-            color: var(--discord-red);
+            color: var(--app-red);
             cursor: pointer;
             margin-left: 12px;
             font-size: 18px;
@@ -647,7 +713,7 @@
         }
         
         .character-item-delete:hover {
-            background: var(--discord-red);
+            background: var(--app-red);
             color: white;
             transform: scale(1.2);
         }
@@ -666,10 +732,10 @@
             width: 48px;
             height: 48px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--discord-header) 0%, #1a1c1f 100%);
+            background: linear-gradient(135deg, var(--app-header) 0%, #1a1c1f 100%);
             margin-right: 12px;
             overflow: hidden;
-            border: 3px solid var(--discord-accent);
+            border: 3px solid var(--app-accent);
             display: inline-block;
             transition: all 0.3s ease;
         }
@@ -692,7 +758,7 @@
             padding: 12px;
             background: rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-            border: 1px solid var(--discord-secondary);
+            border: 1px solid var(--app-secondary);
         }
         
         /* Add some nice animations */
@@ -707,7 +773,7 @@
         
         /* Custom file input styling */
         input[type="file"] {
-            background: linear-gradient(135deg, var(--discord-accent) 0%, #4752c4 100%);
+            background: linear-gradient(135deg, var(--app-accent) 0%, #4752c4 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -735,6 +801,14 @@
 </head>
 <body>
     <div class="sidebar" id="sidebar">
+        <div style="text-align: center; margin-bottom: 24px; padding: 20px; background: linear-gradient(135deg, var(--app-accent) 0%, #4752c4 100%); border-radius: var(--border-radius-large); box-shadow: var(--box-shadow-medium);">
+            <h1 style="color: white; font-size: 24px; font-weight: 700; margin: 0; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);">
+                ✨ AI Dialogue Generator
+            </h1>
+            <p style="color: rgba(255, 255, 255, 0.9); font-size: 14px; margin-top: 8px; font-weight: 500;">
+                Create realistic conversations with AI
+            </p>
+        </div>
         <div class="setup-panel">
             <h2>🔒 Privacy Notice</h2>
             <div class="setup-panel-content">
@@ -761,7 +835,7 @@
         </div>
 
         <div class="setup-panel">
-            <h2>Grok API Setup</h2>
+            <h2>🤖 API Configuration</h2>
             <div class="setup-panel-content">
                 <label for="apiKey">API Key</label>
             <input type="password" id="apiKey" placeholder="Enter your Grok API key">
@@ -815,7 +889,7 @@
             </select>
             <input type="text" id="customModel" placeholder="Enter custom model name" style="display: none; margin-top: 8px;">
             
-            <button id="saveApiSettings">Save API Settings</button>
+            <button id="saveApiSettings">💾 Save API Settings</button>
             <div class="success-message" id="apiSuccessMsg">API settings saved successfully!</div>
             </div>
         </div>
@@ -849,7 +923,7 @@
         </div>
         
         <div class="setup-panel">
-            <h2>Character Management</h2>
+            <h2>🎭 Character Management</h2>
             <div class="setup-panel-content">
                 <div id="characterSelector">
                     <label for="char1Selector">Character 1</label>
@@ -926,7 +1000,7 @@
             </div>
             
             <div class="char-setup">
-                <h2>Import/Export Characters</h2>
+                <h2>📤 Import/Export Characters</h2>
                 <div class="char-setup-content">
                     <div class="multi-btn-row">
                     <button id="exportCharsBtn">Export All Characters</button>
@@ -942,7 +1016,7 @@
             </div>
             
             <div class="char-setup">
-                <h2>Saved Characters</h2>
+                <h2>👥 Saved Characters</h2>
                 <div class="char-setup-content">
                     <div class="character-list" id="savedCharacters">
                     <!-- Character items will be added here -->
@@ -953,7 +1027,7 @@
         </div>
         
         <div class="setup-panel">
-            <h2>Conversation Setup</h2>
+            <h2>💬 Conversation Setup</h2>
             <div class="setup-panel-content">
                 <label for="conversationMode">Conversation Mode</label>
                 <select id="conversationMode">
@@ -976,7 +1050,7 @@
                 </label>
                 <div id="advancedPanel" style="display: none; margin-top: 10px;">
                     <label for="systemPrompt">Custom User Message</label>
-                    <button id="autofillPromptBtn" style="float: right; padding: 4px 8px; font-size: 12px; background-color: #5865F2;">Autofill Default</button>
+                    <button id="autofillPromptBtn" style="float: right; padding: 6px 12px; font-size: 13px; background: linear-gradient(135deg, #4CAF50 0%, #45A049 100%); border-radius: 6px; font-weight: 500;">🔄 Autofill Default</button>
                     <div style="clear: both; margin-top: 5px;">
                         <label>
                             <input type="checkbox" id="replaceEntirePrompt">
@@ -998,8 +1072,12 @@
                 </div>
             </div>
             
-            <button id="generateBtn">Generate Conversation</button>
-            <button id="continueBtn" style="margin-left: 10px; background-color: #5865F2;">Continue Conversation</button>
+            <button id="generateBtn">
+                <span style="position: relative; z-index: 1;">✨ Generate Conversation</span>
+            </button>
+            <button id="continueBtn" style="margin-left: 10px; background: linear-gradient(135deg, #7289DA 0%, #5865F2 100%); position: relative; overflow: hidden;">
+                <span style="position: relative; z-index: 1;">📚 Continue Conversation</span>
+            </button>
             <div class="error-message" id="errorMsg"></div>
             </div>
         </div>
