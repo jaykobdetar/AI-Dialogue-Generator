@@ -126,6 +126,10 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 40px;
         }
         
         .setup-panel h2::before {
@@ -134,6 +138,33 @@
             height: 20px;
             background: linear-gradient(135deg, var(--discord-accent), #4752c4);
             border-radius: 2px;
+        }
+        
+        .setup-panel h2::after {
+            content: '▼';
+            position: absolute;
+            right: 20px;
+            font-size: 12px;
+            transition: transform 0.3s ease;
+            color: var(--discord-accent);
+            opacity: 0.8;
+        }
+        
+        .setup-panel.collapsed h2::after {
+            transform: rotate(-90deg);
+        }
+        
+        .setup-panel-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            max-height: 2000px;
+            opacity: 1;
+        }
+        
+        .setup-panel.collapsed .setup-panel-content {
+            max-height: 0;
+            opacity: 0;
+            margin-bottom: 0;
         }
         
         label {
@@ -180,6 +211,47 @@
             margin-top: 12px;
             padding-top: 12px;
             border-top: 1px solid #4f545c;
+        }
+        
+        .char-setup h2 {
+            font-size: 16px;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 12px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-right: 30px;
+            position: relative;
+        }
+        
+        .char-setup h2::after {
+            content: '▼';
+            font-size: 12px;
+            transition: transform 0.3s ease;
+            color: var(--discord-accent);
+            opacity: 0.8;
+            position: absolute;
+            right: 10px;
+        }
+        
+        .char-setup.collapsed h2::after {
+            transform: rotate(-90deg);
+        }
+        
+        .char-setup-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            max-height: 1000px;
+            opacity: 1;
+        }
+        
+        .char-setup.collapsed .char-setup-content {
+            max-height: 0;
+            opacity: 0;
+            margin-bottom: 0;
         }
         
         .avatar-preview {
@@ -662,31 +734,36 @@
     </style>
 </head>
 <body>
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="setup-panel">
             <h2>🔒 Privacy Notice</h2>
-            <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4; margin-bottom: 12px;">
-                <strong>Your data stays local:</strong> All characters and API settings are stored only in your browser's local storage. Nothing is sent to external servers except your API requests.
-            </p>
-            <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4;">
-                <strong>API Security:</strong> Only use trusted API endpoints. Your API keys are stored locally and not transmitted anywhere except to your chosen endpoint.
-            </p>
+            <div class="setup-panel-content">
+                <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4; margin-bottom: 12px;">
+                    <strong>Your data stays local:</strong> All characters and API settings are stored only in your browser's local storage. Nothing is sent to external servers except your API requests.
+                </p>
+                <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4;">
+                    <strong>API Security:</strong> Only use trusted API endpoints. Your API keys are stored locally and not transmitted anywhere except to your chosen endpoint.
+                </p>
+            </div>
         </div>
         
         <div class="setup-panel">
             <h2>📖 How to Use</h2>
-            <div style="font-size: 12px; color: #b9bbbe; line-height: 1.4;">
+            <div class="setup-panel-content">
+                <div style="font-size: 12px; color: #b9bbbe; line-height: 1.4;">
                 <p style="margin-bottom: 8px;"><strong>Demo Mode:</strong> Select "Demo Mode" from the API Provider dropdown to try the generator without needing an API key.</p>
                 <p style="margin-bottom: 8px;"><strong>Quick Start:</strong> 1) Create characters with names and avatars, 2) Select two characters, 3) Enter a conversation topic, 4) Click generate.</p>
                 <p style="margin-bottom: 8px;"><strong>Character Details:</strong> Add personality, background, and texting style for more realistic conversations.</p>
                 <p style="margin-bottom: 8px;"><strong>Advanced Mode:</strong> Customize the AI's behavior with your own system prompt instructions.</p>
                 <p><strong>Need Help?</strong> Ask Claude or another AI assistant for character ideas, topic suggestions, or troubleshooting.</p>
+                </div>
             </div>
         </div>
 
         <div class="setup-panel">
             <h2>Grok API Setup</h2>
-            <label for="apiKey">API Key</label>
+            <div class="setup-panel-content">
+                <label for="apiKey">API Key</label>
             <input type="password" id="apiKey" placeholder="Enter your Grok API key">
             
             <label for="apiEndpoint">API Provider</label>
@@ -731,27 +808,56 @@
             
             <button id="saveApiSettings">Save API Settings</button>
             <div class="success-message" id="apiSuccessMsg">API settings saved successfully!</div>
+            </div>
+        </div>
+        
+        <div class="setup-panel">
+            <h2>🔊 Voice Settings (ElevenLabs)</h2>
+            <div class="setup-panel-content">
+                <label for="elevenLabsApiKey">ElevenLabs API Key</label>
+                <input type="password" id="elevenLabsApiKey" placeholder="Enter your ElevenLabs API key">
+                
+                <label>
+                    <input type="checkbox" id="enableVoiceGeneration">
+                    <span style="margin-left: 5px; font-size: 14px;">Enable voice generation</span>
+                </label>
+                
+                <div id="voiceSettings" style="display: none; margin-top: 10px;">
+                    <label for="voiceProvider">Voice Provider</label>
+                    <select id="voiceProvider">
+                        <option value="elevenlabs">ElevenLabs</option>
+                    </select>
+                    
+                    <div class="info-text" style="font-size: 12px; color: #b9bbbe; margin-top: 8px;">
+                        Voice selections for each character are configured in the Character Management section.
+                    </div>
+                </div>
+                
+                <button id="testVoiceApiBtn">Test Voice API</button>
+                <div class="success-message" id="voiceApiSuccessMsg">Voice API connected successfully!</div>
+                <div class="error-message" id="voiceApiErrorMsg"></div>
+            </div>
         </div>
         
         <div class="setup-panel">
             <h2>Character Management</h2>
-            
-            <div id="characterSelector">
-                <label for="char1Selector">Character 1</label>
-                <select id="char1Selector">
-                    <option value="">Select a character</option>
-                </select>
-                
-                <label for="char2Selector">Character 2</label>
-                <select id="char2Selector">
-                    <option value="">Select a character</option>
-                </select>
-            </div>
+            <div class="setup-panel-content">
+                <div id="characterSelector">
+                    <label for="char1Selector">Character 1</label>
+                    <select id="char1Selector">
+                        <option value="">Select a character</option>
+                    </select>
+                    
+                    <label for="char2Selector">Character 2</label>
+                    <select id="char2Selector">
+                        <option value="">Select a character</option>
+                    </select>
+                </div>
             
             <div class="char-setup">
                 <h2>Add/Edit Character</h2>
-                
-                <div class="char-row">
+                <div class="char-setup-content">
+                    <div class="char-row">
                     <div class="avatar-preview" id="charEditPreview"></div>
                     <div style="flex: 1;">
                         <label for="charEditName">Character Name</label>
@@ -802,16 +908,40 @@
                     <option value="typos">Makes typos, auto-correct errors</option>
                 </select>
                 
+                <label for="charEditVoice">Voice (for audio generation)</label>
+                <select id="charEditVoice">
+                    <option value="">Default (no voice)</option>
+                    <optgroup label="Female Voices">
+                        <option value="21m00Tcm4TlvDq8ikWAM">Rachel (friendly)</option>
+                        <option value="EXAVITQu4vr4xnSDxMaL">Bella (young)</option>
+                        <option value="MF3mGyEYCl7XYWbV9V6O">Elli (emotional)</option>
+                        <option value="pNInz6obpgDQGcFmaJgB">Nicole (whispery)</option>
+                    </optgroup>
+                    <optgroup label="Male Voices">
+                        <option value="29vD33N1CtxCmqQRPOHJ">Drew (casual)</option>
+                        <option value="ErXwobaYiN019PkySvjV">Antoni (mature)</option>
+                        <option value="TxGEqnHWrfWFTfGW9XjX">Josh (deep)</option>
+                        <option value="VR6AewLTigWG4xSOukaG">Arnold (older)</option>
+                        <option value="5Q0t7uMcjvnagumLfvZi">Callum (hoarse)</option>
+                    </optgroup>
+                    <optgroup label="Neutral Voices">
+                        <option value="yoZ06aMxZJJ28mfd3POQ">Sam (neutral)</option>
+                        <option value="SOYHLrjzK2X1ezoPC6cr">Harry (anxious)</option>
+                    </optgroup>
+                </select>
+                
                 <div class="multi-btn-row">
                     <button id="saveCharBtn">Save Character</button>
                     <button id="clearFormBtn">Clear Form</button>
                 </div>
                 <div class="success-message" id="charSuccessMsg">Character saved successfully!</div>
+                </div>
             </div>
             
             <div class="char-setup">
                 <h2>Import/Export Characters</h2>
-                <div class="multi-btn-row">
+                <div class="char-setup-content">
+                    <div class="multi-btn-row">
                     <button id="exportCharsBtn">Export All Characters</button>
                     <button id="importCharsBtn">Import Characters</button>
                 </div>
@@ -821,19 +951,32 @@
                 </div>
                 <div class="success-message" id="importSuccessMsg">Characters imported successfully!</div>
                 <div class="error-message" id="importErrorMsg">Error importing characters. Please check the file format.</div>
+                </div>
             </div>
             
             <div class="char-setup">
                 <h2>Saved Characters</h2>
-                <div class="character-list" id="savedCharacters">
+                <div class="char-setup-content">
+                    <div class="character-list" id="savedCharacters">
                     <!-- Character items will be added here -->
                 </div>
+                </div>
+            </div>
             </div>
         </div>
         
         <div class="setup-panel">
             <h2>Conversation Setup</h2>
-            <label for="topic">Conversation Topic</label>
+            <div class="setup-panel-content">
+                <label for="conversationMode">Conversation Mode</label>
+                <select id="conversationMode">
+                    <option value="text">Text Messages</option>
+                    <option value="inperson">In Person</option>
+                    <option value="phone">Phone Call</option>
+                    <option value="social">Social Media</option>
+                </select>
+                
+                <label for="topic">Conversation Topic</label>
             <textarea id="topic" placeholder="Describe what the conversation should be about..."></textarea>
             
             <label for="messageCount">Number of Messages</label>
@@ -852,11 +995,13 @@
             
             <button id="generateBtn">Generate Conversation</button>
             <div class="error-message" id="errorMsg"></div>
+            </div>
         </div>
         
         <div class="setup-panel">
             <h2>Terms of Use</h2>
-            <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4; margin-bottom: 8px;">
+            <div class="setup-panel-content">
+                <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4; margin-bottom: 8px;">
                 <strong>Responsible Use:</strong> Users are responsible for all generated content and must comply with applicable laws and platform policies.
             </p>
             <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4; margin-bottom: 8px;">
@@ -865,19 +1010,39 @@
             <p style="font-size: 12px; color: #b9bbbe; line-height: 1.4;">
                 <strong>Made with:</strong> This tool was created with assistance from Claude AI by Anthropic. For questions or help setting up characters, you can ask Claude or another AI assistant.
             </p>
+            </div>
         </div>
         
         <div class="setup-panel">
-            <h2>Export Options</h2>
-            <div class="multi-btn-row">
+            <h2>Export & Audio Options</h2>
+            <div class="setup-panel-content">
+                <div class="multi-btn-row">
                 <button id="downloadFullBtn">Download Full Generator</button>
                 <button id="downloadChatOnlyBtn">Download Chat</button>
+                </div>
+                
+                <div id="voiceGenerationSection" style="margin-top: 16px; display: none;">
+                    <h3 style="font-size: 14px; margin-bottom: 12px;">🔊 Generate Audio</h3>
+                    <div class="multi-btn-row">
+                        <button id="generateAudioBtn" class="primary-btn">Generate Voice Audio</button>
+                        <button id="downloadAudioBtn" style="display: none;">Download Audio</button>
+                    </div>
+                    <div class="progress-bar" id="audioProgressBar" style="display: none;">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <div id="audioPlayerContainer" style="margin-top: 12px; display: none;">
+                        <audio id="generatedAudio" controls style="width: 100%;"></audio>
+                    </div>
+                    <div class="info-text" id="audioGenerationInfo" style="font-size: 12px; color: #b9bbbe; margin-top: 8px;"></div>
+                    <div class="error-message" id="audioErrorMsg"></div>
+                </div>
             </div>
         </div>
         
         <div class="setup-panel">
             <h2>Troubleshooting</h2>
-            <p style="font-size: 12px; margin-bottom: 10px;">
+            <div class="setup-panel-content">
+                <p style="font-size: 12px; margin-bottom: 10px;">
                 <strong>401 Errors:</strong> Verify your API key is correct and has the proper permissions.
             </p>
             <p style="font-size: 12px; margin-bottom: 10px;">
@@ -894,6 +1059,7 @@
             <p style="font-size: 12px;">
                 Check the browser console (F12) for detailed error information.
             </p>
+            </div>
         </div>
     </div>
     
@@ -1267,6 +1433,7 @@
                 document.getElementById('charEditBackground').value = char.background || '';
                 document.getElementById('charEditRelationship').value = char.relationship || '';
                 document.getElementById('charEditTextingStyle').value = char.textingStyle || '';
+                document.getElementById('charEditVoice').value = char.voice || '';
                 
                 const preview = document.getElementById('charEditPreview');
                 preview.textContent = '';
@@ -1321,6 +1488,29 @@
                 endpointDisplay.style.color = '#72767d';
                 endpointDisplay.style.fontStyle = 'italic';
             }
+            
+            // Initialize panel collapse functionality
+            const setupPanels = document.querySelectorAll('.setup-panel');
+            setupPanels.forEach(panel => {
+                // Only get the direct h2 child, not nested ones
+                const header = Array.from(panel.children).find(child => child.tagName === 'H2');
+                if (header) {
+                    header.addEventListener('click', function() {
+                        panel.classList.toggle('collapsed');
+                    });
+                }
+            });
+            
+            // Initialize internal section collapse functionality
+            const charSetups = document.querySelectorAll('.char-setup');
+            charSetups.forEach(setup => {
+                const header = setup.querySelector('h2');
+                if (header) {
+                    header.addEventListener('click', function() {
+                        setup.classList.toggle('collapsed');
+                    });
+                }
+            });
         });
         
         // Handle explicit content toggle
@@ -1453,6 +1643,7 @@
             const backgroundInput = document.getElementById('charEditBackground');
             const relationshipInput = document.getElementById('charEditRelationship');
             const textingStyleInput = document.getElementById('charEditTextingStyle');
+            const voiceInput = document.getElementById('charEditVoice');
             const preview = document.getElementById('charEditPreview');
             const avatarImg = preview.querySelector('img');
             
@@ -1473,6 +1664,7 @@
                 background: backgroundInput.value.trim(),
                 relationship: relationshipInput.value,
                 textingStyle: textingStyleInput.value,
+                voice: voiceInput.value,
                 avatar: avatarImg ? avatarImg.src : null
             };
             
@@ -1705,11 +1897,53 @@
                     }
                 }
                 
-                const prompt = 'Generate a conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
-                'Create exactly ' + messageCount + ' messages total, alternating between the two characters. ' +
-                'Format each message as: "CHARACTER_NAME | TIMESTAMP | message content" ' +
-                'Where TIMESTAMP should be in format "12:34 PM" and progress realistically throughout the conversation (messages should be a few minutes apart).' + characterDetails + ' ' +
-                'Not all replies need to be short - sometimes the context implies a longer message is appropriate, use judgment.';
+                // Get conversation mode
+                const conversationMode = document.getElementById('conversationMode').value;
+                
+                let prompt;
+                let formatInstructions;
+                
+                // Set mode-specific prompts and format instructions
+                switch(conversationMode) {
+                    case 'text':
+                        formatInstructions = 'Format each message as: "CHARACTER_NAME | TIMESTAMP | message content" where TIMESTAMP is in format "12:34 PM". Messages should be texting style - sometimes short, sometimes longer, with occasional typos, emojis, and casual language.';
+                        prompt = 'Generate a text message conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                        'Create exactly ' + messageCount + ' messages total, alternating between the two characters. ' + 
+                        formatInstructions + characterDetails + ' ' +
+                        'Keep messages natural and conversational like real texting.';
+                        break;
+                    
+                    case 'inperson':
+                        formatInstructions = 'Format each line as: "CHARACTER_NAME | message content". Include body language, tone of voice, and setting details in brackets [like this].';
+                        prompt = 'Generate an in-person conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                        'Create exactly ' + messageCount + ' speaking turns total, alternating between the two characters. ' +
+                        formatInstructions + characterDetails + ' ' +
+                        'Include physical actions, facial expressions, and environmental context.';
+                        break;
+                    
+                    case 'phone':
+                        formatInstructions = 'Format each line as: "CHARACTER_NAME | message content". Include vocal cues, pauses, and non-verbal sounds in brackets [like this].';
+                        prompt = 'Generate a phone conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                        'Create exactly ' + messageCount + ' speaking turns total, alternating between the two characters. ' +
+                        formatInstructions + characterDetails + ' ' +
+                        'Include vocal tones, pauses, interruptions, and background sounds.';
+                        break;
+                    
+                    
+                    case 'social':
+                        formatInstructions = 'Format each post/comment as: "CHARACTER_NAME | TIMESTAMP | message content". Include hashtags, mentions, and emoji reactions.';
+                        prompt = 'Generate a social media conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                        'Create exactly ' + messageCount + ' posts/comments total, alternating between the two users. ' +
+                        formatInstructions + characterDetails + ' ' +
+                        'Include likes, reactions, hashtags, and casual social media language.';
+                        break;
+                    
+                    default:
+                        formatInstructions = 'Format each message as: "CHARACTER_NAME | TIMESTAMP | message content" where TIMESTAMP is in format "12:34 PM".';
+                        prompt = 'Generate a conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                        'Create exactly ' + messageCount + ' messages total, alternating between the two characters. ' +
+                        formatInstructions + characterDetails;
+                }
                 
                 // Determine API endpoint
                 let apiEndpoint = document.getElementById('apiEndpoint').value;
@@ -1727,9 +1961,29 @@
                 
                 // Get system prompt (advanced mode)
                 const advancedMode = document.getElementById('advancedMode').checked;
+                let defaultSystemPrompt;
+                
+                // Set mode-specific default system prompts
+                switch(conversationMode) {
+                    case 'text':
+                        defaultSystemPrompt = 'You are an AI that generates realistic text message conversations between two characters. Create natural, casual, and authentic conversations like real text messages. Use any provided character details to influence their personality, communication style, and relationship dynamic. Keep all content appropriate and respectful.';
+                        break;
+                    case 'inperson':
+                        defaultSystemPrompt = 'You are an AI that generates realistic in-person conversations between two characters. Include body language, facial expressions, tone of voice, and environmental context. Create natural dialogue with realistic interactions and physical cues.';
+                        break;
+                    case 'phone':
+                        defaultSystemPrompt = 'You are an AI that generates realistic phone conversations between two characters. Include vocal tones, pauses, interruptions, and background sounds. Create natural phone dialogue with realistic audio cues and conversational patterns.';
+                        break;
+                    case 'social':
+                        defaultSystemPrompt = 'You are an AI that generates realistic social media conversations between two characters. Include hashtags, mentions, likes, reactions, and emojis. Create casual social media interactions typical of platforms like Twitter, Facebook, or Instagram.';
+                        break;
+                    default:
+                        defaultSystemPrompt = 'You are an AI that generates realistic conversations between two characters. Create natural, authentic dialogue that fits the specified format and context.';
+                }
+                
                 const systemPrompt = advancedMode && document.getElementById('systemPrompt').value 
                     ? document.getElementById('systemPrompt').value 
-                    : 'You are an AI that generates realistic text message conversations between two characters. Create natural, casual, and authentic conversations like real text messages. Use any provided character details to influence their personality, communication style, and relationship dynamic. Keep all content appropriate and respectful.';
+                    : defaultSystemPrompt;
                 
                 if (!model) {
                     throw new Error('Please select a model');
@@ -1744,7 +1998,7 @@
                 if (document.getElementById('apiEndpoint').value === 'test-mode') {
                     console.log("Using demo mode with local fallback data");
                     setTimeout(() => {
-                        const mockConversation = generateMockConversation(char1Name, char2Name, topic, messageCount);
+                        const mockConversation = generateMockConversation(char1Name, char2Name, topic, messageCount, conversationMode);
                         displayConversation(mockConversation, char1Name, char2Name);
                         loadingIndicator.style.display = 'none';
                     }, 1500);
@@ -1813,21 +2067,59 @@
         
         // Function to display conversation in the UI
         function displayConversation(conversationText, char1Name, char2Name) {
-            // Process the generated conversation
+            const conversationMode = document.getElementById('conversationMode').value;
+            
+            // Process the generated conversation - all modes will be parsed to extract clean content
             const messages = conversationText.split('\n')
                 .filter(line => line.trim().length > 0)
                 .map(line => {
-                    // Extract character name, timestamp, and message content
-                    const match = line.match(/^(.+?)\s*\|\s*(.+?)\s*\|\s*(.+)$/);
-                    if (match) {
-                        return {
-                            character: match[1].trim(),
-                            timestamp: match[2].trim(),
-                            content: match[3].trim()
-                        };
-                    } else {
-                        return null;
+                    let match;
+                    
+                    // Different regex patterns for different modes
+                    switch(conversationMode) {
+                        case 'inperson':
+                        case 'phone':
+                            // Format: CHARACTER_NAME | message content
+                            match = line.match(/^(.+?)\s*\|\s*(.+)$/);
+                            if (match) {
+                                // Keep the full content with brackets for display
+                                const time = new Date();
+                                time.setHours(10 + Math.floor(Math.random() * 12));
+                                time.setMinutes(Math.floor(Math.random() * 60));
+                                const timestamp = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                                
+                                return {
+                                    character: match[1].trim(),
+                                    timestamp: timestamp,
+                                    content: match[2].trim()
+                                };
+                            }
+                            break;
+                        
+                        
+                        case 'text':
+                        case 'social':
+                        default:
+                            // Format: CHARACTER_NAME | TIMESTAMP | message content
+                            match = line.match(/^(.+?)\s*\|\s*(.+?)\s*\|\s*(.+)$/);
+                            if (match) {
+                                // For social media, remove hashtags and mentions from display
+                                let content = match[3].trim();
+                                if (conversationMode === 'social') {
+                                    // Keep the content as-is for social media, but could strip if needed
+                                    content = content;
+                                }
+                                
+                                return {
+                                    character: match[1].trim(),
+                                    timestamp: match[2].trim(),
+                                    content: content
+                                };
+                            }
+                            break;
                     }
+                    
+                    return null;
                 })
                 .filter(Boolean);
             
@@ -1853,7 +2145,7 @@
                 // Use the timestamp from the AI response
                 const displayTimestamp = 'Today at ' + msg.timestamp;
                 
-                // Create message element
+                // Create message element - all modes display the same way
                 const messageElement = document.createElement('div');
                 messageElement.className = 'message';
                 
@@ -1899,38 +2191,95 @@
         }
         
         // Generate mock conversation for testing with enhanced examples
-        function generateMockConversation(char1Name, char2Name, topic, count) {
-            // Function to safely create message strings
-            function createMessage(name, time, content) {
-                return name + ' | ' + time + ' | ' + content;
+        function generateMockConversation(char1Name, char2Name, topic, count, mode = 'text') {
+            // Function to safely create message strings based on mode
+            function createMessage(name, time, content, mode) {
+                switch(mode) {
+                    case 'inperson':
+                    case 'phone':
+                        return name + ' | ' + content;
+                    case 'social':
+                        return name + ' | ' + time + ' | ' + content;
+                    case 'text':
+                    default:
+                        return name + ' | ' + time + ' | ' + content;
+                }
             }
             
-            const conversationTemplates = {
-                "work": [
-                    createMessage(char1Name, '9:15 AM', 'Hey, did you see the email about the new project deadline?'),
-                    createMessage(char2Name, '9:18 AM', 'Yeah, it\'s pretty tight. We\'ll need to prioritize the main features first'),
-                    createMessage(char1Name, '9:22 AM', 'Agreed. Should we schedule a quick call to discuss?'),
-                    createMessage(char2Name, '9:25 AM', 'Good idea! How about 2pm today?'),
-                    createMessage(char1Name, '9:27 AM', 'Perfect, I\'ll send the calendar invite'),
-                    createMessage(char2Name, '9:30 AM', 'Thanks! I\'ll prep some notes beforehand')
-                ],
-                "friendship": [
-                    createMessage(char1Name, '7:30 PM', 'What are you up to tonight?'),
-                    createMessage(char2Name, '7:33 PM', 'Just watching Netflix lol. You?'),
-                    createMessage(char1Name, '7:35 PM', 'Same! Have you seen that new series everyone\'s talking about?'),
-                    createMessage(char2Name, '7:38 PM', 'Which one? There are like 5 new shows this week 😅'),
-                    createMessage(char1Name, '7:40 PM', 'The sci-fi one with the time travel plot'),
-                    createMessage(char2Name, '7:42 PM', 'Oh that one! Yeah it\'s actually really good. Want to watch together?')
-                ],
-                "family": [
-                    createMessage(char1Name, '6:45 PM', 'Dinner\'s ready! Come downstairs'),
-                    createMessage(char2Name, '6:48 PM', 'Coming! Just finishing up this assignment'),
-                    createMessage(char1Name, '6:50 PM', 'Okay but don\'t let it get cold'),
-                    createMessage(char2Name, '6:52 PM', 'I\'ll be down in 2 minutes, promise'),
-                    createMessage(char1Name, '6:55 PM', 'Alright, I\'ll keep your plate warm'),
-                    createMessage(char2Name, '6:57 PM', 'You\'re the best, thanks!')
-                ]
-            };
+            // Mode-specific conversation templates
+            let conversationTemplates = {};
+            
+            switch(mode) {
+                case 'inperson':
+                    conversationTemplates = {
+                        "work": [
+                            createMessage(char1Name, null, 'Hey, did you see the email about the new project deadline? [leaning against the doorframe]', mode),
+                            createMessage(char2Name, null, '[looking up from computer] Yeah, it\'s pretty tight. We\'ll need to prioritize. [sighs]', mode),
+                            createMessage(char1Name, null, '[nodding] Agreed. Should we grab a coffee and discuss? [gesturing towards the break room]', mode),
+                            createMessage(char2Name, null, '[standing up and stretching] Good idea! I need a break anyway. [grabs mug]', mode),
+                            createMessage(char1Name, null, 'Great, I\'ll meet you there in 5. [smiling]', mode),
+                            createMessage(char2Name, null, '[walking towards door] Perfect. I\'ll bring my notes.', mode)
+                        ]
+                    };
+                    break;
+                    
+                case 'phone':
+                    conversationTemplates = {
+                        "work": [
+                            createMessage(char1Name, null, 'Hey, can you hear me? [slight static]', mode),
+                            createMessage(char2Name, null, '[clearing throat] Yeah, loud and clear. About that project deadline...', mode),
+                            createMessage(char1Name, null, '[papers rustling] Right, it\'s pretty tight. We need to prioritize.', mode),
+                            createMessage(char2Name, null, '[typing sounds] Agreed. Hold on... [pause] Sorry, just pulling up the timeline.', mode),
+                            createMessage(char1Name, null, 'No worries. [dog barking in background] Excuse my dog...', mode),
+                            createMessage(char2Name, null, '[laughing] No problem! So, what if we focus on the core features first?', mode)
+                        ]
+                    };
+                    break;
+                    
+                    
+                case 'social':
+                    conversationTemplates = {
+                        "work": [
+                            createMessage(char1Name, '9:15 AM', 'Anyone else see that crazy project deadline? 😅 #WorkLife #CoffeePlease', mode),
+                            createMessage(char2Name, '9:18 AM', '@' + char1Name.toLowerCase().replace(/\s+/g, '') + ' Tell me about it! Time to prioritize like crazy 💪 #TeamWork', mode),
+                            createMessage(char1Name, '9:22 AM', '@' + char2Name.toLowerCase().replace(/\s+/g, '') + ' Coffee break to strategize? ☕️ #ProductivityHack', mode),
+                            createMessage(char2Name, '9:25 AM', 'YES PLEASE! 🙌 Meet you at the usual spot in 10? #CoffeeTime', mode),
+                            createMessage(char1Name, '9:27 AM', 'On my way! Bringing my laptop 💻 #WorkFromCafe', mode),
+                            createMessage(char2Name, '9:30 AM', 'Same! Let\'s crush this deadline 🚀 #MondayMotivation', mode)
+                        ]
+                    };
+                    break;
+                    
+                case 'text':
+                default:
+                    conversationTemplates = {
+                        "work": [
+                            createMessage(char1Name, '9:15 AM', 'Hey, did you see the email about the new project deadline?', mode),
+                            createMessage(char2Name, '9:18 AM', 'Yeah, it\'s pretty tight. We\'ll need to prioritize the main features first', mode),
+                            createMessage(char1Name, '9:22 AM', 'Agreed. Should we schedule a quick call to discuss?', mode),
+                            createMessage(char2Name, '9:25 AM', 'Good idea! How about 2pm today?', mode),
+                            createMessage(char1Name, '9:27 AM', 'Perfect, I\'ll send the calendar invite', mode),
+                            createMessage(char2Name, '9:30 AM', 'Thanks! I\'ll prep some notes beforehand', mode)
+                        ],
+                        "friendship": [
+                            createMessage(char1Name, '7:30 PM', 'What are you up to tonight?', mode),
+                            createMessage(char2Name, '7:33 PM', 'Just watching Netflix lol. You?', mode),
+                            createMessage(char1Name, '7:35 PM', 'Same! Have you seen that new series everyone\'s talking about?', mode),
+                            createMessage(char2Name, '7:38 PM', 'Which one? There are like 5 new shows this week 😅', mode),
+                            createMessage(char1Name, '7:40 PM', 'The sci-fi one with the time travel plot', mode),
+                            createMessage(char2Name, '7:42 PM', 'Oh that one! Yeah it\'s actually really good. Want to watch together?', mode)
+                        ],
+                        "family": [
+                            createMessage(char1Name, '6:45 PM', 'Dinner\'s ready! Come downstairs', mode),
+                            createMessage(char2Name, '6:48 PM', 'Coming! Just finishing up this assignment', mode),
+                            createMessage(char1Name, '6:50 PM', 'Okay but don\'t let it get cold', mode),
+                            createMessage(char2Name, '6:52 PM', 'I\'ll be down in 2 minutes, promise', mode),
+                            createMessage(char1Name, '6:55 PM', 'Alright, I\'ll keep your plate warm', mode),
+                            createMessage(char2Name, '6:57 PM', 'You\'re the best, thanks!', mode)
+                        ]
+                    };
+                    break;
+            }
             
             // Try to find a template that matches the topic
             let conversation = "";
@@ -1944,32 +2293,94 @@
                 return conversationTemplates.family.slice(0, Math.min(count, 6)).join('\n');
             }
             
-            // Fallback to original generation method
-            const templates = [
-                "Hey, what do you think about {topic}?",
-                "I've been thinking about {topic} lately. It's interesting!",
-                "Have you heard the latest about {topic}?",
-                "I'm not sure how I feel about {topic}, to be honest.",
-                "Let me tell you what happened with {topic} yesterday!",
-                "Do you want to discuss {topic} more?",
-                "I can't believe what's going on with {topic}!",
-                "What's your take on {topic}?",
-                "I read an article about {topic} the other day.",
-                "My friend was just telling me about {topic}."
-            ];
+            // Fallback to original generation method - mode-specific
+            let templates, responses;
             
-            const responses = [
-                "Oh really? Tell me more!",
-                "That's interesting. I've been wondering about that too.",
-                "No way! What happened?",
-                "I had no idea about that!",
-                "Yeah, I've been following that for a while.",
-                "That's crazy! What do you think about it?",
-                "I'm not surprised, to be honest.",
-                "Wow, that's news to me!",
-                "I've been thinking the same thing!",
-                "Let's talk more about this later."
-            ];
+            switch(mode) {
+                case 'inperson':
+                    templates = [
+                        "[walking over] Hey, what do you think about {topic}? [curious expression]",
+                        "[leaning back in chair] I've been thinking about {topic} lately. It's interesting!",
+                        "[excited] Have you heard the latest about {topic}?",
+                        "[frowning slightly] I'm not sure how I feel about {topic}, to be honest.",
+                        "[animated gestures] Let me tell you what happened with {topic} yesterday!",
+                        "[thoughtful] Do you want to discuss {topic} more?"
+                    ];
+                    responses = [
+                        "[eyes widening] Oh really? Tell me more!",
+                        "[nodding] That's interesting. I've been wondering about that too.",
+                        "[shocked] No way! What happened?",
+                        "[surprised] I had no idea about that!",
+                        "[knowingly] Yeah, I've been following that for a while.",
+                        "[concerned] That's crazy! What do you think about it?"
+                    ];
+                    break;
+                    
+                case 'phone':
+                    templates = [
+                        "Hey, can you hear me? I wanted to talk about {topic}. [slight echo]",
+                        "[clearing throat] I've been thinking about {topic} lately.",
+                        "[excited voice] Have you heard the latest about {topic}?",
+                        "[pausing] I'm not sure how I feel about {topic}, to be honest.",
+                        "[voice getting animated] Let me tell you what happened with {topic}!",
+                        "[static briefly] Do you want to discuss {topic} more?"
+                    ];
+                    responses = [
+                        "[voice raising] Oh really? Tell me more!",
+                        "[phone shuffling] That's interesting. I've been wondering about that too.",
+                        "[loud] No way! What happened?",
+                        "[surprised tone] I had no idea about that!",
+                        "[calmly] Yeah, I've been following that for a while.",
+                        "[concerned voice] That's crazy! What do you think?"
+                    ];
+                    break;
+                    
+                    
+                case 'social':
+                    templates = [
+                        "Anyone else thinking about {topic}? \ud83e\udd14 #Thoughts #Discussion",
+                        "Been pondering {topic} lately... Interesting stuff! \ud83d\udca1 #DeepThoughts",
+                        "OMG have you all heard about {topic}?? \ud83d\ude31 #BreakingNews",
+                        "Not sure how I feel about {topic} tbh... \ud83d\ude15 #Conflicted",
+                        "You guys won't believe what happened with {topic}! Thread below \ud83d\udc47",
+                        "Who wants to discuss {topic}? Drop your thoughts! \ud83d\udcac #OpenDiscussion"
+                    ];
+                    responses = [
+                        "@user OMG yes! Tell me more! \ud83d\ude2e",
+                        "@user So true! I've been wondering about this too \ud83d\udc4d",
+                        "@user NO WAY! What happened?? \ud83d\ude31",
+                        "@user Wait what?? I had no idea! \ud83d\ude35",
+                        "@user Been following this! Wild times \ud83d\ude05",
+                        "@user This is crazy! What's your take? \ud83e\udd2f"
+                    ];
+                    break;
+                    
+                default:
+                    templates = [
+                        "Hey, what do you think about {topic}?",
+                        "I've been thinking about {topic} lately. It's interesting!",
+                        "Have you heard the latest about {topic}?",
+                        "I'm not sure how I feel about {topic}, to be honest.",
+                        "Let me tell you what happened with {topic} yesterday!",
+                        "Do you want to discuss {topic} more?",
+                        "I can't believe what's going on with {topic}!",
+                        "What's your take on {topic}?",
+                        "I read an article about {topic} the other day.",
+                        "My friend was just telling me about {topic}."
+                    ];
+                    responses = [
+                        "Oh really? Tell me more!",
+                        "That's interesting. I've been wondering about that too.",
+                        "No way! What happened?",
+                        "I had no idea about that!",
+                        "Yeah, I've been following that for a while.",
+                        "That's crazy! What do you think about it?",
+                        "I'm not surprised, to be honest.",
+                        "Wow, that's news to me!",
+                        "I've been thinking the same thing!",
+                        "Let's talk more about this later."
+                    ];
+            }
             
             let currentHour = 10; // Start at 10 AM
             let currentMinute = 0;
@@ -1999,7 +2410,7 @@
                     message = responses[Math.floor(Math.random() * responses.length)];
                 }
                 
-                conversation += createMessage(name, timestamp, message) + '\n';
+                conversation += createMessage(name, timestamp, message, mode) + '\n';
             }
             
             return conversation;
@@ -2160,6 +2571,32 @@
                         font-size: 12px;
                         color: #72767d;
                     }
+                
+                .progress-bar {
+                    width: 100%;
+                    height: 8px;
+                    background-color: #2f3136;
+                    border-radius: 4px;
+                    overflow: hidden;
+                    margin: 12px 0;
+                }
+                
+                .progress-fill {
+                    height: 100%;
+                    background: linear-gradient(90deg, #5865f2 0%, #7289da 100%);
+                    width: 0%;
+                    transition: width 0.3s ease;
+                }
+                
+                .primary-btn {
+                    background: linear-gradient(135deg, #5865f2 0%, #7289da 100%);
+                    color: white;
+                    font-weight: 600;
+                }
+                
+                .primary-btn:hover {
+                    background: linear-gradient(135deg, #4752c4 0%, #6879d9 100%);
+                }
                 </style>
             </head>
             <body>
@@ -2216,8 +2653,25 @@
             
             // Clone messages from the current page to the new document
             const chatMessagesContainer = doc.querySelector('.chat-messages');
+            const conversationMode = document.getElementById('conversationMode').value;
+            
             Array.from(chatMessages.children).forEach(message => {
-                chatMessagesContainer.appendChild(message.cloneNode(true));
+                const clonedMessage = message.cloneNode(true);
+                
+                // Clean up the message text for export
+                const messageTextElement = clonedMessage.querySelector('.message-text');
+                if (messageTextElement) {
+                    let cleanText = messageTextElement.textContent;
+                    
+                    // Remove bracketed content for in-person and phone modes
+                    if (conversationMode === 'inperson' || conversationMode === 'phone') {
+                        cleanText = cleanText.replace(/\[.*?\]/g, '').trim();
+                    }
+                    
+                    messageTextElement.textContent = cleanText;
+                }
+                
+                chatMessagesContainer.appendChild(clonedMessage);
             });
             
             // Set the footer timestamp
@@ -2275,6 +2729,281 @@
                 URL.revokeObjectURL(url);
             }, 0);
         });
+        
+        // Voice generation functionality
+        const voiceGeneration = {
+            elevenLabsApiKey: null,
+            isEnabled: false,
+            
+            init: function() {
+                // Load saved settings
+                const savedSettings = localStorage.getItem('voiceSettings');
+                if (savedSettings) {
+                    const settings = JSON.parse(savedSettings);
+                    this.elevenLabsApiKey = settings.elevenLabsApiKey;
+                    this.isEnabled = settings.isEnabled;
+                    
+                    document.getElementById('elevenLabsApiKey').value = this.elevenLabsApiKey || '';
+                    document.getElementById('enableVoiceGeneration').checked = this.isEnabled;
+                }
+                
+                // Update UI visibility
+                this.updateUIVisibility();
+                
+                // Add event listeners
+                document.getElementById('enableVoiceGeneration').addEventListener('change', (e) => {
+                    this.isEnabled = e.target.checked;
+                    this.saveSettings();
+                    this.updateUIVisibility();
+                });
+                
+                document.getElementById('elevenLabsApiKey').addEventListener('change', (e) => {
+                    this.elevenLabsApiKey = e.target.value;
+                    this.saveSettings();
+                });
+                
+                document.getElementById('testVoiceApiBtn').addEventListener('click', () => {
+                    this.testVoiceApi();
+                });
+                
+                document.getElementById('generateAudioBtn').addEventListener('click', () => {
+                    this.generateAudio();
+                });
+            },
+            
+            saveSettings: function() {
+                const settings = {
+                    elevenLabsApiKey: this.elevenLabsApiKey,
+                    isEnabled: this.isEnabled
+                };
+                localStorage.setItem('voiceSettings', JSON.stringify(settings));
+            },
+            
+            updateUIVisibility: function() {
+                const voiceSettings = document.getElementById('voiceSettings');
+                const voiceGenerationSection = document.getElementById('voiceGenerationSection');
+                
+                if (this.isEnabled) {
+                    voiceSettings.style.display = 'block';
+                    if (this.elevenLabsApiKey) {
+                        voiceGenerationSection.style.display = 'block';
+                    }
+                } else {
+                    voiceSettings.style.display = 'none';
+                    voiceGenerationSection.style.display = 'none';
+                }
+            },
+            
+            testVoiceApi: async function() {
+                const apiKey = document.getElementById('elevenLabsApiKey').value;
+                const errorMsg = document.getElementById('voiceApiErrorMsg');
+                const successMsg = document.getElementById('voiceApiSuccessMsg');
+                
+                errorMsg.style.display = 'none';
+                successMsg.style.display = 'none';
+                
+                if (!apiKey) {
+                    errorMsg.textContent = 'Please enter an API key';
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('https://api.elevenlabs.io/v1/voices', {
+                        headers: {
+                            'xi-api-key': apiKey
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        successMsg.style.display = 'block';
+                        this.elevenLabsApiKey = apiKey;
+                        this.saveSettings();
+                        this.updateUIVisibility();
+                        setTimeout(() => {
+                            successMsg.style.display = 'none';
+                        }, 3000);
+                    } else {
+                        throw new Error('Invalid API key');
+                    }
+                } catch (error) {
+                    errorMsg.textContent = 'Failed to connect to ElevenLabs API: ' + error.message;
+                    errorMsg.style.display = 'block';
+                }
+            },
+            
+            getMessages: function() {
+                const messageElements = document.querySelectorAll('.message');
+                const messages = [];
+                
+                messageElements.forEach(msg => {
+                    const username = msg.querySelector('.message-username').textContent;
+                    const content = msg.querySelector('.message-text').textContent;
+                    messages.push({ username, content });
+                });
+                
+                return messages;
+            },
+            
+            generateAudio: async function() {
+                const errorMsg = document.getElementById('audioErrorMsg');
+                const progressBar = document.getElementById('audioProgressBar');
+                const progressFill = progressBar.querySelector('.progress-fill');
+                const infoText = document.getElementById('audioGenerationInfo');
+                const downloadBtn = document.getElementById('downloadAudioBtn');
+                
+                errorMsg.style.display = 'none';
+                progressBar.style.display = 'block';
+                downloadBtn.style.display = 'none';
+                
+                if (!this.elevenLabsApiKey) {
+                    errorMsg.textContent = 'Please configure your ElevenLabs API key';
+                    errorMsg.style.display = 'block';
+                    progressBar.style.display = 'none';
+                    return;
+                }
+                
+                const messages = this.getMessages();
+                if (messages.length === 0) {
+                    errorMsg.textContent = 'No messages to generate audio for';
+                    errorMsg.style.display = 'block';
+                    progressBar.style.display = 'none';
+                    return;
+                }
+                
+                // Get character voice mappings
+                const characters = storage.getCharacters();
+                const char1 = storage.getCharacterById(document.getElementById('char1Selector').value);
+                const char2 = storage.getCharacterById(document.getElementById('char2Selector').value);
+                
+                const voiceMapping = {};
+                if (char1 && char1.voice) voiceMapping[char1.name.toLowerCase()] = char1.voice;
+                if (char2 && char2.voice) voiceMapping[char2.name.toLowerCase()] = char2.voice;
+                
+                // Default voices for unmapped characters
+                const defaultVoices = {
+                    female: '21m00Tcm4TlvDq8ikWAM', // Rachel
+                    male: '29vD33N1CtxCmqQRPOHJ'     // Drew
+                };
+                
+                const audioSegments = [];
+                let processedCount = 0;
+                
+                for (const message of messages) {
+                    infoText.textContent = `Generating audio for ${message.username}: ${message.content.substring(0, 30)}...`;
+                    
+                    // Get voice ID for this user
+                    let voiceId = voiceMapping[message.username.toLowerCase()];
+                    if (!voiceId) {
+                        // Assign default voice based on simple heuristic
+                        voiceId = defaultVoices.female; // You could make this smarter
+                    }
+                    
+                    try {
+                        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'audio/mpeg',
+                                'Content-Type': 'application/json',
+                                'xi-api-key': this.elevenLabsApiKey
+                            },
+                            body: JSON.stringify({
+                                text: message.content,
+                                model_id: 'eleven_turbo_v2_5',
+                                voice_settings: {
+                                    stability: 0.4,
+                                    similarity_boost: 0.8,
+                                    style: 0.2,
+                                    use_speaker_boost: true
+                                }
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`API request failed: ${response.status}`);
+                        }
+                        
+                        const audioData = await response.arrayBuffer();
+                        audioSegments.push(audioData);
+                        
+                    } catch (error) {
+                        console.error('Error generating audio for message:', error);
+                        // Continue with other messages even if one fails
+                    }
+                    
+                    processedCount++;
+                    progressFill.style.width = (processedCount / messages.length * 100) + '%';
+                }
+                
+                if (audioSegments.length === 0) {
+                    errorMsg.textContent = 'Failed to generate audio for any messages';
+                    errorMsg.style.display = 'block';
+                    progressBar.style.display = 'none';
+                    return;
+                }
+                
+                // Combine audio segments
+                infoText.textContent = 'Combining audio segments...';
+                const combinedAudio = await this.combineAudioSegments(audioSegments);
+                
+                // Display audio player
+                const audioPlayer = document.getElementById('generatedAudio');
+                const audioContainer = document.getElementById('audioPlayerContainer');
+                
+                const blob = new Blob([combinedAudio], { type: 'audio/mpeg' });
+                const audioUrl = URL.createObjectURL(blob);
+                
+                audioPlayer.src = audioUrl;
+                audioContainer.style.display = 'block';
+                downloadBtn.style.display = 'inline-block';
+                
+                // Setup download button
+                downloadBtn.onclick = () => {
+                    const a = document.createElement('a');
+                    a.href = audioUrl;
+                    a.download = 'conversation_audio.mp3';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                };
+                
+                progressBar.style.display = 'none';
+                infoText.textContent = 'Audio generation complete!';
+            },
+            
+            combineAudioSegments: async function(segments) {
+                // Simple concatenation for now
+                // In a more sophisticated implementation, you'd use Web Audio API
+                // to add proper gaps between segments
+                const totalLength = segments.reduce((sum, seg) => sum + seg.byteLength, 0);
+                const combined = new Uint8Array(totalLength);
+                
+                let offset = 0;
+                for (const segment of segments) {
+                    combined.set(new Uint8Array(segment), offset);
+                    offset += segment.byteLength;
+                }
+                
+                return combined;
+            }
+        };
+        
+        // Add getCharacterById method to storage if it doesn't exist
+        if (!storage.getCharacterById) {
+            storage.getCharacterById = function(id) {
+                const characters = this.getCharacters();
+                return characters.find(c => c.id === id);
+            };
+        }
+        
+        // Initialize voice generation when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                voiceGeneration.init();
+            });
+        } else {
+            voiceGeneration.init();
+        }
     </script>
 </body>
 </html>
