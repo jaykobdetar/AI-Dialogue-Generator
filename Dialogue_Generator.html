@@ -908,28 +908,6 @@
                     <option value="typos">Makes typos, auto-correct errors</option>
                 </select>
                 
-                <label for="charEditVoice">Voice (for audio generation)</label>
-                <select id="charEditVoice">
-                    <option value="">Default (no voice)</option>
-                    <optgroup label="Female Voices">
-                        <option value="21m00Tcm4TlvDq8ikWAM">Rachel (friendly)</option>
-                        <option value="EXAVITQu4vr4xnSDxMaL">Bella (young)</option>
-                        <option value="MF3mGyEYCl7XYWbV9V6O">Elli (emotional)</option>
-                        <option value="pNInz6obpgDQGcFmaJgB">Nicole (whispery)</option>
-                    </optgroup>
-                    <optgroup label="Male Voices">
-                        <option value="29vD33N1CtxCmqQRPOHJ">Drew (casual)</option>
-                        <option value="ErXwobaYiN019PkySvjV">Antoni (mature)</option>
-                        <option value="TxGEqnHWrfWFTfGW9XjX">Josh (deep)</option>
-                        <option value="VR6AewLTigWG4xSOukaG">Arnold (older)</option>
-                        <option value="5Q0t7uMcjvnagumLfvZi">Callum (hoarse)</option>
-                    </optgroup>
-                    <optgroup label="Neutral Voices">
-                        <option value="yoZ06aMxZJJ28mfd3POQ">Sam (neutral)</option>
-                        <option value="SOYHLrjzK2X1ezoPC6cr">Harry (anxious)</option>
-                    </optgroup>
-                </select>
-                
                 <div class="multi-btn-row">
                     <button id="saveCharBtn">Save Character</button>
                     <button id="clearFormBtn">Clear Form</button>
@@ -1023,6 +1001,57 @@
                 
                 <div id="voiceGenerationSection" style="margin-top: 16px; display: none;">
                     <h3 style="font-size: 14px; margin-bottom: 12px;">🔊 Generate Audio</h3>
+                    
+                    <div id="voiceAssignmentSection" style="margin-bottom: 16px;">
+                        <h4 style="font-size: 13px; margin-bottom: 8px;">Voice Assignment</h4>
+                        <div class="voice-assignment" style="margin-bottom: 12px;">
+                            <label id="char1VoiceLabel" style="font-size: 12px; margin-bottom: 4px;">Character 1:</label>
+                            <select id="char1Voice" style="margin-bottom: 8px;">
+                                <option value="">Auto-assign</option>
+                                <optgroup label="Female Voices">
+                                    <option value="21m00Tcm4TlvDq8ikWAM">Rachel (friendly)</option>
+                                    <option value="EXAVITQu4vr4xnSDxMaL">Bella (young)</option>
+                                    <option value="MF3mGyEYCl7XYWbV9V6O">Elli (emotional)</option>
+                                    <option value="pNInz6obpgDQGcFmaJgB">Nicole (whispery)</option>
+                                </optgroup>
+                                <optgroup label="Male Voices">
+                                    <option value="29vD33N1CtxCmqQRPOHJ">Drew (casual)</option>
+                                    <option value="ErXwobaYiN019PkySvjV">Antoni (mature)</option>
+                                    <option value="TxGEqnHWrfWFTfGW9XjX">Josh (deep)</option>
+                                    <option value="VR6AewLTigWG4xSOukaG">Arnold (older)</option>
+                                    <option value="5Q0t7uMcjvnagumLfvZi">Callum (hoarse)</option>
+                                </optgroup>
+                                <optgroup label="Neutral Voices">
+                                    <option value="yoZ06aMxZJJ28mfd3POQ">Sam (neutral)</option>
+                                    <option value="SOYHLrjzK2X1ezoPC6cr">Harry (anxious)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="voice-assignment" style="margin-bottom: 12px;">
+                            <label id="char2VoiceLabel" style="font-size: 12px; margin-bottom: 4px;">Character 2:</label>
+                            <select id="char2Voice">
+                                <option value="">Auto-assign</option>
+                                <optgroup label="Female Voices">
+                                    <option value="21m00Tcm4TlvDq8ikWAM">Rachel (friendly)</option>
+                                    <option value="EXAVITQu4vr4xnSDxMaL">Bella (young)</option>
+                                    <option value="MF3mGyEYCl7XYWbV9V6O">Elli (emotional)</option>
+                                    <option value="pNInz6obpgDQGcFmaJgB">Nicole (whispery)</option>
+                                </optgroup>
+                                <optgroup label="Male Voices">
+                                    <option value="29vD33N1CtxCmqQRPOHJ">Drew (casual)</option>
+                                    <option value="ErXwobaYiN019PkySvjV">Antoni (mature)</option>
+                                    <option value="TxGEqnHWrfWFTfGW9XjX">Josh (deep)</option>
+                                    <option value="VR6AewLTigWG4xSOukaG">Arnold (older)</option>
+                                    <option value="5Q0t7uMcjvnagumLfvZi">Callum (hoarse)</option>
+                                </optgroup>
+                                <optgroup label="Neutral Voices">
+                                    <option value="yoZ06aMxZJJ28mfd3POQ">Sam (neutral)</option>
+                                    <option value="SOYHLrjzK2X1ezoPC6cr">Harry (anxious)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    
                     <div class="multi-btn-row">
                         <button id="generateAudioBtn" class="primary-btn">Generate Voice Audio</button>
                         <button id="downloadAudioBtn" style="display: none;">Download Audio</button>
@@ -1433,7 +1462,6 @@
                 document.getElementById('charEditBackground').value = char.background || '';
                 document.getElementById('charEditRelationship').value = char.relationship || '';
                 document.getElementById('charEditTextingStyle').value = char.textingStyle || '';
-                document.getElementById('charEditVoice').value = char.voice || '';
                 
                 const preview = document.getElementById('charEditPreview');
                 preview.textContent = '';
@@ -1643,7 +1671,6 @@
             const backgroundInput = document.getElementById('charEditBackground');
             const relationshipInput = document.getElementById('charEditRelationship');
             const textingStyleInput = document.getElementById('charEditTextingStyle');
-            const voiceInput = document.getElementById('charEditVoice');
             const preview = document.getElementById('charEditPreview');
             const avatarImg = preview.querySelector('img');
             
@@ -1664,7 +1691,6 @@
                 background: backgroundInput.value.trim(),
                 relationship: relationshipInput.value,
                 textingStyle: textingStyleInput.value,
-                voice: voiceInput.value,
                 avatar: avatarImg ? avatarImg.src : null
             };
             
@@ -2769,6 +2795,15 @@
                 document.getElementById('generateAudioBtn').addEventListener('click', () => {
                     this.generateAudio();
                 });
+                
+                // Update character labels when selections change
+                document.getElementById('char1Selector').addEventListener('change', () => {
+                    this.updateCharacterLabels();
+                });
+                
+                document.getElementById('char2Selector').addEventListener('change', () => {
+                    this.updateCharacterLabels();
+                });
             },
             
             saveSettings: function() {
@@ -2787,10 +2822,31 @@
                     voiceSettings.style.display = 'block';
                     if (this.elevenLabsApiKey) {
                         voiceGenerationSection.style.display = 'block';
+                        this.updateCharacterLabels();
                     }
                 } else {
                     voiceSettings.style.display = 'none';
                     voiceGenerationSection.style.display = 'none';
+                }
+            },
+            
+            updateCharacterLabels: function() {
+                const char1 = storage.getCharacterById(document.getElementById('char1Selector').value);
+                const char2 = storage.getCharacterById(document.getElementById('char2Selector').value);
+                
+                const char1Label = document.getElementById('char1VoiceLabel');
+                const char2Label = document.getElementById('char2VoiceLabel');
+                
+                if (char1) {
+                    char1Label.textContent = char1.name + ':';
+                } else {
+                    char1Label.textContent = 'Character 1:';
+                }
+                
+                if (char2) {
+                    char2Label.textContent = char2.name + ':';
+                } else {
+                    char2Label.textContent = 'Character 2:';
                 }
             },
             
@@ -2910,9 +2966,13 @@
                 const char1 = storage.getCharacterById(document.getElementById('char1Selector').value);
                 const char2 = storage.getCharacterById(document.getElementById('char2Selector').value);
                 
+                // Get selected voices from the dropdowns
+                const char1Voice = document.getElementById('char1Voice').value;
+                const char2Voice = document.getElementById('char2Voice').value;
+                
                 const voiceMapping = {};
-                if (char1 && char1.voice) voiceMapping[char1.name.toLowerCase()] = char1.voice;
-                if (char2 && char2.voice) voiceMapping[char2.name.toLowerCase()] = char2.voice;
+                if (char1) voiceMapping[char1.name.toLowerCase()] = char1Voice;
+                if (char2) voiceMapping[char2.name.toLowerCase()] = char2Voice;
                 
                 // Default voices for unmapped characters
                 const defaultVoices = {
