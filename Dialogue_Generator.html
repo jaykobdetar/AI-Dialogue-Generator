@@ -772,7 +772,7 @@
                 <option value="https://api.openai.com/v1/chat/completions">OpenAI</option>
                 <option value="https://api.x.ai/v1/chat/completions">Grok (xAI)</option>
                 <option value="https://api.anthropic.com/v1/messages">Claude (Anthropic)</option>
-                <option value="custom">Custom Endpoint</option>
+                <option value="http://localhost:11434/api/chat">Ollama (Local)</option>
             </select>
             
             <div style="margin-top: 8px; margin-bottom: 12px;">
@@ -780,7 +780,6 @@
                 <div id="endpointDisplay" style="font-size: 12px; color: #b9bbbe; background: #2c2f33; padding: 8px 12px; border-radius: 6px; border: 1px solid #4f545c; word-break: break-all; font-family: 'Courier New', monospace;"></div>
             </div>
             
-            <input type="text" id="customEndpoint" placeholder="Enter custom endpoint URL" style="display: none;">
             
             <label for="model">Model</label>
             <select id="model">
@@ -799,6 +798,16 @@
                     <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
                     <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
                     <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                </optgroup>
+                <optgroup label="Ollama">
+                    <option value="llama3">Llama 3</option>
+                    <option value="mistral">Mistral</option>
+                    <option value="phi">Phi</option>
+                    <option value="neural-chat">Neural Chat</option>
+                    <option value="starling-lm">Starling</option>
+                    <option value="codellama">Code Llama</option>
+                    <option value="llama2-uncensored">Llama 2 Uncensored</option>
+                    <option value="vicuna">Vicuna</option>
                 </optgroup>
                 <optgroup label="Other">
                     <option value="custom">Custom Model Name</option>
@@ -1155,7 +1164,6 @@
                 const settings = {
                     apiKey: document.getElementById('apiKey').value,
                     endpoint: document.getElementById('apiEndpoint').value,
-                    customEndpoint: document.getElementById('customEndpoint').value,
                     model: modelValue
                 };
                 localStorage.setItem('grokApiSettings', JSON.stringify(settings));
@@ -1177,7 +1185,6 @@
                     // Trigger change event to update UI state
                     document.getElementById('apiEndpoint').dispatchEvent(new Event('change'));
                 }
-                if (settings.customEndpoint) document.getElementById('customEndpoint').value = settings.customEndpoint;
                 if (settings.model) {
                     const modelSelect = document.getElementById('model');
                     const customModelField = document.getElementById('customModel');
@@ -1573,44 +1580,32 @@
             }
         });
         document.getElementById('apiEndpoint').addEventListener('change', function() {
-            const customEndpointField = document.getElementById('customEndpoint');
             const endpointDisplay = document.getElementById('endpointDisplay');
             const apiKeyField = document.getElementById('apiKey');
             
-            if (this.value === 'custom') {
-                customEndpointField.style.display = 'block';
-                endpointDisplay.textContent = 'Enter custom URL below';
-                endpointDisplay.style.color = '#72767d';
-                endpointDisplay.style.fontStyle = 'italic';
-                apiKeyField.disabled = false;
-            } else if (this.value === 'test-mode') {
-                customEndpointField.style.display = 'none';
+            if (this.value === 'test-mode') {
                 endpointDisplay.textContent = 'Demo mode - generates sample conversations locally';
                 endpointDisplay.style.color = '#57f287';
                 endpointDisplay.style.fontStyle = 'italic';
                 apiKeyField.disabled = true;
                 apiKeyField.value = '';
+            } else if (this.value.includes('localhost:11434')) {
+                endpointDisplay.textContent = this.value;
+                endpointDisplay.style.color = '#b9bbbe';
+                endpointDisplay.style.fontStyle = 'normal';
+                apiKeyField.disabled = true; // Ollama doesn't need API key
+                apiKeyField.value = '';
+                apiKeyField.placeholder = 'No API key needed for Ollama';
             } else {
-                customEndpointField.style.display = 'none';
                 endpointDisplay.textContent = this.value;
                 endpointDisplay.style.color = '#b9bbbe';
                 endpointDisplay.style.fontStyle = 'normal';
                 apiKeyField.disabled = false;
+                apiKeyField.placeholder = 'Enter your API key';
             }
         });
         
-        document.getElementById('customEndpoint').addEventListener('input', function() {
-            const endpointDisplay = document.getElementById('endpointDisplay');
-            if (this.value.trim()) {
-                endpointDisplay.textContent = this.value;
-                endpointDisplay.style.color = '#b9bbbe';
-                endpointDisplay.style.fontStyle = 'normal';
-            } else {
-                endpointDisplay.textContent = 'Enter custom URL below';
-                endpointDisplay.style.color = '#72767d';
-                endpointDisplay.style.fontStyle = 'italic';
-            }
-        });
+        // Custom endpoint input removed - now using Ollama instead
         
         document.getElementById('model').addEventListener('change', function() {
             const customModelField = document.getElementById('customModel');
@@ -1968,14 +1963,16 @@
                 let existingConversation = '';
                 if (window.continueMode && chatMessages.innerHTML.trim()) {
                     const messages = chatMessages.querySelectorAll('.message');
-                    existingConversation = '\n\nContinue this existing conversation:\n';
+                    existingConversation = '\n\nContinue this existing conversation between ' + char1Name + ' and ' + char2Name + ':\n';
                     messages.forEach(msg => {
                         const sender = msg.querySelector('.message-username').textContent;
                         const timestamp = msg.querySelector('.message-timestamp').textContent;
                         const content = msg.querySelector('.message-text').textContent;
                         existingConversation += `${sender} | ${timestamp} | ${content}\n`;
                     });
-                    existingConversation += '\nGenerate ' + messageCount + ' more messages continuing this conversation naturally.\n';
+                    existingConversation += '\nNow continue this conversation with the topic of: ' + topic + '.\n';
+                    existingConversation += 'Generate ' + messageCount + ' more messages continuing this conversation naturally while incorporating the new topic.\n';
+                    existingConversation += formatInstructions + characterDetails;
                 }
                 
                 // Set mode-specific prompts and format instructions
@@ -2042,12 +2039,6 @@
                 
                 // Determine API endpoint
                 let apiEndpoint = document.getElementById('apiEndpoint').value;
-                if (apiEndpoint === 'custom') {
-                    apiEndpoint = document.getElementById('customEndpoint').value;
-                    if (!apiEndpoint) {
-                        throw new Error('Please enter a custom API endpoint URL');
-                    }
-                }
                 
                 // Get model name
                 const modelSelect = document.getElementById('model');
@@ -2158,12 +2149,29 @@
                         };
                     }
                     
+                    // Adjust request for Ollama
+                    const isOllama = apiEndpoint.includes('localhost:11434');
+                    if (isOllama) {
+                        // Ollama uses a different request format
+                        requestBody = {
+                            model: model,
+                            messages: requestBody.messages,
+                            stream: false
+                        };
+                    }
+                    
+                    const headers = {
+                        'Content-Type': 'application/json'
+                    };
+                    
+                    // Only add Authorization header if API key is provided and not Ollama
+                    if (apiKey && !isOllama) {
+                        headers['Authorization'] = `Bearer ${apiKey}`;
+                    }
+                    
                     const response = await fetch(apiEndpoint, {
                         method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${apiKey}`,
-                            'Content-Type': 'application/json'
-                        },
+                        headers: headers,
                         body: JSON.stringify(requestBody)
                     });
                     
@@ -2174,7 +2182,9 @@
                     }
                     
                     const data = await response.json();
-                    const generatedConversation = data.choices[0].message.content;
+                    const generatedConversation = isOllama 
+                        ? data.message.content 
+                        : data.choices[0].message.content;
                     
                     // Process the generated conversation
                     displayConversation(generatedConversation, char1Name, char2Name, window.continueMode);
@@ -2208,7 +2218,18 @@
             
             // Enable continue mode and trigger the generate button
             window.continueMode = true;
-            document.getElementById('generateBtn').click();
+            
+            // Optional: Show visual feedback that we're in continue mode
+            const generateBtn = document.getElementById('generateBtn');
+            const originalText = generateBtn.textContent;
+            generateBtn.textContent = 'Continuing Conversation...';
+            
+            // Reset button text after generation
+            setTimeout(() => {
+                generateBtn.textContent = originalText;
+            }, 100);
+            
+            generateBtn.click();
         });
         
         // Autofill prompt button handler
