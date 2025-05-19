@@ -6,7 +6,7 @@
 
 ## 🚀 Overview
 
-The AI Dialogue Generator is a comprehensive toolkit for creating realistic conversations between custom characters. It features a modern chat interface powered by leading AI APIs, plus an audio converter that transforms text conversations into natural speech using ElevenLabs TTS.
+The AI Dialogue Generator is a comprehensive toolkit for creating realistic conversations between custom characters. It features a modern chat interface powered by leading AI APIs, plus integrated audio conversion that transforms text conversations into natural speech using ElevenLabs TTS - all within a single HTML file.
 
 ## ✨ Features
 
@@ -41,27 +41,21 @@ The AI Dialogue Generator is a comprehensive toolkit for creating realistic conv
 
 ## 🛠️ Getting Started
 
-### Chat Generator (Web Interface)
+### Using the All-in-One HTML App
 1. **Quick Start**: Open `Dialogue_Generator.html` in any modern web browser
 2. **Demo Mode**: Select "Demo Mode" for instant use without API keys
-3. **Full Mode**: Add your AI API key for unlimited generation
+3. **Full Mode**: Add your AI API key for unlimited dialogue generation
 4. **Character Setup**: Create profiles with personalities and avatars
 5. **Generate**: Choose two characters and a topic to start conversations
-
-### Audio Converter (Python App)
-1. **Install Dependencies**: `pip install streamlit requests beautifulsoup4`
-2. **Run the Application**: `streamlit run Dialogue_voice_generator.py`
-3. **API Key**: Enter your ElevenLabs API key in the sidebar
-4. **Upload**: Select a generated HTML chat file
-5. **Assign Voices**: Map characters to different voice options
-6. **Generate Audio**: Create and download MP3 audio file
+6. **Audio Conversion**: Use the integrated audio feature with your ElevenLabs API key
+7. **Assign Voices**: Map characters to different voice options
+8. **Generate Audio**: Create and download MP3 audio file
 
 ### Development Version
 1. **Clone Repository**: `git clone https://github.com/yourusername/AI-Dialogue-Generator.git`
 2. **Navigate**: `cd AI-Dialogue-Generator/Chat Generator`
 3. **Open Main Page**: Open `main_index.html` in your browser
 4. **Launch Chat Generator**: Click "Start Chat Generator"
-5. **Audio Converter**: Run `pip install -r requirements.txt` then `streamlit run src/audio_converter/app.py`
 
 ## 🎯 Use Cases
 
@@ -89,14 +83,13 @@ The AI Dialogue Generator is a comprehensive toolkit for creating realistic conv
 2. **Set Topic**: Describe the conversation subject
 3. **Configure**: Set message count and optional advanced settings
 4. **Generate**: AI creates the conversation maintaining character consistency
-5. **Export**: Download as HTML or convert to audio
+5. **Export**: Download as HTML or convert to audio directly
 
 ### Converting to Audio
-1. **Export HTML**: Save conversation from the chat generator
-2. **Launch Audio App**: Run the Streamlit audio converter
-3. **Upload File**: Load the HTML chat log
-4. **Assign Voices**: Map characters to ElevenLabs voices
-5. **Generate**: Create and download MP3 audio file
+1. **Access Audio Feature**: Available directly in the main interface
+2. **Enter API Key**: Add your ElevenLabs API key in the designated section
+3. **Assign Voices**: Map characters to ElevenLabs voices
+4. **Generate**: Create and download MP3 audio file
 
 ## 🔌 Supported Services
 
@@ -117,10 +110,8 @@ The AI Dialogue Generator is a comprehensive toolkit for creating realistic conv
 
 ```
 AI-Dialogue-Generator/
-├── Dialogue_Generator.html           # Main chat generator (standalone)
-├── Dialogue_voice_generator.py       # Audio converter app
+├── Dialogue_Generator.html           # Main all-in-one application (standalone)
 ├── README.md                          # This documentation
-├── Audio_converter_readme.md          # Detailed audio converter guide
 ├── LICENSE                            # MIT License
 ├── Chat Generator/                    # Development files
 │   ├── main_index.html               # Landing page
@@ -132,8 +123,8 @@ AI-Dialogue-Generator/
 │       │   ├── index.html            # Application entry
 │       │   ├── css/styles.css        # Styling
 │       │   └── js/                   # JavaScript modules
-│       └── audio_converter/          # Python audio converter
-│           ├── app.py                # Streamlit app
+│       └── audio_converter/          # Previous audio converter code (now integrated)
+│           ├── app.py                # Former Streamlit app
 │           ├── chat_parser.py        # HTML parsing
 │           └── elevenlabs_client.py  # TTS integration
 └── example chat.html                  # Sample conversation
@@ -149,17 +140,13 @@ AI-Dialogue-Generator/
 
 ## 🛠️ Technical Details
 
-### Chat Generator
+### All-in-One Application
 - **Technology**: Pure HTML5, CSS3, JavaScript (ES6+)
 - **Storage**: Browser LocalStorage
-- **Architecture**: Single-file application with modular design
+- **Architecture**: Single-file application with integrated audio conversion
+- **APIs**: OpenAI/Grok/Claude for dialogue, ElevenLabs for TTS
 - **Compatibility**: All modern browsers, mobile-friendly
-
-### Audio Converter
-- **Technology**: Python 3.7+, Streamlit, BeautifulSoup4
-- **APIs**: ElevenLabs text-to-speech
-- **Input**: HTML chat logs
-- **Output**: High-quality MP3 audio files
+- **Output**: Chat HTML and high-quality MP3 audio files
 
 ## 🤝 Contributing
 
@@ -187,7 +174,7 @@ MIT License - free to use, modify, and distribute.
 For questions, issues, or feature requests:
 - **GitHub Issues**: Report bugs and request features
 - **Email**: simyc4982@gmail.com for security concerns
-- **Documentation**: Check `Audio_converter_readme.md` for detailed guides
+- **Documentation**: Check the project wiki for detailed guides
 
 ---
 
