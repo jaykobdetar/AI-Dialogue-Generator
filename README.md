@@ -1,6 +1,5 @@
-https://justfuckingusehtml.com
 
-# AI Dialogue Generator
+# Ai Dialogue Generator
 
 > Create realistic conversations between custom characters and convert them to audio using AI
 
