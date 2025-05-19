@@ -3060,6 +3060,21 @@
                     
                     document.getElementById('elevenLabsApiKey').value = this.elevenLabsApiKey || '';
                     document.getElementById('enableVoiceGeneration').checked = this.isEnabled;
+                    
+                    // Load voice selections
+                    if (settings.customVoices) {
+                        if (settings.customVoices.char1) {
+                            document.getElementById('char1Voice').value = settings.customVoices.char1.selected || '';
+                        }
+                        if (settings.customVoices.char2) {
+                            document.getElementById('char2Voice').value = settings.customVoices.char2.selected || '';
+                        }
+                    }
+                    
+                    // Automatically fetch voices if API key is present
+                    if (this.elevenLabsApiKey) {
+                        this.fetchAndPopulateVoices();
+                    }
                 }
                 
                 // Update UI visibility
@@ -3085,6 +3100,15 @@
                     this.generateAudio();
                 });
                 
+                // Save voice selections when changed
+                document.getElementById('char1Voice').addEventListener('change', () => {
+                    this.saveSettings();
+                });
+                
+                document.getElementById('char2Voice').addEventListener('change', () => {
+                    this.saveSettings();
+                });
+                
                 // Update character labels when selections change
                 document.getElementById('char1Selector').addEventListener('change', () => {
                     this.updateCharacterLabels();
@@ -3098,9 +3122,147 @@
             saveSettings: function() {
                 const settings = {
                     elevenLabsApiKey: this.elevenLabsApiKey,
-                    isEnabled: this.isEnabled
+                    isEnabled: this.isEnabled,
+                    customVoices: {
+                        char1: {
+                            selected: document.getElementById('char1Voice').value
+                        },
+                        char2: {
+                            selected: document.getElementById('char2Voice').value
+                        }
+                    }
                 };
                 localStorage.setItem('voiceSettings', JSON.stringify(settings));
+            },
+            
+            fetchAndPopulateVoices: async function() {
+                if (!this.elevenLabsApiKey) return;
+                
+                try {
+                    const response = await fetch('https://api.elevenlabs.io/v1/voices', {
+                        headers: {
+                            'xi-api-key': this.elevenLabsApiKey
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const voicesData = await response.json();
+                        this.populateVoiceDropdowns(voicesData.voices);
+                    }
+                } catch (error) {
+                    console.error('Error fetching voices:', error);
+                }
+            },
+            
+            populateVoiceDropdowns: function(voices) {
+                const char1Voice = document.getElementById('char1Voice');
+                const char2Voice = document.getElementById('char2Voice');
+                
+                // Store current selections
+                const currentChar1 = char1Voice.value;
+                const currentChar2 = char2Voice.value;
+                
+                // Clear existing options
+                char1Voice.innerHTML = '<option value="">Auto-assign</option>';
+                char2Voice.innerHTML = '<option value="">Auto-assign</option>';
+                
+                // Group voices by category
+                const categories = {
+                    'premade': [],
+                    'cloned': [],
+                    'professional': []
+                };
+                
+                // Some predefined voices that should still be available
+                const predefinedVoices = {
+                    'Female Voices': [
+                        { voice_id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel (friendly)' },
+                        { voice_id: 'EXAVITQu4vr4xnSDxMaL', name: 'Bella (young)' },
+                        { voice_id: 'MF3mGyEYCl7XYWbV9V6O', name: 'Elli (emotional)' },
+                        { voice_id: 'pNInz6obpgDQGcFmaJgB', name: 'Nicole (whispery)' }
+                    ],
+                    'Male Voices': [
+                        { voice_id: '29vD33N1CtxCmqQRPOHJ', name: 'Drew (casual)' },
+                        { voice_id: 'ErXwobaYiN019PkySvjV', name: 'Antoni (mature)' },
+                        { voice_id: 'TxGEqnHWrfWFTfGW9XjX', name: 'Josh (deep)' },
+                        { voice_id: 'VR6AewLTigWG4xSOukaG', name: 'Arnold (older)' },
+                        { voice_id: '5Q0t7uMcjvnagumLfvZi', name: 'Callum (hoarse)' }
+                    ],
+                    'Neutral Voices': [
+                        { voice_id: 'yoZ06aMxZJJ28mfd3POQ', name: 'Sam (neutral)' },
+                        { voice_id: 'SOYHLrjzK2X1ezoPC6cr', name: 'Harry (anxious)' }
+                    ]
+                };
+                
+                // Add predefined voices first
+                Object.entries(predefinedVoices).forEach(([category, voiceList]) => {
+                    const optgroup1 = document.createElement('optgroup');
+                    optgroup1.label = category;
+                    const optgroup2 = document.createElement('optgroup');
+                    optgroup2.label = category;
+                    
+                    voiceList.forEach(voice => {
+                        const option1 = document.createElement('option');
+                        option1.value = voice.voice_id;
+                        option1.textContent = voice.name;
+                        optgroup1.appendChild(option1);
+                        
+                        const option2 = document.createElement('option');
+                        option2.value = voice.voice_id;
+                        option2.textContent = voice.name;
+                        optgroup2.appendChild(option2);
+                    });
+                    
+                    char1Voice.appendChild(optgroup1);
+                    char2Voice.appendChild(optgroup2);
+                });
+                
+                // Sort and categorize fetched voices
+                voices.forEach(voice => {
+                    const categoryKey = voice.category || 'premade';
+                    if (!categories[categoryKey]) {
+                        categories[categoryKey] = [];
+                    }
+                    categories[categoryKey].push(voice);
+                });
+                
+                // Add fetched voices by category
+                Object.entries(categories).forEach(([category, voiceList]) => {
+                    if (voiceList.length === 0) return;
+                    
+                    const categoryName = category.charAt(0).toUpperCase() + category.slice(1) + ' Voices';
+                    const optgroup1 = document.createElement('optgroup');
+                    optgroup1.label = categoryName;
+                    const optgroup2 = document.createElement('optgroup');
+                    optgroup2.label = categoryName;
+                    
+                    voiceList.sort((a, b) => a.name.localeCompare(b.name));
+                    
+                    voiceList.forEach(voice => {
+                        // Skip if already in predefined list
+                        const isPredefined = Object.values(predefinedVoices).flat().some(v => v.voice_id === voice.voice_id);
+                        if (isPredefined) return;
+                        
+                        const option1 = document.createElement('option');
+                        option1.value = voice.voice_id;
+                        option1.textContent = voice.name + (voice.labels && Array.isArray(voice.labels) ? ` (${voice.labels.join(', ')})` : '');
+                        optgroup1.appendChild(option1);
+                        
+                        const option2 = document.createElement('option');
+                        option2.value = voice.voice_id;
+                        option2.textContent = voice.name + (voice.labels && Array.isArray(voice.labels) ? ` (${voice.labels.join(', ')})` : '');
+                        optgroup2.appendChild(option2);
+                    });
+                    
+                    if (optgroup1.children.length > 0) {
+                        char1Voice.appendChild(optgroup1);
+                        char2Voice.appendChild(optgroup2);
+                    }
+                });
+                
+                // Restore previous selections if they still exist
+                char1Voice.value = currentChar1;
+                char2Voice.value = currentChar2;
             },
             
             updateUIVisibility: function() {
@@ -3161,10 +3323,15 @@
                     });
                     
                     if (response.ok) {
+                        const voicesData = await response.json();
                         successMsg.style.display = 'block';
                         this.elevenLabsApiKey = apiKey;
                         this.saveSettings();
                         this.updateUIVisibility();
+                        
+                        // Populate voice dropdowns with fetched voices
+                        this.populateVoiceDropdowns(voicesData.voices);
+                        
                         setTimeout(() => {
                             successMsg.style.display = 'none';
                         }, 3000);
@@ -3182,7 +3349,7 @@
                 const messages = [];
                 
                 messageElements.forEach(msg => {
-                    const username = msg.querySelector('.message-username').textContent;
+                    const username = msg.querySelector('.message-username').textContent.trim();
                     const content = msg.querySelector('.message-text').textContent;
                     messages.push({ username, content });
                 });
@@ -3260,8 +3427,15 @@
                 const char2Voice = document.getElementById('char2Voice').value;
                 
                 const voiceMapping = {};
-                if (char1) voiceMapping[char1.name.toLowerCase()] = char1Voice;
-                if (char2) voiceMapping[char2.name.toLowerCase()] = char2Voice;
+                if (char1 && char1Voice) {
+                    voiceMapping[char1.name.toLowerCase().trim()] = char1Voice;
+                    console.log('Mapped char1:', char1.name.toLowerCase().trim(), 'to voice:', char1Voice);
+                }
+                if (char2 && char2Voice) {
+                    voiceMapping[char2.name.toLowerCase().trim()] = char2Voice;
+                    console.log('Mapped char2:', char2.name.toLowerCase().trim(), 'to voice:', char2Voice);
+                }
+                console.log('Final voice mapping:', voiceMapping);
                 
                 // Default voices for unmapped characters
                 const defaultVoices = {
@@ -3286,10 +3460,28 @@
                     }
                     
                     // Get voice ID for this user
-                    let voiceId = voiceMapping[message.username.toLowerCase()];
+                    let voiceId = voiceMapping[message.username.toLowerCase().trim()];
+                    
+                    // Debug logging
+                    console.log('Voice mapping:', voiceMapping);
+                    console.log('Looking for username:', message.username.toLowerCase().trim());
+                    console.log('Found voice ID:', voiceId);
+                    
+                    if (!voiceId) {
+                        // Try to find a match by checking if any key contains the username
+                        for (const [key, value] of Object.entries(voiceMapping)) {
+                            if (message.username.toLowerCase().includes(key) || key.includes(message.username.toLowerCase())) {
+                                voiceId = value;
+                                console.log('Found partial match:', key, 'for username:', message.username);
+                                break;
+                            }
+                        }
+                    }
+                    
                     if (!voiceId) {
                         // Assign default voice based on simple heuristic
                         voiceId = defaultVoices.female; // You could make this smarter
+                        console.log('Using default voice:', voiceId);
                     }
                     
                     try {
