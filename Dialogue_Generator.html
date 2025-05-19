@@ -966,12 +966,31 @@
                     <span style="margin-left: 5px; font-size: 14px;">Advanced Mode</span>
                 </label>
                 <div id="advancedPanel" style="display: none; margin-top: 10px;">
-                    <label for="systemPrompt">System Prompt</label>
-                    <textarea id="systemPrompt" placeholder="Custom system prompt for the AI...">You are an AI that generates realistic text message conversations between two characters.</textarea>
+                    <label for="systemPrompt">Custom User Message</label>
+                    <button id="autofillPromptBtn" style="float: right; padding: 4px 8px; font-size: 12px; background-color: #5865F2;">Autofill Default</button>
+                    <div style="clear: both; margin-top: 5px;">
+                        <label>
+                            <input type="checkbox" id="replaceEntirePrompt">
+                            <span style="margin-left: 5px; font-size: 13px;">Replace entire API message (overrides all settings)</span>
+                        </label>
+                    </div>
+                    <div style="font-size: 12px; color: #8b949e; margin-bottom: 5px; margin-top: 5px;">
+                        When "Replace entire API message" is checked, this becomes the exact message sent to the AI. Otherwise, it works with other settings.
+                    </div>
+                    <textarea id="systemPrompt" placeholder="Enter custom message to send to the AI..." rows="6"></textarea>
+                    
+                    <label for="char1InitialMsg" style="margin-top: 10px;">Character 1 Initial Message</label>
+                    <textarea id="char1InitialMsg" placeholder="Optional: First message by character 1..." rows="2"></textarea>
+                    
+                    <label for="char2InitialMsg" style="margin-top: 10px;">Character 2 Initial Message</label>
+                    <textarea id="char2InitialMsg" placeholder="Optional: First message by character 2..." rows="2"></textarea>
+                    
+                    
                 </div>
             </div>
             
             <button id="generateBtn">Generate Conversation</button>
+            <button id="continueBtn" style="margin-left: 10px; background-color: #5865F2;">Continue Conversation</button>
             <div class="error-message" id="errorMsg"></div>
             </div>
         </div>
@@ -1929,46 +1948,96 @@
                 let prompt;
                 let formatInstructions;
                 
+                // Check for initial messages
+                const char1InitialMsg = document.getElementById('char1InitialMsg').value.trim();
+                const char2InitialMsg = document.getElementById('char2InitialMsg').value.trim();
+                let initialMessagesInstruction = '';
+                if (char1InitialMsg || char2InitialMsg) {
+                    initialMessagesInstruction = '\n\nStart the conversation with these initial messages:\n';
+                    if (char1InitialMsg) {
+                        initialMessagesInstruction += char1Name + ': ' + char1InitialMsg + '\n';
+                    }
+                    if (char2InitialMsg) {
+                        initialMessagesInstruction += char2Name + ': ' + char2InitialMsg + '\n';
+                    }
+                    initialMessagesInstruction += 'Continue the conversation naturally from these starting messages.\n';
+                }
+                
+                // Check for continue mode
+                const chatMessages = document.getElementById('chatMessages');
+                let existingConversation = '';
+                if (window.continueMode && chatMessages.innerHTML.trim()) {
+                    const messages = chatMessages.querySelectorAll('.message');
+                    existingConversation = '\n\nContinue this existing conversation:\n';
+                    messages.forEach(msg => {
+                        const sender = msg.querySelector('.message-username').textContent;
+                        const timestamp = msg.querySelector('.message-timestamp').textContent;
+                        const content = msg.querySelector('.message-text').textContent;
+                        existingConversation += `${sender} | ${timestamp} | ${content}\n`;
+                    });
+                    existingConversation += '\nGenerate ' + messageCount + ' more messages continuing this conversation naturally.\n';
+                }
+                
                 // Set mode-specific prompts and format instructions
                 switch(conversationMode) {
                     case 'text':
                         formatInstructions = 'Format each message as: "CHARACTER_NAME | TIMESTAMP | message content" where TIMESTAMP is in format "12:34 PM". Messages should be texting style - sometimes short, sometimes longer, with occasional typos, emojis, and casual language.';
-                        prompt = 'Generate a text message conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
-                        'Create exactly ' + messageCount + ' messages total, alternating between the two characters. ' + 
-                        formatInstructions + characterDetails + ' ' +
-                        'Keep messages natural and conversational like real texting.';
+                        if (window.continueMode && existingConversation) {
+                            prompt = existingConversation;
+                        } else {
+                            prompt = 'Generate a text message conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                            'Create exactly ' + messageCount + ' messages total, alternating between the two characters. ' + 
+                            formatInstructions + characterDetails + ' ' +
+                            'Keep messages natural and conversational like real texting.' + initialMessagesInstruction;
+                        }
                         break;
                     
                     case 'inperson':
                         formatInstructions = 'Format each line as: "CHARACTER_NAME | message content". Include body language, tone of voice, and setting details in brackets [like this].';
-                        prompt = 'Generate an in-person conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
-                        'Create exactly ' + messageCount + ' speaking turns total, alternating between the two characters. ' +
-                        formatInstructions + characterDetails + ' ' +
-                        'Include physical actions, facial expressions, and environmental context.';
+                        if (window.continueMode && existingConversation) {
+                            prompt = existingConversation;
+                        } else {
+                            prompt = 'Generate an in-person conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                            'Create exactly ' + messageCount + ' speaking turns total, alternating between the two characters. ' +
+                            formatInstructions + characterDetails + ' ' +
+                            'Include physical actions, facial expressions, and environmental context.' + initialMessagesInstruction;
+                        }
                         break;
                     
                     case 'phone':
                         formatInstructions = 'Format each line as: "CHARACTER_NAME | message content". Include vocal cues, pauses, and non-verbal sounds in brackets [like this].';
-                        prompt = 'Generate a phone conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
-                        'Create exactly ' + messageCount + ' speaking turns total, alternating between the two characters. ' +
-                        formatInstructions + characterDetails + ' ' +
-                        'Include vocal tones, pauses, interruptions, and background sounds.';
+                        if (window.continueMode && existingConversation) {
+                            prompt = existingConversation;
+                        } else {
+                            prompt = 'Generate a phone conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                            'Create exactly ' + messageCount + ' speaking turns total, alternating between the two characters. ' +
+                            formatInstructions + characterDetails + ' ' +
+                            'Include vocal tones, pauses, interruptions, and background sounds.' + initialMessagesInstruction;
+                        }
                         break;
                     
                     
                     case 'social':
                         formatInstructions = 'Format each post/comment as: "CHARACTER_NAME | TIMESTAMP | message content". Include hashtags, mentions, and emoji reactions.';
-                        prompt = 'Generate a social media conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
-                        'Create exactly ' + messageCount + ' posts/comments total, alternating between the two users. ' +
-                        formatInstructions + characterDetails + ' ' +
-                        'Include likes, reactions, hashtags, and casual social media language.';
+                        if (window.continueMode && existingConversation) {
+                            prompt = existingConversation;
+                        } else {
+                            prompt = 'Generate a social media conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                            'Create exactly ' + messageCount + ' posts/comments total, alternating between the two users. ' +
+                            formatInstructions + characterDetails + ' ' +
+                            'Include likes, reactions, hashtags, and casual social media language.' + initialMessagesInstruction;
+                        }
                         break;
                     
                     default:
                         formatInstructions = 'Format each message as: "CHARACTER_NAME | TIMESTAMP | message content" where TIMESTAMP is in format "12:34 PM".';
-                        prompt = 'Generate a conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
-                        'Create exactly ' + messageCount + ' messages total, alternating between the two characters. ' +
-                        formatInstructions + characterDetails;
+                        if (window.continueMode && existingConversation) {
+                            prompt = existingConversation;
+                        } else {
+                            prompt = 'Generate a conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                            'Create exactly ' + messageCount + ' messages total, alternating between the two characters. ' +
+                            formatInstructions + characterDetails + initialMessagesInstruction;
+                        }
                 }
                 
                 // Determine API endpoint
@@ -2007,9 +2076,6 @@
                         defaultSystemPrompt = 'You are an AI that generates realistic conversations between two characters. Create natural, authentic dialogue that fits the specified format and context.';
                 }
                 
-                const systemPrompt = advancedMode && document.getElementById('systemPrompt').value 
-                    ? document.getElementById('systemPrompt').value 
-                    : defaultSystemPrompt;
                 
                 if (!model) {
                     throw new Error('Please select a model');
@@ -2018,14 +2084,22 @@
                 // Display API request info
                 console.log('Sending request to: ' + apiEndpoint);
                 console.log('Using model: ' + model);
-                console.log('System prompt: ' + systemPrompt);
+                if (advancedMode && document.getElementById('systemPrompt').value.trim()) {
+                    if (document.getElementById('replaceEntirePrompt').checked) {
+                        console.log('Using exact replacement message from Advanced Mode');
+                    } else {
+                        console.log('Combining custom message with automatic prompts');
+                    }
+                } else {
+                    console.log('Using automatic prompt generation');
+                }
                 
                 // Use local fallback if test mode is enabled
                 if (document.getElementById('apiEndpoint').value === 'test-mode') {
                     console.log("Using demo mode with local fallback data");
                     setTimeout(() => {
                         const mockConversation = generateMockConversation(char1Name, char2Name, topic, messageCount, conversationMode);
-                        displayConversation(mockConversation, char1Name, char2Name);
+                        displayConversation(mockConversation, char1Name, char2Name, window.continueMode);
                         loadingIndicator.style.display = 'none';
                     }, 1500);
                     return;
@@ -2039,27 +2113,58 @@
                     const char1Name = char1NameInput.value || document.getElementById('char1Selector').options[document.getElementById('char1Selector').selectedIndex].text || 'Character 1';
                     const char2Name = char2NameInput.value || document.getElementById('char2Selector').options[document.getElementById('char2Selector').selectedIndex].text || 'Character 2';
                     
+                    let requestBody;
+                    const replaceEntirePrompt = document.getElementById('replaceEntirePrompt').checked;
+                    const customUserMessage = document.getElementById('systemPrompt').value.trim();
+                    
+                    // Check if we should replace the entire prompt
+                    if (advancedMode && customUserMessage && replaceEntirePrompt) {
+                        // Replace entire API message with custom message
+                        requestBody = {
+                            model: model,
+                            messages: [
+                                {
+                                    role: 'user',
+                                    content: customUserMessage
+                                }
+                            ],
+                            temperature: 0.7,
+                            max_tokens: 4000
+                        };
+                    } else {
+                        // Use default payload structure
+                        let userPrompt = prompt;
+                        
+                        // If there's a custom message and we're not replacing the entire prompt,
+                        // combine it with the automatic prompt
+                        if (advancedMode && customUserMessage && !replaceEntirePrompt) {
+                            userPrompt = customUserMessage + '\n\n' + prompt;
+                        }
+                        
+                        requestBody = {
+                            model: model,
+                            messages: [
+                                {
+                                    role: 'system',
+                                    content: defaultSystemPrompt
+                                },
+                                {
+                                    role: 'user',
+                                    content: userPrompt
+                                }
+                            ],
+                            temperature: 0.7,
+                            max_tokens: 4000
+                        };
+                    }
+                    
                     const response = await fetch(apiEndpoint, {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${apiKey}`,
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({
-                            model: model,
-                            messages: [
-                                {
-                                    role: 'system',
-                                    content: systemPrompt
-                                },
-                                {
-                                    role: 'user',
-                                    content: prompt
-                                }
-                            ],
-                            temperature: 0.7,
-                            max_tokens: 4000
-                        })
+                        body: JSON.stringify(requestBody)
                     });
                     
                     if (!response.ok) {
@@ -2072,7 +2177,7 @@
                     const generatedConversation = data.choices[0].message.content;
                     
                     // Process the generated conversation
-                    displayConversation(generatedConversation, char1Name, char2Name);
+                    displayConversation(generatedConversation, char1Name, char2Name, window.continueMode);
                 } catch (error) {
                     // Handle network errors specifically
                     if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
@@ -2088,11 +2193,94 @@
                 errorMsg.style.display = 'block';
             } finally {
                 loadingIndicator.style.display = 'none';
+                window.continueMode = false; // Reset continue mode
             }
         });
         
+        // Continue conversation button handler
+        document.getElementById('continueBtn').addEventListener('click', async function() {
+            // Check if there's an existing conversation to continue
+            const chatMessages = document.getElementById('chatMessages');
+            if (!chatMessages.innerHTML.trim()) {
+                alert('No existing conversation to continue. Please generate a conversation first.');
+                return;
+            }
+            
+            // Enable continue mode and trigger the generate button
+            window.continueMode = true;
+            document.getElementById('generateBtn').click();
+        });
+        
+        // Autofill prompt button handler
+        document.getElementById('autofillPromptBtn').addEventListener('click', function() {
+            const conversationMode = document.getElementById('conversationMode').value;
+            const char1Name = document.getElementById('char1Name').value || 'Character 1';
+            const char2Name = document.getElementById('char2Name').value || 'Character 2';
+            const topic = document.getElementById('topic').value || 'a topic of your choice';
+            const messageCount = document.getElementById('messageCount').value || '10';
+            
+            // Get character details if available
+            const char1PersonalityText = document.querySelector('#char1Personality .personality-summary')?.textContent || '';
+            const char2PersonalityText = document.querySelector('#char2Personality .personality-summary')?.textContent || '';
+            
+            let characterDetails = '';
+            if (char1PersonalityText) {
+                characterDetails += '\n\n' + char1Name + ': ' + char1PersonalityText;
+            }
+            if (char2PersonalityText) {
+                characterDetails += '\n' + char2Name + ': ' + char2PersonalityText;
+            }
+            
+            let formatInstructions;
+            let prompt;
+            
+            // Build the default prompt based on conversation mode
+            switch(conversationMode) {
+                case 'text':
+                    formatInstructions = 'Format each message as: "CHARACTER_NAME | TIMESTAMP | message content" where TIMESTAMP is in format "12:34 PM". Messages should be texting style - sometimes short, sometimes longer, with occasional typos, emojis, and casual language.';
+                    prompt = 'Generate a text message conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                    'Create exactly ' + messageCount + ' messages total, alternating between the two characters. ' + 
+                    formatInstructions + characterDetails + ' ' +
+                    'Keep messages natural and conversational like real texting.';
+                    break;
+                    
+                case 'inperson':
+                    formatInstructions = 'Format each line as: "CHARACTER_NAME | message content". Include body language, tone of voice, and setting details in brackets [like this].';
+                    prompt = 'Generate an in-person conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                    'Create exactly ' + messageCount + ' speaking turns total, alternating between the two characters. ' +
+                    formatInstructions + characterDetails + ' ' +
+                    'Include physical actions, facial expressions, and environmental context.';
+                    break;
+                    
+                case 'phone':
+                    formatInstructions = 'Format each line as: "CHARACTER_NAME | message content". Include vocal cues, pauses, and non-verbal sounds in brackets [like this].';
+                    prompt = 'Generate a phone conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                    'Create exactly ' + messageCount + ' speaking turns total, alternating between the two characters. ' +
+                    formatInstructions + characterDetails + ' ' +
+                    'Include vocal tones, pauses, interruptions, and background sounds.';
+                    break;
+                    
+                case 'social':
+                    formatInstructions = 'Format each post/comment as: "CHARACTER_NAME | TIMESTAMP | message content". Include hashtags, mentions, and emoji reactions.';
+                    prompt = 'Generate a social media conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                    'Create exactly ' + messageCount + ' posts/comments total, alternating between the two users. ' +
+                    formatInstructions + characterDetails + ' ' +
+                    'Include likes, reactions, hashtags, and casual social media language.';
+                    break;
+                    
+                default:
+                    formatInstructions = 'Format each message as: "CHARACTER_NAME | TIMESTAMP | message content" where TIMESTAMP is in format "12:34 PM".';
+                    prompt = 'Generate a conversation between ' + char1Name + ' and ' + char2Name + ' about ' + topic + '. ' +
+                    'Create exactly ' + messageCount + ' messages total, alternating between the two characters. ' +
+                    formatInstructions + characterDetails;
+            }
+            
+            // Set the prompt in the text area
+            document.getElementById('systemPrompt').value = prompt;
+        });
+        
         // Function to display conversation in the UI
-        function displayConversation(conversationText, char1Name, char2Name) {
+        function displayConversation(conversationText, char1Name, char2Name, appendMode = false) {
             const conversationMode = document.getElementById('conversationMode').value;
             
             // Process the generated conversation - all modes will be parsed to extract clean content
@@ -2149,9 +2337,11 @@
                 })
                 .filter(Boolean);
             
-            // Clear previous messages
+            // Clear previous messages only if not in append mode
             const chatMessages = document.getElementById('chatMessages');
-            chatMessages.textContent = '';
+            if (!appendMode) {
+                chatMessages.textContent = '';
+            }
             
             messages.forEach((msg, index) => {
                 const isChar1 = msg.character.toLowerCase().includes(char1Name.toLowerCase());
