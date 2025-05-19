@@ -2845,6 +2845,40 @@
                 return messages;
             },
             
+            preprocessTextForSpeech: function(text) {
+                // Remove markdown formatting
+                text = text.replace(/\*\*([^*]+)\*\*/g, '$1'); // Bold
+                text = text.replace(/\*([^*]+)\*/g, '$1'); // Italic
+                text = text.replace(/__([^_]+)__/g, '$1'); // Underline
+                text = text.replace(/~~([^~]+)~~/g, '$1'); // Strikethrough
+                text = text.replace(/`([^`]+)`/g, '$1'); // Code
+                
+                // Remove actions in asterisks, parentheses, or brackets
+                text = text.replace(/\*[^*]+\*/g, ''); // *actions*
+                text = text.replace(/\([^)]*\)/g, ''); // (actions)
+                text = text.replace(/\[[^\]]*\]/g, ''); // [actions]
+                
+                // Remove URLs - replace with "link"
+                text = text.replace(/https?:\/\/[^\s]+/g, 'link');
+                
+                // Remove emojis and special characters
+                text = text.replace(/[\u{1F600}-\u{1F64F}]/gu, ''); // Emoticons
+                text = text.replace(/[\u{1F300}-\u{1F5FF}]/gu, ''); // Misc Symbols and Pictographs
+                text = text.replace(/[\u{1F680}-\u{1F6FF}]/gu, ''); // Transport and Map
+                text = text.replace(/[\u{1F1E0}-\u{1F1FF}]/gu, ''); // Flags
+                text = text.replace(/[\u{2600}-\u{26FF}]/gu, ''); // Misc symbols
+                text = text.replace(/[\u{2700}-\u{27BF}]/gu, ''); // Dingbats
+                
+                // Clean up multiple spaces
+                text = text.replace(/\s+/g, ' ').trim();
+                
+                // Remove empty brackets/parentheses
+                text = text.replace(/\[\]/g, '');
+                text = text.replace(/\(\)/g, '');
+                
+                return text;
+            },
+            
             generateAudio: async function() {
                 const errorMsg = document.getElementById('audioErrorMsg');
                 const progressBar = document.getElementById('audioProgressBar');
@@ -2892,6 +2926,16 @@
                 for (const message of messages) {
                     infoText.textContent = `Generating audio for ${message.username}: ${message.content.substring(0, 30)}...`;
                     
+                    // Preprocess text for speech
+                    const processedText = this.preprocessTextForSpeech(message.content);
+                    
+                    // Skip empty messages after preprocessing
+                    if (!processedText.trim()) {
+                        processedCount++;
+                        progressFill.style.width = (processedCount / messages.length * 100) + '%';
+                        continue;
+                    }
+                    
                     // Get voice ID for this user
                     let voiceId = voiceMapping[message.username.toLowerCase()];
                     if (!voiceId) {
@@ -2908,7 +2952,7 @@
                                 'xi-api-key': this.elevenLabsApiKey
                             },
                             body: JSON.stringify({
-                                text: message.content,
+                                text: processedText,
                                 model_id: 'eleven_turbo_v2_5',
                                 voice_settings: {
                                     stability: 0.4,
